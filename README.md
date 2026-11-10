@@ -6,7 +6,7 @@
     </picture>
   </a>
   <br><br>
-  <img src="https://raw.githubusercontent.com/danielmigueltejedor/lamina/main/assets/app-icon/hicolor/512x512/apps/ai.storyteller.deckcraft.png" width="176" height="176" alt="Lámina">
+  <img src="https://raw.githubusercontent.com/danielmigueltejedor/lamina/main/assets/app-icon/hicolor/512x512/apps/ai.storyteller.deckcraft.png" width="160" alt="Lámina">
   <h1>Lámina</h1>
   <p><strong>A presentation application for the Nodalia suite, built on the DeckCraft engine.</strong></p>
 

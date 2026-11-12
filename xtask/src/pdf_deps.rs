@@ -6,7 +6,7 @@ use std::process::Command;
 
 use serde_json::Value;
 
-const SHARED_REPO: &str = "https://github.com/storytold/craft-libs";
+const SHARED_REPO: &str = "https://github.com/getnodalia/foundation";
 const SHARED_REV: &str = "1b34eba41e62138fc2438d2734523b302840b45d";
 const REGISTRY: &str = "registry+https://github.com/rust-lang/crates.io-index";
 
@@ -175,7 +175,7 @@ mod tests {
     #[test]
     fn rejects_unpinned_or_duplicate_writer_sources() {
         assert!(validate(&metadata()).is_ok());
-        for source in [Value::Null, json!(REGISTRY), json!("git+https://github.com/storytold/craft-libs#other")] {
+        for source in [Value::Null, json!(REGISTRY), json!("git+https://github.com/getnodalia/foundation#other")] {
             let mut m = metadata();
             m["packages"][1]["source"] = source;
             assert!(validate(&m).is_err());

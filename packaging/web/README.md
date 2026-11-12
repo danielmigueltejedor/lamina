@@ -1,4 +1,4 @@
-# Hosting DeckCraft for the web
+# Hosting Lámina for the web
 
 `deckcraft-web-<version>.zip` (from the GitHub release, or `packaging/web/package.sh`) holds a
 static site in `deckcraft-web-<version>/`:
@@ -31,7 +31,7 @@ hash, so they can be cached forever. Only `index.html` needs revalidation.
   `.js` files, and `no-cache` on `index.html`.
 - **HTTPS:** WebGPU (and the clipboard) only work in a secure context, which means `https://`
   or `http://localhost`. Over plain HTTP elsewhere, the app falls back to WebGL2.
-- **No special isolation headers:** DeckCraft doesn't use `SharedArrayBuffer`, so it doesn't
+- **No special isolation headers:** Lámina doesn't use `SharedArrayBuffer`, so it doesn't
   need `Cross-Origin-Opener-Policy` or `Cross-Origin-Embedder-Policy`. If your site already sends
   COEP `require-corp`, also send `Cross-Origin-Resource-Policy: same-origin` (or `cross-origin`
   when the files live on a CDN) on the app's files.
@@ -55,7 +55,7 @@ Local test: `python3 -m http.server 8765` inside the folder, then open http://lo
 ```html
 <iframe
   src="https://example.com/deckcraft/"
-  title="DeckCraft presentations"
+  title="Lámina presentations"
   style="width: 100%; height: 720px; border: 0;"
   allow="fullscreen; clipboard-read; clipboard-write"
   allowfullscreen>
@@ -76,10 +76,10 @@ Local test: `python3 -m http.server 8765` inside the folder, then open http://lo
 
 ## Opening and saving through the page (`?host=parent`)
 
-A page that keeps the files itself (a Nextcloud app, a file server) can frame DeckCraft with
+A page that keeps the files itself (a Nextcloud app, a file server) can frame Lámina with
 `?host=parent` on the iframe `src`, hand it a presentation and take back what it saves, instead of
-the user downloading. GridCraft, WordCraft and PdfCraft have the same bridge with their own prefix.
-The page and DeckCraft must be on the **same origin**: DeckCraft only hears and answers its parent
+the user downloading. Celdas, Letra and Papel have the same bridge with their own prefix.
+The page and Lámina must be on the **same origin**: Lámina only hears and answers its parent
 window on its own origin, and without one it downloads as usual.
 
 Messages are plain objects with a `type`:
@@ -88,14 +88,14 @@ Messages are plain objects with a `type`:
 |---|---|---|
 | `deckcraft:ready` | to the page | `version`, `appVersion`. The app runs and listens: send the file now. |
 | `deckcraft:open` | from the page | `name` (a bare file name, such as `Talk.pptx`), `bytes` (`ArrayBuffer` or `Uint8Array`). Opens like File › Open: a presentation (.pptx, .potx, .ppsx, .deckcraft) has that name as its file; an outline (.txt, .md, .rtf), a file sent without a name and a damaged file open untitled. |
-| `deckcraft:save` | to the page | `name`, `saveAs`, `bytes` (a transferred `ArrayBuffer`), for every file DeckCraft would otherwise download. The page stores it. |
+| `deckcraft:save` | to the page | `name`, `saveAs`, `bytes` (a transferred `ArrayBuffer`), for every file Lámina would otherwise download. The page stores it. |
 | `deckcraft:dirty` | to the page | `dirty`, whenever unsaved changes appear or go away. |
 | `deckcraft:failed` | to the page | `error`, when the app couldn't start (no WebGPU or WebGL2) or refused a file of 2 GiB or larger. |
 
 `saveAs` says whether the file becomes the presentation's file, as on the desktop:
 
 - **Save** sends the file the page sent, under its own name and format (`Talk.pptx` comes back
-  as `Talk.pptx`), with `saveAs: false`. DeckCraft keeps only the part after the last `/`, so
+  as `Talk.pptx`), with `saveAs: false`. Lámina keeps only the part after the last `/`, so
   `docs/Talk.pptx` also comes back as `Talk.pptx`. A presentation that has no file the page sent
   (a new one, an outline, a file sent without a name, a file the user dropped, a repaired copy of
   a damaged file) is a new file with `saveAs: true`: Ctrl+S names it `<title>.deckcraft` as Save
@@ -109,12 +109,12 @@ Messages are plain objects with a `type`:
 already hold (`Talk.pdf`, or `Talk.pptx` exported from a presentation that is now
 `Talk.deckcraft`). Replace a file without asking only when the name is the one the page sent, or
 the name of the last `saveAs: true` file it stored for this presentation; ask for anything else.
-DeckCraft doesn't learn the name the page finally stores a Save As under, so a page that renames
+Lámina doesn't learn the name the page finally stores a Save As under, so a page that renames
 on a conflict should map later Saves of the old name itself.
 
-In host mode DeckCraft starts with an empty presentation instead of the sample, and the first
+In host mode Lámina starts with an empty presentation instead of the sample, and the first
 presentation the page sends takes its place unless the user has changed it; later ones open
-beside it. The page guards leaving itself (DeckCraft adds no guard of its own), and
+beside it. The page guards leaving itself (Lámina adds no guard of its own), and
 `&author=Name` signs the user's comments.
 
 ```html
@@ -134,11 +134,11 @@ beside it. The page guards leaving itself (DeckCraft adds no guard of its own), 
 </script>
 ```
 
-The messages and both transports are the shared contract of [`craft-web-host`](https://github.com/storytold/craft-libs/tree/main/crates/web-host) (storytold/craft-libs#420), the same for every Craft app: its README lists every message, including `saved`, with the compatibility notes. In `deckcraft:ready`, `version` is the contract's (`"1"`) and `appVersion` is this app's release. DeckCraft reads bytes, so a host sends `bytes`, not a `File`.
+The messages and both transports are the shared contract of [`craft-web-host`](https://github.com/storytold/craft-libs/tree/main/crates/web-host) (storytold/craft-libs#420), the same for every Nodalia app: its README lists every message, including `saved`, with the compatibility notes. In `deckcraft:ready`, `version` is the contract's (`"1"`) and `appVersion` is this app's release. Lámina reads bytes, so a host sends `bytes`, not a `File`.
 
 ### Driving it from the page (`window.deckcraft`)
 
-Every DeckCraft web build puts `window.deckcraft` on the page, from [`craft-web-api`](https://github.com/storytold/craft-libs/tree/main/crates/web-api) (storytold/craft-libs#413), the same shape in every Craft app. `deckcraft.request(method, params)` calls any method of the control channel the desktop app serves (`docs/control-protocol.md`), and `execute(command, params)`, `commands()`, `docInspect(params)`, `uiInspect(params)` and `screenshot(params)` are shortcuts for the common ones. Each returns a Promise that resolves with the method's result and rejects with an `Error`; a call the app does not answer within 30 seconds rejects.
+Every Lámina web build puts `window.deckcraft` on the page, from [`craft-web-api`](https://github.com/storytold/craft-libs/tree/main/crates/web-api) (storytold/craft-libs#413), the same shape in every Nodalia app. `deckcraft.request(method, params)` calls any method of the control channel the desktop app serves (`docs/control-protocol.md`), and `execute(command, params)`, `commands()`, `docInspect(params)`, `uiInspect(params)` and `screenshot(params)` are shortcuts for the common ones. Each returns a Promise that resolves with the method's result and rejects with an `Error`; a call the app does not answer within 30 seconds rejects.
 
 ```js
 const deck = await deckcraft.docInspect();                 // a summary of the open presentation
@@ -150,7 +150,7 @@ The API is there in every mode, with or without a host. Opening a file, handing 
 
 ## Renderer selection and fallback flags
 
-DeckCraft renders with wgpu. It uses **WebGPU** when the browser has it and falls back to
+Lámina renders with wgpu. It uses **WebGPU** when the browser has it and falls back to
 **WebGL2** on its own. URL query flags override this, and they work on the iframe `src` too:
 
 | Flag | Effect |

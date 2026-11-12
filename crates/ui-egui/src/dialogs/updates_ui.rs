@@ -1,12 +1,10 @@
-//! One background check at start-up (and on demand from Help) for a newer release, and the modal
-//! prompt that offers to update and restart. The flow itself is `craft_update::updater::Updater`.
+//! One background check at start-up (and on demand from Help) for a newer release, and the
+//! windows that offer to update and restart. The flow and the windows are `nodalia-update`'s,
+//! shared with the other Nodalia apps; this file is what is this app's own.
 
-use craft_update::updater::{Action, Status, Updater};
-use craft_update::{CheckResultDialog, CheckResultResponse};
+use nodalia_update::egui::{Action, Updater};
 
 use crate::SlideApp;
-
-const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub(crate) struct Runtime {
     updater: Updater,
@@ -17,7 +15,7 @@ pub(crate) struct Runtime {
 
 impl Default for Runtime {
     fn default() -> Self {
-        Self { updater: Updater::new(&crate::UPDATE_APP, VERSION), enabled: false, check_requested: false }
+        Self { updater: Updater::new(crate::UPDATE_APP).with_accent([0xf0, 0x7a, 0x1e]), enabled: false, check_requested: false }
     }
 }
 
@@ -27,15 +25,7 @@ pub(crate) fn enable(app: &mut SlideApp) {
 
 /// Help > Check for Updates…: runs a check and reports the outcome either way.
 pub(crate) fn request_check(app: &mut SlideApp) {
-    if !matches!(app.updates_rt.updater.status(), Status::Checking) {
-        app.updates_rt.check_requested = true;
-    }
-}
-
-/// Starts the helper of an update that is ready, so that it installs once the process has exited.
-/// Later calls do nothing.
-pub(crate) fn start_pending_update(app: &mut SlideApp) {
-    app.updates_rt.updater.start_pending_update();
+    app.updates_rt.check_requested = true;
 }
 
 pub(crate) fn tick(app: &mut SlideApp, ctx: &egui::Context) {
@@ -45,107 +35,63 @@ pub(crate) fn tick(app: &mut SlideApp, ctx: &egui::Context) {
     } else if rt.enabled {
         rt.updater.check_at_start(ctx);
     }
-    rt.updater.tick(ctx);
+    let action = rt.updater.poll();
+    act(ctx, action);
+}
+
+/// Carries out what the update windows asked for.
+fn act(ctx: &egui::Context, action: Action) {
+    match action {
+        Action::OpenUrl(url) => ctx.open_url(egui::OpenUrl::new_tab(url)),
+        Action::Exit => {
+            // The new version is starting, or a helper waits for this process to end. Close
+            // normally so the preferences are saved; the install only ran once nothing was
+            // unsaved. Exit anyway if the app has not ended soon.
+            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+            std::thread::spawn(|| {
+                std::thread::sleep(std::time::Duration::from_secs(5));
+                std::process::exit(0);
+            });
+        }
+        Action::None => {}
+    }
 }
 
 pub(crate) fn show(app: &mut SlideApp, ctx: &egui::Context) {
-    // An installation starts, and a ready update asks the app to close, only while nothing is unsaved.
+    // An installation waits until nothing is unsaved. The interface is in English.
     let clean = !app.session.documents().iter().any(|d| d.is_dirty());
-    match app.updates_rt.updater.show_if(ctx, clean) {
-        Action::OpenUrl(url) => ctx.open_url(egui::OpenUrl::new_tab(url)),
-        // The app's close path asks about unsaved work; `on_exit` starts the restart helper.
-        Action::Close => ctx.send_viewport_cmd(egui::ViewportCommand::Close),
-        Action::None => {}
-    }
-    // The result window reports a requested check, and at the first start after an update what
-    // that update came to (installed, or why it failed).
-    let rt = &mut app.updates_rt;
-    if !matches!(rt.updater.status(), Status::Idle) {
-        let response = CheckResultDialog::new(&crate::UPDATE_APP, VERSION).show(ctx, rt.updater.status());
-        answer(rt, response);
-    }
-}
-
-/// Acts on the result window's answer.
-fn answer(rt: &mut Runtime, response: CheckResultResponse) {
-    match response {
-        CheckResultResponse::Close => rt.updater.dismiss_status(),
-        CheckResultResponse::CheckAgain => rt.check_requested = true,
-        // The next frame's `show_if` asks the window to close once nothing is unsaved.
-        CheckResultResponse::RestartToUpdate => rt.updater.restart_to_update(),
-        CheckResultResponse::None => {}
-    }
+    let action = app.updates_rt.updater.show(ctx, nodalia_update::Language::English, clean);
+    act(ctx, action);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nodalia_update::egui::Status;
 
     #[test]
-    fn an_offered_release_opens_the_prompt() {
+    fn the_releases_are_this_apps_own() {
+        assert_eq!(crate::UPDATE_APP.repo, "getnodalia/lamina");
+        assert_eq!(crate::UPDATE_APP.version, env!("CARGO_PKG_VERSION"));
+    }
+
+    #[test]
+    fn an_offered_release_opens_the_prompt_and_escape_closes_it() {
         let mut app = SlideApp::new(deckcraft_engine::Session::new(), crate::Services::default());
+        app.updates_rt.updater = Updater::new(crate::UPDATE_APP).with_stamp(None);
         let ctx = egui::Context::default();
-        assert!(!app.updates_rt.updater.prompt_open());
-        app.updates_rt.updater.offer(craft_update::Release { tag: "v99.0.0".into(), ..Default::default() });
+        assert!(!app.updates_rt.updater.is_open());
+        app.updates_rt.updater.offer(nodalia_update::Release {
+            tag: "v99.0.0".into(),
+            version: "99.0.0".into(),
+            notes: String::new(),
+            page: "https://github.com/getnodalia/lamina/releases/tag/v99.0.0".into(),
+            asset: None,
+        });
         ctx.run_ui(egui::RawInput::default(), |ui| show(&mut app, ui.ctx())).textures_delta.clear();
-        assert!(app.updates_rt.updater.prompt_open());
-    }
-
-    /// An app whose updater keeps its outcome records under `root`, reads no launcher choice and
-    /// asks no server, with the check at start turned on.
-    fn app_with_records(root: &std::path::Path) -> SlideApp {
-        let mut app = SlideApp::new(deckcraft_engine::Session::new(), crate::Services::default());
-        app.updates_rt.updater = Updater::new(&crate::UPDATE_APP, VERSION)
-            .with_paths(craft_update::Paths::under(root))
-            .with_pins_path(root.join("pins.json"))
-            .with_source(std::sync::Arc::new(|| Ok(None)));
-        app.updates_rt.enabled = true;
-        app
-    }
-
-    fn records_dir(name: &str) -> std::path::PathBuf {
-        let dir = std::env::temp_dir().join(format!("deckcraft-updates-{name}-{}", std::process::id()));
-        let _ = std::fs::remove_dir_all(&dir);
-        dir
-    }
-
-    /// The first start after an update reports it; OK dismisses the report.
-    #[test]
-    fn the_start_after_an_update_reports_it_until_dismissed() {
-        let root = records_dir("installed");
-        std::fs::create_dir_all(root.join("data")).unwrap();
-        std::fs::write(root.join("data").join("self-update-done.txt"), VERSION).unwrap();
-        let mut app = app_with_records(&root);
-        let ctx = egui::Context::default();
-        ctx.run_ui(egui::RawInput::default(), |ui| {
-            tick(&mut app, ui.ctx());
-            show(&mut app, ui.ctx());
-        })
-        .textures_delta
-        .clear();
-        assert!(matches!(app.updates_rt.updater.status(), Status::Updated(_)), "{:?}", app.updates_rt.updater.status());
-        answer(&mut app.updates_rt, CheckResultResponse::Close);
+        assert!(app.updates_rt.updater.is_open());
+        let escape = egui::Event::Key { key: egui::Key::Escape, physical_key: None, pressed: true, repeat: false, modifiers: egui::Modifiers::NONE };
+        ctx.run_ui(egui::RawInput { events: vec![escape], ..Default::default() }, |ui| show(&mut app, ui.ctx())).textures_delta.clear();
         assert_eq!(app.updates_rt.updater.status(), &Status::Idle);
-        let _ = std::fs::remove_dir_all(&root);
-    }
-
-    /// The first start after a failed update says why; Check Again asks for a new check.
-    #[test]
-    fn the_start_after_a_failed_update_reports_why_and_offers_a_new_check() {
-        let root = records_dir("failed");
-        std::fs::create_dir_all(root.join("data").join("logs")).unwrap();
-        std::fs::write(root.join("data").join("logs").join("self-update-error.txt"), "the disk is full").unwrap();
-        let mut app = app_with_records(&root);
-        let ctx = egui::Context::default();
-        ctx.run_ui(egui::RawInput::default(), |ui| {
-            tick(&mut app, ui.ctx());
-            show(&mut app, ui.ctx());
-        })
-        .textures_delta
-        .clear();
-        assert_eq!(app.updates_rt.updater.status(), &Status::InstallFailed("the disk is full".into()));
-        answer(&mut app.updates_rt, CheckResultResponse::CheckAgain);
-        assert!(app.updates_rt.check_requested);
-        let _ = std::fs::remove_dir_all(&root);
     }
 }

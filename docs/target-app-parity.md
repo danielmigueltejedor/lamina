@@ -1,8 +1,8 @@
-# DeckCraft vs Microsoft PowerPoint: parity assessment
+# Lámina vs Microsoft PowerPoint: parity assessment
 
 > **Last reviewed:** 2026-10-14 · **Last updated:** 2026-11-02 · **Change:** trivial (reused slide contents fit the destination size; thumbnails remain; parity estimates unchanged) · **Target:** Microsoft PowerPoint for Mac 16.113 (Microsoft 365)
 
-The authoritative answer to "how close is DeckCraft to PowerPoint, and how much work is left?".
+The authoritative answer to "how close is Lámina to PowerPoint, and how much work is left?".
 [ROADMAP.md](../ROADMAP.md) summarizes it; [gaps.md](gaps.md) itemizes every shortfall;
 [parity-checklist.md](parity-checklist.md) is the row-by-row feature checklist behind the breadth
 number.
@@ -12,7 +12,7 @@ number.
 | Number | Value | Kind |
 |---|---|---|
 | **Feature breadth** (weighted checklist) | **84%** over 191 features (P0 92%, P1 82%, P2 55%) | **measured**: `cargo xtask parity` formula over [parity-checklist.md](parity-checklist.md); rows re-scored by the 2026-10-14 community PR wave |
-| Menu-bar coverage | **59%** (128 of 217 app-specific PowerPoint menu items have a DeckCraft command or UI label of the same name) | **measured** (heuristic lower bound): script matching the 2026-10-07 PowerPoint menu dump against the 226 engine command labels of the d556ff9 snapshot (not re-measured since; the registry is 328 now) and the UI's strings; excludes the app, Window and Help menus and the subtitle language lists |
+| Menu-bar coverage | **59%** (128 of 217 app-specific PowerPoint menu items have a Lámina command or UI label of the same name) | **measured** (heuristic lower bound): script matching the 2026-10-07 PowerPoint menu dump against the 226 engine command labels of the d556ff9 snapshot (not re-measured since; the registry is 328 now) and the UI's strings; excludes the app, Window and Help menus and the subtitle language lists |
 | **Ready for real work** | **~55%** | **estimated**: weighted dimension table below (was ~56% until the features row was recomputed from written area weights) |
 | **Mainstream practitioner** | **~53%** | **estimated**: [method below](#mainstream-practitioner-and-essentials-user) |
 | **Essentials user** | **~62%** | **estimated**: [method below](#mainstream-practitioner-and-essentials-user) |
@@ -21,7 +21,7 @@ number.
 | Remaining effort to full parity | **~365–650 Opus 5.5 agent hours** | estimated, by dimension below |
 
 The menu figure is lower than the checklist figure because PowerPoint's menu bar lists every chart
-type, SmartArt category, action button and media source as its own item, and many DeckCraft
+type, SmartArt category, action button and media source as its own item, and many Lámina
 equivalents are one parameterized command (`insert.chart {type}`) that the label match cannot see.
 Read it as a floor, not as a second breadth number.
 
@@ -85,7 +85,7 @@ multi-display rigs).
 
 ## Mainstream practitioner and essentials user
 
-Two narrower readings of "ready", computed the same way in every Craft app. The stage still follows the full number above and the alpha gate.
+Two narrower readings of "ready", computed the same way in every Nodalia app. The stage still follows the full number above and the alpha gate.
 
 ### Mainstream practitioner: ~53%
 
@@ -117,11 +117,11 @@ PowerPoint is taken out of the areas and charged once, as a discount.
 |---|---:|---|
 | Interaction fidelity | ×0.92 | No native macOS menu bar, thinner Format Shape pane, Tab ends text entry (#78), font faces (#69), window chrome (#71) |
 | Stability on real machines | ×0.92 | Startup crashes on some Windows GPUs (#40, #59); Close discards edits (#60; PR #75 was closed unmerged); video stalls in the editor on Ubuntu (#91); arrows reported dead in the show on Linux Mint (#17) |
-| File exchange with PowerPoint users | ×0.88 | Harsher than VectorCraft's ×0.92 because swapping `.pptx` is daily work for this user: never tested on real decks, EMF pictures blank, icons from PowerPoint don't come through (#56), comment threads and media options lost on save (#70, #74) |
+| File exchange with PowerPoint users | ×0.88 | Harsher than Pluma's ×0.92 because swapping `.pptx` is daily work for this user: never tested on real decks, EMF pictures blank, icons from PowerPoint don't come through (#56), comment threads and media options lost on save (#70, #74) |
 
 71.3 × 0.92 × 0.92 × 0.88 = **53.1 → ~53%**. This is about the same as the full number, unlike
 apps where mainstream comes out well above it. The dimensions mainstream leaves out
-(localization, ecosystem, AI) weigh only 10% of DeckCraft's full number, and the biggest penalty,
+(localization, ecosystem, AI) weigh only 10% of Lámina's full number, and the biggest penalty,
 `.pptx` exchange, hits every mainstream user.
 
 ### Essentials user: ~62%
@@ -166,7 +166,7 @@ mainstream number leaves out.
   (#81 and #64 browser exports, #79 palette, #72 browser comment timestamps, #73 icon consistency,
   #71 and #26 window chrome, #41 system theme, #32 text transparency, #18 desktop shortcut, #15 and
   #30 languages, #58 README link, #50 DMG signature).
-- Reading: people try DeckCraft for real decks and hit the core path. Nobody has reported
+- Reading: people try Lámina for real decks and hit the core path. Nobody has reported
   replacing PowerPoint yet, which fits ~53–55%.
 
 ## By feature area
@@ -213,7 +213,7 @@ Carried from the 2026-10-07 ROADMAP status and updated with what has landed sinc
   (Design › Colors › Customize Colors… and Design › Fonts › Customize Fonts… open Create New
   Theme Colors and Create New Theme Fonts on the open master: its twelve theme colours, its
   heading and body latin faces; one scheme on that master, not a library of saved schemes),
-  effect schemes (Design ▸ Effects: DeckCraft, Soft, Crisp, Lift, Glow, Plain), backgrounds
+  effect schemes (Design ▸ Effects: Lámina, Soft, Crisp, Lift, Glow, Plain), backgrounds
   (solid, gradient, picture, pattern; a solid fill's transparency; picture transparency, tile,
   offset, scale, alignment and mirror; Apply to All copies a picture), slide size presets. File ›
   New also offers 6 original starter decks (Briefing, Lesson, Pitch, Field Notes, Quarterly,
@@ -261,7 +261,7 @@ Carried from the 2026-10-07 ROADMAP status and updated with what has landed sinc
 From this repo's own history (`git log`, `gh pr list`, the 2026-10-07 ROADMAP):
 
 - **The bulk build:** engine, model, renderer, text, UI, show engine, PPTX, PDF, media and the
-  release pipeline (today 117k lines of Rust, 59k of them media codecs and containers ported from FilmCraft) took about
+  release pipeline (today 117k lines of Rust, 59k of them media codecs and containers ported from Toma) took about
   **30 wall-clock hours with up to three agents**, i.e. roughly 60–90 agent hours, landing publicly
   between 2026-10-05 22:13 and 10-06 02:28. That is ~100 agent hours for today's 79% breadth / ~55%
   ready, with community PRs.

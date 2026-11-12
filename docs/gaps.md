@@ -1,4 +1,4 @@
-# Where DeckCraft falls short of PowerPoint
+# Where Lámina falls short of PowerPoint
 
 > **Last reviewed:** 2026-10-30 · **Last updated:** 2026-11-04 · **Change:** trivial (workflow-breaking regression fixed: Ctrl+C/X/V use the system clipboard again; #1414 to re-test on Windows; previous: trivial, run alternate language and reflection transforms survive saves; reused slide contents scale to the destination, picker thumbnails remain a gap; previous: trivial (locked No Fill and no-outline click-through regression coverage added; No Fill hit-testing follows resolved fill instead of the presence of a style (#1621); scores unchanged)) · **Target:** Microsoft PowerPoint for Mac 16.113 (Microsoft 365)
 
@@ -42,7 +42,7 @@ revision history.
 
 ### Startup crashes on some Windows GPUs (#40, #59)
 - **Evidence:** #59 (Intel UHD, access violation in `igvk64.dll` during Vulkan enumeration), #40
-  (WordCraft, GridCraft and DeckCraft all fail on one Windows 11 PC). The DX12 default (#16) fixed
+  (Letra, Celdas and Lámina all fail on one Windows 11 PC). The DX12 default (#16) fixed
   AMD's `atio6axx.dll` crash only.
 - **Impact:** the app never opens for those users.
 - **Estimate:** 4–8 h (backend probing outside the process or a safe-mode fallback, a software
@@ -104,7 +104,7 @@ Detail in [file-format-parity.md](file-format-parity.md).
 
 ### SVG pictures don't render
 - **Evidence:** `crates/render/src/images.rs` decodes through `image` 0.25 (PNG, JPEG, WebP, GIF,
-  TIFF, BMP), and EMF/WMF through `deckcraft-metafile` (ported from WordCraft: paths, fills, pens,
+  TIFF, BMP), and EMF/WMF through `deckcraft-metafile` (ported from Letra: paths, fills, pens,
   pattern and hatch brushes, bitmaps and text; rectangle clip regions are applied, EMF+ only
   pictures play their EMF+ records).
   Nothing reads SVG; PowerPoint's Insert Icons stores SVG with a PNG fallback.
@@ -119,7 +119,7 @@ Detail in [file-format-parity.md](file-format-parity.md).
 
 ### No legacy `.ppt`/`.pot`/`.pps` import
 - **Evidence:** PowerPoint for Mac still opens and saves the 97–2003 binary formats
-  (`CFBundleDocumentTypes`); DeckCraft doesn't read them.
+  (`CFBundleDocumentTypes`); Lámina doesn't read them.
 - **Impact:** archives of older decks don't open.
 - **Estimate:** 20–35 h (import only, from the public [MS-PPT] spec). Owner decision whether it's
   worth it.
@@ -146,7 +146,7 @@ Detail in [file-format-parity.md](file-format-parity.md).
   doesn't animate transitions or build animations.
 - **Impact:** sharing a talk as a video is a common request.
 - **Estimate:** 10–16 h (render the timeline frame by frame, which the GIF can then reuse for
-  transitions and builds; an H.264 encoder is the hard part, FilmCraft has one to copy).
+  transitions and builds; an H.264 encoder is the hard part, Toma has one to copy).
 
 ### Embedded MicroType Express font subsets aren't drawn
 - **Evidence:** `p:embeddedFontLst` is read and written. A raw TrueType/OpenType face, or one inside an Embedded OpenType wrapper, is loaded and used to draw. A MicroType Express subset (`application/x-fontdata` with neither form) is kept and written back, and the text still uses a stand-in.
@@ -174,7 +174,7 @@ Detail in [file-format-parity.md](file-format-parity.md).
   have their own layouts, histograms and Paretos bin their data (count, width or Scott's rule),
   and box & whisker charts use exclusive or inclusive quartiles with 1.5 IQR whiskers. Region maps are kept
   (their cached geography too, also through edits) and drawn as value-coloured tiles with a
-  colour scale, since DeckCraft ships no map boundaries. Radar charts are drawn polar (filled
+  colour scale, since Lámina ships no map boundaries. Radar charts are drawn polar (filled
   or lines), stock charts as high-low lines with close dashes or up/down bars and saved as
   `c:stockChart`, and combo charts start as columns with a line. Trendlines round-trip
   (`corpus_charts.rs`) and are drawn: linear, exponential, logarithmic, polynomial, power and
@@ -195,11 +195,11 @@ Detail in [file-format-parity.md](file-format-parity.md).
   cached drawing; `crates/pptx/src/dgm.rs`), and PowerPoint diagrams read their outline from the
   data model, so they get the Text Pane too. 15 layouts (bullet and block lists, five process, two cycle and
   a radial, hierarchy, two pyramids, two matrices), four SmartArt Styles and Change Colors
-  (colourful or one accent). Still missing: DeckCraft's own layout definitions are simple (not yet
+  (colourful or one accent). Still missing: Lámina's own layout definitions are simple (not yet
   checked in PowerPoint itself); PowerPoint has ~200 layouts, picture layouts and 3-D styles; editing an
-  imported diagram's outline redraws it with DeckCraft's layout; a diagram with no cached drawing
+  imported diagram's outline redraws it with Lámina's layout; a diagram with no cached drawing
   isn't drawn.
-- **Impact:** a PowerPoint diagram edited in DeckCraft changes look.
+- **Impact:** a PowerPoint diagram edited in Lámina changes look.
 - **Estimate:** 6–10 h.
 
 ### Animation Pane, effect count and preview
@@ -260,7 +260,7 @@ and starts at that effect. The pane has an advanced timeline with draggable bars
   Review › Language marks the selection's proofing language or Do Not Check Spelling, or the
   whole presentation's (`format.languageAll`: every run, notes, masters, layouts and the default
   text style) (`lang`/`noProof` round-trip in PPTX). No grammar checking. The web build checks on the UI
-  thread a few milliseconds per frame. No dictionaries ship with DeckCraft, so without one
+  thread a few milliseconds per frame. No dictionaries ship with Lámina, so without one
   installed (always on Windows and the web) only a short list of common misspellings is found.
   `review.thesaurus` looks up the selected word (checklist row partial). AutoCorrect has
   PowerPoint's options (two initial capitals, sentence and day capitals, caps lock, fractions, an
@@ -303,7 +303,7 @@ Detail in [ui-parity.md](ui-parity.md).
   choice, video/GIF/CD exports or document protection. 4–8 h for the parts that need no cloud.
 - **Window chrome** (#71 macOS controls misaligned, #26 GNOME title bar, #41 system light/dark).
   2–4 h.
-- **Icon consistency across Craft apps** (#73, #56). 2–4 h.
+- **Icon consistency across Nodalia apps** (#73, #56). 2–4 h.
 - **Dialogs**: 42 dialogs vs PowerPoint's ~60. In since the d556ff9 count of 27: Font, Paragraph
   and Tabs, Columns, Bullets and Numbering, Find and Replace, Replace Fonts, Action Settings, Size and
   Position, Date and Time, Photo Album (Edit Photo Album reopens it), Create New Theme Colors and
@@ -321,7 +321,7 @@ Detail in [hardware-parity.md](hardware-parity.md).
 - **CPU slide rasterization** (`vello_cpu`); PowerPoint renders on the GPU. 12–20 h (vello hybrid
   or wgpu path).
 - **Software-only video decode**; PowerPoint uses VideoToolbox/Media Foundation. 8–14 h (copy
-  FilmCraft's hardware decode).
+  Toma's hardware decode).
 - **No pen tilt and no pinch-zoom** (it does not keep the point under the pointer). Pen pressure
   scales ink width when the pointer reports it (a mouse or a missing reading stays at the pen
   width; a stroke saved as a flat `0.5` still draws at the pen width). A two-finger twist rotates

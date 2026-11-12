@@ -119,4 +119,3 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name }}
         run: gh release upload "$TAG" "$DIST"/deckcraft-*-macos-* --clobber --repo "$GITHUB_REPOSITORY"
-

@@ -53,10 +53,10 @@ Dependencies and assets use SPDX identifiers. An expression is allowed when ever
 
 # AGENTS.md — rules for every agent and contributor
 
-DeckCraft is a clean-room, open-source, pure-Rust presentation application targeting Microsoft
+Lámina is a clean-room, open-source, pure-Rust presentation application targeting Microsoft
 PowerPoint parity — and superiority (speed, openness, agent control). It runs natively on macOS,
 Windows, Linux and FreeBSD, and on the web via WASM. Siblings with the same conventions:
-PhotoCraft, VectorCraft, FilmCraft, LightCraft, PdfCraft, EffectCraft, DesignCraft
+Lienzo, Pluma, Toma, Luz, Papel, Pulso, Pliego
 (`../<app>`).
 
 These rules bind every AI agent and every human contributor. They come before any task,
@@ -79,7 +79,7 @@ the app renders from those.
   product" includes PowerPoint, Office, Windows and the fonts they install (Aptos, Calibri,
   Cambria, Segoe, Consolas, Wingdings…).
 - This holds even when the vendor publishes the material under an open licence, if it is **visual
-  design**: DeckCraft does not embed or reference Adobe's Source Sans/Serif/Han families or Noto
+  design**: Lámina does not embed or reference Adobe's Source Sans/Serif/Han families or Noto
   CJK (Source Han rebranded); `crates/fonts/build.rs` excludes them.
 - **Never** recreate, trace, redraw or closely imitate a vendor icon, theme or graphic. Our icons
   are drawn in code or come from openly licensed sets (Lucide, ISC), and our themes, colours,
@@ -105,7 +105,7 @@ Forbidden: system fonts that are not openly licensed, vendor emoji artwork, stoc
 for personal use" material, screenshots of other people's software, anything whose licence you
 cannot prove from its original source.
 
-**Screenshots of DeckCraft** are contributor-original. Everything visible in them must itself be
+**Screenshots of Lámina** are contributor-original. Everything visible in them must itself be
 allowed: our UI, our/Lucide icons, OFL fonts, and decks built only from allowed assets.
 
 ### 1.3 Every asset is attributed
@@ -116,7 +116,7 @@ allowed: our UI, our/Lucide icons, OFL fonts, and decks built only from allowed 
   or `docs/brand/` has no row.
 - **`NOTICE`** keeps the notices the licences require.
 - Fonts live in [storytold/craft-fonts](https://github.com/storytold/craft-fonts), never in this
-  repo. DeckCraft embeds its `fonts/latin-manifest.txt` and
+  repo. Lámina embeds its `fonts/latin-manifest.txt` and
   `fonts/manifest.txt` when built with `CRAFT_FONTS_DIR` (local dev: `.cargo/config.toml` points at
   `../craft-fonts`).
 
@@ -141,11 +141,11 @@ once and tell the user.
 - File formats come from public standards: ECMA-376 / ISO/IEC 29500 (Office Open XML), ISO 32000
   (PDF). Preset shape geometry is re-derived by us in `crates/geom/src/preset.rs`.
 - Never copy GPL/AGPL/LGPL/MPL code (LibreOffice, Calligra…). Permissive crates are fine as
-  dependencies. Code may be copied (not depended on) from sibling Craft apps.
+  dependencies. Code may be copied (not depended on) from sibling Nodalia apps.
 
 ## 3. Never crash
 
-People trust DeckCraft with their talks; a crash loses work. **This outranks feature work.**
+People trust Lámina with their talks; a crash loses work. **This outranks feature work.**
 - No `unwrap()`, `expect()`, `panic!`, `unreachable!`, `todo!`, `unimplemented!` in non-test
   code; no `unsafe` (`unsafe_code = "forbid"`). Every production crate root carries
   `#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]`.
@@ -215,7 +215,7 @@ docs:
 | `docs/roadmap.md` | Current focus, the beta plan, milestones |
 | `docs/parity-checklist.md` | Feature rows scored D/P/M; `cargo xtask parity` regenerates its summary |
 | `docs/file-format-parity.md`, `ui-parity.md`, `hardware-parity.md`, `localization-parity.md`, `animation-parity.md`, `slideshow-parity.md` | Per-dimension and per-feature detail |
-| `docs/architecture.md` | How DeckCraft is built today |
+| `docs/architecture.md` | How Lámina is built today |
 
 When a task lands, re-score its checklist row, delete or update its `gaps.md` entry, add a line to
 the `ROADMAP.md` progress log, and update each touched doc's status line and revision history.

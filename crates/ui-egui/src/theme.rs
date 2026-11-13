@@ -1,4 +1,5 @@
-//! Design tokens (light, PowerPoint-like; and dark) and fonts for the UI.
+//! Design tokens (the Nodalia Design Language, light and dark, with Lámina's accent) and fonts
+//! for the UI.
 
 use egui::{Color32, CornerRadius, FontData, FontDefinitions, FontFamily, Stroke, Visuals};
 use serde::{Deserialize, Serialize};
@@ -52,70 +53,67 @@ pub struct Tokens {
     pub shadow: Color32,
 }
 
+/// Lámina's accent in the Nodalia palette.
+pub const ACCENT: nodalia_theme::Accent = nodalia_theme::Accent::Lamina;
+/// An island's corner radius: the ribbon, the slide list, the canvas and the status bar.
+pub const ISLAND_RADIUS: u8 = nodalia_theme::component::PANEL_RADIUS as u8;
+/// The corner radius of controls (buttons, fields, menus).
+pub const CONTROL_RADIUS: u8 = nodalia_theme::component::CONTROL_RADIUS as u8;
+/// The window-colour gap between two islands, and between an island and the window's edge.
+pub const ISLAND_GAP: f32 = nodalia_theme::component::WINDOW_GAP;
+
+/// A Nodalia colour as egui's.
+pub fn ndl(c: nodalia_theme::Rgba) -> Color32 {
+    nodalia_theme::for_egui::color(c)
+}
+
+/// The Nodalia palette with Lámina's accent.
+pub fn palette(dark: bool) -> nodalia_theme::Palette {
+    if dark { nodalia_theme::Mode::Dark } else { nodalia_theme::Mode::Light }.palette_with(ACCENT)
+}
+
 impl Tokens {
-    pub fn light() -> Self {
+    /// The Nodalia Design Language's tokens: every chrome colour comes from `nodalia-theme`; only
+    /// the marks drawn on the slide (handles, caret, text selection) keep their own.
+    fn nodalia(dark: bool) -> Self {
+        let p = palette(dark);
+        let c = ndl;
         Tokens {
-            dark: false,
-            chrome: Color32::from_rgb(0xF5, 0xF5, 0xF5),
-            card: Color32::WHITE,
-            card_border: Color32::from_rgb(0xE3, 0xE3, 0xE3),
-            text_field: Color32::from_rgb(0xEB, 0xEB, 0xEB),
-            canvas: Color32::from_rgb(0xF0, 0xF0, 0xF0),
-            text: Color32::from_rgb(0x24, 0x24, 0x24),
-            text_dim: Color32::from_rgb(0x5C, 0x5C, 0x5C),
-            text_faint: Color32::from_rgb(0x99, 0x99, 0x99),
-            border: Color32::from_rgb(0xD6, 0xD6, 0xD6),
-            separator: Color32::from_rgb(0xE1, 0xE1, 0xE1),
-            hover: Color32::from_rgb(0xEB, 0xEB, 0xEB),
-            pressed: Color32::from_rgb(0xDE, 0xDE, 0xDE),
-            selected: Color32::from_rgb(0xE6, 0xE6, 0xE6),
-            accent: Color32::from_rgb(0xD9, 0x5A, 0x1A),
-            accent_text: Color32::WHITE,
-            contextual: Color32::from_rgb(0xC2, 0x4E, 0x14),
-            selection: Color32::from_rgb(0x7A, 0x7A, 0x7A),
+            dark,
+            chrome: c(p.surface_window),
+            card: c(p.surface_panel),
+            card_border: c(p.border_subtle),
+            text_field: c(p.control_bg),
+            canvas: c(p.surface_sunken),
+            text: c(p.text_primary),
+            text_dim: c(p.text_secondary),
+            text_faint: c(p.text_tertiary),
+            border: c(p.border_default),
+            separator: c(p.border_subtle),
+            hover: c(p.control_bg_hover),
+            pressed: c(p.control_bg_pressed),
+            selected: c(p.accent_subtle),
+            accent: c(p.accent_default),
+            accent_text: c(p.text_on_accent),
+            contextual: c(p.accent_text),
+            selection: if dark { Color32::from_rgb(0xAA, 0xAA, 0xAA) } else { Color32::from_rgb(0x7A, 0x7A, 0x7A) },
             handle_fill: Color32::WHITE,
             handle_stroke: Color32::from_rgb(0x6E, 0x6E, 0x6E),
-            guide: Color32::from_rgb(0xE8, 0x5D, 0x2A),
+            guide: c(p.accent_default),
             caret: Color32::BLACK,
             text_selection: Color32::from_rgba_unmultiplied(0x5A, 0x8F, 0xE0, 90),
-            field_bg: Color32::WHITE,
-            control: Color32::from_rgb(0xD6, 0xD6, 0xD6),
-            control_hover: Color32::from_rgb(0xC8, 0xC8, 0xC8),
-            control_pressed: Color32::from_rgb(0xBC, 0xBC, 0xBC),
-            shadow: Color32::from_black_alpha(28),
+            field_bg: c(p.control_field_bg),
+            control: c(p.control_bg),
+            control_hover: c(p.control_bg_hover),
+            control_pressed: c(p.control_bg_pressed),
+            shadow: Color32::from_black_alpha(if dark { 90 } else { 28 }),
         }
     }
+    pub fn light() -> Self {
+        Self::nodalia(false)
+    }
     pub fn dark() -> Self {
-        Tokens {
-            dark: true,
-            chrome: Color32::from_rgb(0x26, 0x26, 0x26),
-            card: Color32::from_rgb(0x33, 0x33, 0x33),
-            card_border: Color32::from_rgb(0x44, 0x44, 0x44),
-            text_field: Color32::from_rgb(0x2A, 0x2A, 0x2A),
-            canvas: Color32::from_rgb(0x1E, 0x1E, 0x1E),
-            text: Color32::from_rgb(0xEE, 0xEE, 0xEE),
-            text_dim: Color32::from_rgb(0xBB, 0xBB, 0xBB),
-            text_faint: Color32::from_rgb(0x88, 0x88, 0x88),
-            border: Color32::from_rgb(0x4A, 0x4A, 0x4A),
-            separator: Color32::from_rgb(0x48, 0x48, 0x48),
-            hover: Color32::from_rgb(0x40, 0x40, 0x40),
-            pressed: Color32::from_rgb(0x4C, 0x4C, 0x4C),
-            selected: Color32::from_rgb(0x47, 0x47, 0x47),
-            accent: Color32::from_rgb(0xF2, 0x6B, 0x1D),
-            accent_text: Color32::WHITE,
-            contextual: Color32::from_rgb(0xF5, 0x8A, 0x4B),
-            selection: Color32::from_rgb(0xAA, 0xAA, 0xAA),
-            handle_fill: Color32::WHITE,
-            handle_stroke: Color32::from_rgb(0x6E, 0x6E, 0x6E),
-            guide: Color32::from_rgb(0xF2, 0x8A, 0x4B),
-            caret: Color32::BLACK,
-            text_selection: Color32::from_rgba_unmultiplied(0x5A, 0x8F, 0xE0, 90),
-            field_bg: Color32::from_rgb(0x2A, 0x2A, 0x2A),
-            control: Color32::from_rgb(0x2A, 0x2A, 0x2A),
-            control_hover: Color32::from_rgb(0x40, 0x40, 0x40),
-            control_pressed: Color32::from_rgb(0x4C, 0x4C, 0x4C),
-            shadow: Color32::from_black_alpha(90),
-        }
+        Self::nodalia(true)
     }
     pub fn for_brightness(b: Brightness) -> Self {
         match b {
@@ -137,24 +135,31 @@ pub fn apply(ctx: &egui::Context, t: &Tokens) {
     v.text_edit_bg_color = Some(t.text_field);
     v.faint_bg_color = t.hover;
     v.window_stroke = Stroke::new(1.0, t.card_border);
-    v.window_corner_radius = CornerRadius::same(10);
-    v.menu_corner_radius = CornerRadius::same(8);
+    v.window_corner_radius = CornerRadius::same(ISLAND_RADIUS);
+    v.menu_corner_radius = CornerRadius::same(CONTROL_RADIUS);
     v.selection.bg_fill = t.accent.gamma_multiply(0.85);
     v.selection.stroke = Stroke::new(1.0, t.accent_text);
     v.hyperlink_color = t.accent;
     v.override_text_color = Some(t.text);
     for w in [&mut v.widgets.noninteractive, &mut v.widgets.inactive, &mut v.widgets.hovered, &mut v.widgets.active, &mut v.widgets.open] {
-        w.corner_radius = CornerRadius::same(5);
+        w.corner_radius = CornerRadius::same(6);
     }
     v.widgets.noninteractive.bg_stroke = Stroke::new(1.0, t.separator);
     v.widgets.inactive.weak_bg_fill = Color32::TRANSPARENT;
-    v.widgets.inactive.bg_fill = t.control;
+    // Checkboxes and slider rails are drawn with `bg_fill` and no outline, so in light mode they
+    // need a fill a step apart from Nodalia's button fill to show on an island (#766).
+    let (rail, rail_hover, rail_pressed) = if t.dark {
+        (Color32::from_rgb(0x3A, 0x3D, 0x46), Color32::from_rgb(0x47, 0x4B, 0x55), Color32::from_rgb(0x54, 0x58, 0x63))
+    } else {
+        (Color32::from_rgb(0xC4, 0xC8, 0xD1), Color32::from_rgb(0xB6, 0xBA, 0xC4), Color32::from_rgb(0xA8, 0xAD, 0xB8))
+    };
+    v.widgets.inactive.bg_fill = rail;
     v.widgets.inactive.bg_stroke = Stroke::NONE;
     v.widgets.hovered.weak_bg_fill = t.hover;
-    v.widgets.hovered.bg_fill = t.control_hover;
+    v.widgets.hovered.bg_fill = rail_hover;
     v.widgets.hovered.bg_stroke = Stroke::NONE;
     v.widgets.active.weak_bg_fill = t.pressed;
-    v.widgets.active.bg_fill = t.control_pressed;
+    v.widgets.active.bg_fill = rail_pressed;
     v.widgets.open.weak_bg_fill = t.pressed;
     v.window_shadow = egui::epaint::Shadow { offset: [0, 4], blur: 18, spread: 0, color: t.shadow };
     v.popup_shadow = egui::epaint::Shadow { offset: [0, 3], blur: 12, spread: 0, color: t.shadow };

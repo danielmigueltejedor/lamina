@@ -2464,9 +2464,11 @@ dependencies = [
  "lamina-ui-egui",
  "log",
  "rfd",
+ "serde",
  "serde_json",
  "winit",
  "winresource",
+ "zbus",
 ]
 
 [[package]]
@@ -2742,6 +2744,7 @@ dependencies = [
  "lamina-render",
  "lamina-text",
  "log",
+ "nodalia-theme",
  "nodalia-update",
  "serde",
  "serde_json",
@@ -3011,6 +3014,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ee6cda3051665f1fb8d9e08fc35c96d5a244fb1be711a03b71118828afc9a873"
 dependencies = [
  "jni-sys 0.3.1",
+]
+
+[[package]]
+name = "nodalia-theme"
+version = "0.1.0-alpha.1"
+source = "git+https://github.com/danielmigueltejedor/nodalia-design?rev=4685d63a848b70ebc00c2a96614dfe32ebc59283#4685d63a848b70ebc00c2a96614dfe32ebc59283"
+dependencies = [
+ "egui",
 ]
 
 [[package]]

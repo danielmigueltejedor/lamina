@@ -34,12 +34,19 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     let Some(pane) = app.ui.pane.clone() else { return };
     egui::Panel::right("task_pane")
+        .show_separator_line(false)
         .resizable(true)
         .default_size(app.ui.pane_width)
         .size_range(240.0..=520.0)
-        .frame(egui::Frame::NONE.fill(t.card).inner_margin(egui::Margin::same(10)))
+        .frame(
+            egui::Frame::NONE
+                .fill(t.card)
+                .corner_radius(crate::theme::ISLAND_RADIUS)
+                .inner_margin(egui::Margin::same(12))
+                .outer_margin(egui::Margin { left: crate::theme::ISLAND_GAP as i8, ..Default::default() }),
+        )
         .show(ui, |ui| {
-            app.ui.pane_width = ui.available_width() + 20.0;
+            app.ui.pane_width = ui.available_width() + 32.0;
             let title = match pane.as_str() {
                 "format" => "Format Shape",
                 "background" => "Format Background",

@@ -1,4 +1,4 @@
-use super::{Color32, CornerRadius, Rect, Sense, SlideApp, Stroke, Tokens, Ui, pos2, theme, vec2};
+use super::{Color32, Rect, Sense, SlideApp, Tokens, Ui, pos2, theme, vec2};
 
 /// Room the About credits need for their table; the About tab keeps its compact size.
 pub(super) const CREDITS_SIZE: egui::Vec2 = vec2(820.0, 380.0);
@@ -18,7 +18,7 @@ pub(super) fn credits_block(ui: &mut Ui, models: bool) -> Rect {
 pub fn about(_app: &mut SlideApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     ui.vertical_centered(|ui| {
-        let (r, _) = ui.allocate_exact_size(vec2(64.0, 64.0), Sense::hover());
+        let (r, _) = ui.allocate_exact_size(vec2(96.0, 96.0), Sense::hover());
         paint_logo(ui.painter(), r);
         ui.label(egui::RichText::new("Lámina").font(theme::bold(22.0)));
         ui.label(egui::RichText::new(version_line()).color(t.text_dim));
@@ -49,20 +49,25 @@ pub fn version_line() -> String {
     s
 }
 
-/// Lámina's mark, drawn in code: a slide card with a play triangle in our orange.
+/// Lámina's app icon, the same picture the desktop shows for it.
+const ICON_PNG: &[u8] = include_bytes!("../../../../assets/app-icon/hicolor/256x256/apps/dev.danielmiguelt.Lamina.png");
+
+/// Paints Lámina's app icon into `r`. The texture is decoded once per context; if the picture
+/// can't be decoded the space stays empty rather than failing the dialog.
 pub fn paint_logo(p: &egui::Painter, r: Rect) {
-    let orange = Color32::from_rgb(0xF2, 0x6B, 0x1D);
-    let deep = Color32::from_rgb(0xC2, 0x4E, 0x14);
-    let card = r.shrink(r.width() * 0.08);
-    p.rect_filled(card.translate(vec2(r.width() * 0.04, r.width() * 0.05)), CornerRadius::same((r.width() * 0.14) as u8), deep);
-    p.rect_filled(card, CornerRadius::same((r.width() * 0.14) as u8), orange);
-    let c = card.center();
-    let s = card.width() * 0.22;
-    p.add(egui::Shape::convex_polygon(
-        vec![pos2(c.x - s * 0.7, c.y - s), pos2(c.x + s, c.y), pos2(c.x - s * 0.7, c.y + s)],
-        Color32::WHITE,
-        Stroke::NONE,
-    ));
+    let ctx = p.ctx();
+    let id = egui::Id::unique("lamina_app_icon");
+    let texture = ctx.data(|d| d.get_temp::<Option<egui::TextureHandle>>(id)).unwrap_or_else(|| {
+        let t = lamina_render::decode_image(ICON_PNG).map(|img| {
+            let size = [img.width() as usize, img.height() as usize];
+            ctx.load_texture("lamina_app_icon", egui::ColorImage::from_rgba_unmultiplied(size, img.as_raw()), egui::TextureOptions::LINEAR)
+        });
+        ctx.data_mut(|d| d.insert_temp(id, t.clone()));
+        t
+    });
+    if let Some(t) = texture {
+        p.image(t.id(), r, Rect::from_min_max(pos2(0.0, 0.0), pos2(1.0, 1.0)), Color32::WHITE);
+    }
 }
 
 #[cfg(test)]

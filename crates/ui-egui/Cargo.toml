@@ -26,6 +26,9 @@ serde_json = { workspace = true }
 log = { workspace = true }
 web-time = { workspace = true }
 
+# Nodalia Design: tokens, icons and window controls (pure Rust, builds for wasm too).
+nodalia-theme = { workspace = true }
+
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 nodalia-update = { workspace = true }
 

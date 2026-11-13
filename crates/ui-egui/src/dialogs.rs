@@ -50,6 +50,7 @@ fn title(id: &str) -> &'static str {
         "font" => "Font",
         "about" => "About Lámina",
         "preferences" => "Preferences",
+        "shortcuts" => "Keyboard Shortcuts",
         "autocorrect" => "AutoCorrect",
         "gridOptions" => "Grid Options",
         "columns" => "Columns",
@@ -83,12 +84,16 @@ pub fn show(app: &mut SlideApp, ctx: &egui::Context) {
     let Some(mut d) = app.dialog.take() else { return };
     let mut open = true;
     let mut close = false;
+    // Nodalia's dialog frame: no system-style title bar, the title in the content and one round
+    // close button at the top right.
+    let frame = egui::Frame::window(&ctx.global_style()).inner_margin(egui::Margin { left: 20, right: 14, top: 14, bottom: 18 });
     let mut window = egui::Window::new(title(&d.id))
         .id(egui::Id::unique(("dialog", d.id.clone())))
+        .title_bar(false)
+        .frame(frame)
         .collapsible(false)
         .resizable(false)
-        .anchor(Align2::CENTER_CENTER, vec2(0.0, -40.0))
-        .open(&mut open);
+        .anchor(Align2::CENTER_CENTER, vec2(0.0, -40.0));
     // Two columns of colour rows plus Save must fit the first frame (Theme Colors), as must Save
     // in Theme Fonts. A later resize clips the buttons (the window size sticks) and clicks miss them.
     if d.id == "themeColors" {
@@ -107,6 +112,19 @@ pub fn show(app: &mut SlideApp, ctx: &egui::Context) {
         } else if d.id == "themeFonts" {
             ui.set_min_height(280.0);
         }
+        let heading = title(&d.id);
+        ui.horizontal(|ui| {
+            // Painted, not a label: the window already carries the title for screen readers.
+            let galley = ui.painter().layout_no_wrap(heading.to_string(), theme::bold(16.0), ui.visuals().text_color());
+            let (rect, _) = ui.allocate_exact_size(galley.size(), egui::Sense::hover());
+            ui.painter().galley(rect.min, galley, ui.visuals().text_color());
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                if crate::widgets::ndl_close_button(ui, "Close window") {
+                    open = false;
+                }
+            });
+        });
+        ui.add_space(10.0);
         close = body(app, ui, &mut d);
     });
     let escape = ctx.input(|i| i.key_pressed(egui::Key::Escape));

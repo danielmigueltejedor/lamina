@@ -61,6 +61,7 @@ pub(super) fn body(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
         "gridOptions" => grid_options(app, ui, d),
         "columns" => columns_dialog(app, ui, d),
         "preferences" => dlg_preferences(app, ui, d),
+        "shortcuts" => dlg_shortcuts(app, ui, d),
         "photoAlbum" => photo_album_dialog(app, ui, d),
         "themeColors" => theme_colors_dialog(app, ui, d),
         "themeFonts" => theme_fonts_dialog(app, ui, d),
@@ -1339,18 +1340,38 @@ fn dlg_preferences(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
     if d.params.get("before").is_none() {
         d.params = json!({ "before": preferences_snapshot(app) });
     }
-    ui.label(egui::RichText::new("General").font(theme::bold(13.0)));
-    let mut dark = app.ui.brightness == theme::Brightness::Dark;
-    if ui.checkbox(&mut dark, "Dark appearance").changed() {
-        let _ = app.run("view.dark", json!({"on": dark}));
+    ui.label(egui::RichText::new("Appearance").font(theme::bold(13.0)));
+    ui.horizontal(|ui| {
+        ui.label("Style:");
+        let dark = app.ui.brightness == theme::Brightness::Dark;
+        if ui.radio(!dark, "Light").clicked() && dark {
+            let _ = app.run("view.dark", json!({"on": false}));
+        }
+        if ui.radio(dark, "Dark").clicked() && !dark {
+            let _ = app.run("view.dark", json!({"on": true}));
+        }
+    });
+    if app.client_frame {
+        ui.horizontal(|ui| {
+            ui.label("Window controls:");
+            let wc = &mut app.ui.window_controls;
+            ui.radio_value(wc, crate::WindowControls::Nodalia, "Nodalia");
+            ui.radio_value(wc, crate::WindowControls::System, "The desktop's own");
+        });
     }
+    ui.add_space(8.0);
+    ui.label(egui::RichText::new("General").font(theme::bold(13.0)));
     // While the pointer holds the slider its value only waits in the dialog: applying it
     // would rescale the slider under the pointer and run it to an end (#767). It applies
     // on release, and at once from the keyboard.
     let pending = d.fields.get("uiScale").and_then(|v| v.parse::<f32>().ok());
     let mut scale = pending.unwrap_or(app.ui.ui_scale);
-    let r = ui.add(egui::Slider::new(&mut scale, 0.75..=1.75));
-    // No visible label here (the row is laid out to fit); the accessible name only.
+    let r = ui
+        .horizontal(|ui| {
+            ui.label("Interface size:");
+            ui.add(egui::Slider::new(&mut scale, 0.75..=1.75))
+        })
+        .inner;
     let enabled = r.enabled();
     r.widget_info(|| egui::WidgetInfo::slider(enabled, f64::from(scale), "Interface size"));
     if r.is_pointer_button_down_on() {
@@ -1370,6 +1391,7 @@ fn dlg_preferences(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
         ui.radio_value(units, lamina_geom::Unit::Inches, "Inches");
         ui.radio_value(units, lamina_geom::Unit::Centimeters, "Centimeters");
     });
+    ui.add_space(8.0);
     ui.label(egui::RichText::new("Editing").font(theme::bold(13.0)));
     ui.checkbox(&mut app.session.prefs.smart_guides, "Show smart guides");
     ui.checkbox(&mut app.session.prefs.snap_to_grid, "Snap objects to grid");
@@ -1394,4 +1416,35 @@ fn dlg_preferences(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
         restore_preferences(app, d);
     }
     ok || cancel
+}
+
+/// Keyboard Shortcuts: every command that has one, searchable, in the platform's notation.
+fn dlg_shortcuts(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
+    let mut query = d.get("query", "");
+    let search = ui.add(egui::TextEdit::singleline(&mut query).hint_text("Search shortcuts").desired_width(f32::INFINITY));
+    search.widget_info(|| egui::WidgetInfo::labeled(egui::Role::TextInput, true, "Search shortcuts"));
+    let q = query.to_lowercase();
+    d.fields.insert("query".into(), query);
+    ui.add_space(6.0);
+    let t = Tokens::get(ui.ctx());
+    egui::ScrollArea::vertical().max_height(420.0).auto_shrink([false, true]).show(ui, |ui| {
+        egui::Grid::new("shortcuts").num_columns(2).spacing(vec2(32.0, 8.0)).striped(false).show(ui, |ui| {
+            for (label, keys) in crate::menus::shortcut_list(&app.session) {
+                if !q.is_empty() && !label.to_lowercase().contains(&q) {
+                    continue;
+                }
+                ui.label(label);
+                ui.label(egui::RichText::new(crate::ribbon::pretty_shortcut(keys)).color(t.text_dim).font(theme::bold(12.5)));
+                ui.end_row();
+            }
+        });
+    });
+    let mut close = false;
+    ui.add_space(8.0);
+    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+        if ui.add(egui::Button::new(egui::RichText::new("Close").color(t.accent_text)).fill(t.accent).min_size(vec2(72.0, 24.0))).clicked() {
+            close = true;
+        }
+    });
+    close
 }

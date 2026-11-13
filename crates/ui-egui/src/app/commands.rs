@@ -234,6 +234,7 @@ impl SlideApp {
             }
             "app.palette" => self.palette = Some((String::new(), 0)),
             "app.preferences" => self.dialog = Some(dialogs::Dialog::new("preferences")),
+            "app.shortcuts" => self.dialog = Some(dialogs::Dialog::new("shortcuts")),
             "app.openDialog" => self.pick_and_open(),
             "app.insertPictureDialog" => self.pick_and_insert("picture", "insert.picture"),
             "app.smartArtPictureDialog" => {

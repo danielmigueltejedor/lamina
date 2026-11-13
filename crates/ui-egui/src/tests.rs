@@ -368,8 +368,12 @@ fn title_bar_export_opens_the_export_dialog() {
     );
     harness.run_steps(2);
     assert!(harness.state().dialog.is_none());
-    // Quick access: Home, Save, Export, each 24 points wide with 2 between, from x = 10.
-    let pos = egui::pos2(10.0 + 2.0 * 26.0 + 12.0, ribbon::TITLE_H / 2.0);
+    // Quick access, after the app menu: the Export button in the title bar.
+    let pos = harness
+        .query_all_by_label_contains("Export (")
+        .map(|n| n.rect().center())
+        .find(|p| p.y < ribbon::TITLE_H)
+        .expect("an Export button in the title bar");
     harness.hover_at(pos);
     harness.run_steps(1);
     harness.event(egui::Event::PointerButton { pos, button: egui::PointerButton::Primary, pressed: true, modifiers: egui::Modifiers::NONE });
@@ -672,7 +676,14 @@ fn preferences_cancel_restores_the_settings_done_keeps_them() {
     let change = |harness: &mut egui_kittest::Harness<'static, SlideApp>| {
         harness.state_mut().run("app.preferences", json!({})).unwrap();
         harness.run_steps(2);
-        for label in ["Dark appearance", "Show smart guides", "Snap objects to grid"] {
+        let style = if harness.state().ui.brightness == theme::Brightness::Dark { "Light" } else { "Dark" };
+        harness
+            .query_all_by_role_and_label(egui::accesskit::Role::RadioButton, style)
+            .next()
+            .unwrap_or_else(|| panic!("no {style} radio"))
+            .click_accesskit();
+        harness.run_steps(2);
+        for label in ["Show smart guides", "Snap objects to grid"] {
             harness
                 .query_all_by_role_and_label(egui::accesskit::Role::CheckBox, label)
                 .next()
@@ -2485,7 +2496,8 @@ fn comments_pane_keeps_its_width_and_resizes() {
 
     // Drag the pane's left edge: right narrows it, left widens it.
     let drag = |h: &mut egui_kittest::Harness<'_, SlideApp>, dx: f32| {
-        let start = egui::pos2(1200.0 - h.state().ui.pane_width - 1.0, 500.0);
+        // The pane is an island inset by the window gap on the right.
+        let start = egui::pos2(1200.0 - crate::theme::ISLAND_GAP - h.state().ui.pane_width - 1.0, 500.0);
         let end = start + egui::vec2(dx, 0.0);
         h.event(egui::Event::PointerMoved(start));
         h.run_steps(1);

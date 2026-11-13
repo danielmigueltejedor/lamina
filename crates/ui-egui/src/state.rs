@@ -46,6 +46,18 @@ pub enum ViewMode {
     Reading,
 }
 
+/// Which window controls Lámina shows on Linux and the BSDs. macOS and Windows always keep their
+/// native ones.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum WindowControls {
+    /// Nodalia's round controls, drawn in Lámina's title bar (the window has no system frame).
+    #[default]
+    Nodalia,
+    /// The desktop's own title bar and controls.
+    System,
+}
+
 /// Persisted UI state.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
@@ -94,6 +106,8 @@ pub struct UiState {
     pub comment_focus: Option<(usize, usize)>,
     /// Quick Access Toolbar buttons, left to right.
     pub qat: Vec<qat::QatItem>,
+    /// Linux and the BSDs: Nodalia's window controls or the desktop's (Preferences).
+    pub window_controls: WindowControls,
 }
 
 impl Default for UiState {
@@ -127,6 +141,7 @@ impl Default for UiState {
             grayscale: false,
             comment_focus: None,
             qat: qat::defaults(),
+            window_controls: WindowControls::Nodalia,
         }
     }
 }

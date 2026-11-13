@@ -88,12 +88,19 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
         return;
     }
     let panel = egui::Panel::left("thumbs")
+        .show_separator_line(false)
         .resizable(true)
         .default_size(app.ui.thumbs_width)
         .size_range(150.0..=420.0)
-        .frame(egui::Frame::NONE.fill(t.chrome))
+        .frame(
+            egui::Frame::NONE
+                .fill(t.card)
+                .corner_radius(crate::theme::ISLAND_RADIUS)
+                .inner_margin(egui::Margin::symmetric(0, 6))
+                .outer_margin(egui::Margin { right: crate::theme::ISLAND_GAP as i8, ..Default::default() }),
+        )
         .show(ui, |ui| {
-            app.ui.thumbs_width = ui.available_width();
+            app.ui.thumbs_width = ui.available_width() + crate::theme::ISLAND_GAP;
             if in_master {
                 master_list(app, ui);
                 return;

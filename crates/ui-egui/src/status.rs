@@ -12,7 +12,7 @@ use crate::{SlideApp, ViewMode};
 /// comments, views and zoom on the right.
 pub fn status_bar(app: &mut SlideApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
-    egui::Panel::bottom("status").exact_size(28.0).frame(egui::Frame::NONE.fill(t.chrome)).show(ui, |ui| {
+    egui::Panel::bottom("status").show_separator_line(false).exact_size(28.0).frame(egui::Frame::NONE.fill(t.chrome)).show(ui, |ui| {
         let rect = ui.max_rect();
         let Some(st) = app.session.active() else { return };
         let n = st.doc.slides.len();
@@ -194,15 +194,19 @@ pub fn notes_pane(app: &mut SlideApp, ui: &mut Ui) {
     }
     let notes = app.session.active().and_then(|st| st.current_slide()).map(|s| s.notes.clone()).unwrap_or_default();
     egui::Panel::bottom("notes")
+        .show_separator_line(false)
         .resizable(true)
         .default_size(app.ui.notes_height)
         .size_range(36.0..=400.0)
-        .frame(egui::Frame::NONE.fill(t.chrome).inner_margin(egui::Margin::symmetric(8, 6)))
+        .frame(
+            egui::Frame::NONE
+                .fill(t.card)
+                .corner_radius(crate::theme::ISLAND_RADIUS)
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .outer_margin(egui::Margin { top: crate::theme::ISLAND_GAP as i8, ..Default::default() }),
+        )
         .show(ui, |ui| {
-            app.ui.notes_height = ui.available_height() + 12.0;
-            let rect = ui.max_rect();
-            ui.painter()
-                .line_segment([pos2(rect.min.x - 8.0, rect.min.y - 6.0), pos2(rect.max.x + 8.0, rect.min.y - 6.0)], Stroke::new(1.0, t.separator));
+            app.ui.notes_height = ui.available_height() + 24.0;
             // Keep a local draft per slide, following the notes while the field isn't focused.
             if app.notes_buf.0 != uid || app.notes_buf.1 != idx || (!focused && app.notes_buf.2.body != notes) {
                 app.notes_buf = (uid, idx, crate::notes::Draft::new(&notes));

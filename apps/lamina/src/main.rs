@@ -22,6 +22,8 @@ mod control_server;
 mod display;
 #[cfg(any(target_os = "windows", test))]
 mod graphics;
+#[cfg(target_os = "linux")]
+mod linux_menu;
 mod logging;
 #[cfg(not(target_arch = "wasm32"))]
 mod pasteboard;
@@ -34,12 +36,21 @@ struct App(
     /// Files opened from Finder and quit requests (see `apple_events`).
     #[cfg(target_os = "macos")]
     fmv_macos_events::Inbox,
+    /// The menus in the desktop's top bar (see `linux_menu`).
+    #[cfg(target_os = "linux")]
+    Option<linux_menu::GlobalMenu>,
 );
 
 impl eframe::App for App {
     fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         #[cfg(target_os = "macos")]
         apple_events::poll(&self.1, &mut self.0, ctx);
+        #[cfg(target_os = "linux")]
+        if let Some(menu) = &self.1 {
+            for cmd in menu.drain() {
+                let _ = self.0.run(cmd, serde_json::json!({}));
+            }
+        }
         self.0.logic(ctx);
     }
     /// Forward native raw input to the wrapped application once per pass.
@@ -80,12 +91,21 @@ fn config_dir() -> Option<std::path::PathBuf> {
     }
 }
 
-fn load_prefs(app: &mut SlideApp) {
+/// The saved interface state and preferences, read before the window opens so the window starts
+/// with the frame the preferences ask for.
+type Saved = (Option<lamina_ui_egui::UiState>, Option<lamina_engine::Prefs>);
+
+fn read_prefs() -> Saved {
     if std::env::var_os("LAMINA_NO_PREFS").is_some() {
-        return;
+        return (None, None);
     }
-    let Some(dir) = config_dir() else { return };
-    let (ui, prefs) = lamina_ui_egui::settings::load(&dir);
+    config_dir().map(|dir| lamina_ui_egui::settings::load(&dir)).unwrap_or((None, None))
+}
+
+/// Linux and the BSDs get Nodalia's frame; macOS and Windows keep the system's own controls.
+const CLIENT_FRAME: bool = cfg!(all(unix, not(target_os = "macos")));
+
+fn load_prefs(app: &mut SlideApp, (ui, prefs): Saved) {
     if let Some(ui) = ui {
         app.ui = ui;
     }
@@ -226,12 +246,15 @@ fn main() -> eframe::Result {
             }
         }
     }
+    let saved = read_prefs();
+    let nodalia_frame = CLIENT_FRAME && saved.0.as_ref().is_none_or(|ui| ui.window_controls == lamina_ui_egui::WindowControls::Nodalia);
     let mut options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Lámina")
             .with_inner_size([1440.0, 900.0])
             .with_min_inner_size([900.0, 560.0])
             .with_drag_and_drop(true)
+            .with_decorations(!nodalia_frame)
             .with_fullsize_content_view(true)
             .with_titlebar_shown(false)
             .with_title_shown(false),
@@ -284,7 +307,9 @@ fn main() -> eframe::Result {
             if let Some(window) = cc.winit_window().cloned() {
                 app.services.displays = Some(Box::new(move || display_count(&window)));
             }
-            load_prefs(&mut app);
+            load_prefs(&mut app, saved);
+            app.client_frame = CLIENT_FRAME;
+            app.decorations_sent = CLIENT_FRAME.then_some(!nodalia_frame);
             app.enable_update_checks();
             // AutoRecover: reopen what a previous run left unsaved, then keep it current.
             if std::env::var_os("LAMINA_NO_RECOVERY").is_none() {
@@ -314,6 +339,8 @@ fn main() -> eframe::Result {
                 app,
                 #[cfg(target_os = "macos")]
                 apple_events.connect(&cc.egui_ctx),
+                #[cfg(target_os = "linux")]
+                linux_menu::install(&cc.egui_ctx, native_wayland),
             )))
         }),
     )
@@ -332,6 +359,8 @@ mod tests {
                 SlideApp::new(Session::new(), Services::default()),
                 #[cfg(target_os = "macos")]
                 fmv_macos_events::Inbox::default(),
+                #[cfg(target_os = "linux")]
+                None,
             );
             println!("calling on_exit");
             eframe::App::on_exit(&mut app);

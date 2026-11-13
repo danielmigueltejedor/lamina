@@ -602,6 +602,47 @@ pub fn drop_button(ui: &mut Ui, label: &str, size: egui::Vec2, enabled: bool) ->
     r
 }
 
+/// A borderless button with one of Nodalia's icons (by its NDL name), `size` points square: the
+/// title bar's menu and actions. Named for screen readers by `label`; no tooltip, since the
+/// icon alone is the convention (NDL).
+pub fn ndl_icon_button(ui: &mut Ui, name: &str, label: &str, size: f32, on: bool) -> Response {
+    let t = Tokens::get(ui.ctx());
+    let (rect, resp) = ui.allocate_exact_size(vec2(size, size), Sense::click());
+    if let Some(c) = bg(ui, &resp, on, &t) {
+        ui.painter().rect_filled(rect, CornerRadius::same(theme::CONTROL_RADIUS), c);
+    }
+    if let Some(icon) = nodalia_theme::icons::get(name) {
+        let glyph = Rect::from_center_size(rect.center(), vec2(size * 0.62, size * 0.62));
+        nodalia_theme::icons::paint(ui.painter(), glyph, icon, nodalia_theme::icons::Style::bold(t.text));
+    }
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, label));
+    resp.on_hover_cursor(egui::CursorIcon::PointingHand)
+}
+
+/// Nodalia's round close button, at the right end of `ui`'s current row: a dialog's only window
+/// control. Coral under the pointer, like the main window's. True when clicked.
+pub fn ndl_close_button(ui: &mut Ui, label: &str) -> bool {
+    let size = nodalia_theme::component::WINDOW_CONTROL_SIZE;
+    let (rect, resp) = ui.allocate_exact_size(vec2(size, size), Sense::click());
+    let dark = Tokens::get(ui.ctx()).dark;
+    let p = theme::palette(dark);
+    let (fill, ink) = if resp.is_pointer_button_down_on() {
+        (p.control_bg_pressed, p.text_primary)
+    } else if resp.hovered() {
+        (nodalia_theme::window_color::CLOSE, nodalia_theme::window_color::CLOSE_ICON)
+    } else {
+        (p.control_bg, p.text_secondary)
+    };
+    ui.painter().circle_filled(rect.center(), size / 2.0, theme::ndl(fill));
+    if let Some(icon) = nodalia_theme::icons::get("window-close") {
+        let s = nodalia_theme::component::WINDOW_CONTROL_ICON;
+        let glyph = Rect::from_center_size(rect.center(), vec2(s, s));
+        nodalia_theme::icons::paint(ui.painter(), glyph, icon, nodalia_theme::icons::Style::bold(theme::ndl(ink)));
+    }
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, label));
+    resp.on_hover_cursor(egui::CursorIcon::PointingHand).clicked()
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]

@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   freebsd:
-    uses: getnodalia/foundation/.github/workflows/freebsd.yml@ec62c63fd3206e4ed729fccf18a57170f8fa5dd6 # foundation main
+    uses: getnodalia/foundation/.github/workflows/freebsd.yml@976581262c95c0d95c0184149c0e1ba55485ccb3 # foundation main
     with:
       # Keep identical to ci.yml and release.yml. The shared FreeBSD workflow passes
       # CRAFT_FONTS_DIR to its tests but has no CRAFT_FONTS_REQUIRED input yet, so it does not

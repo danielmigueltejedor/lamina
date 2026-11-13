@@ -1,0 +1,266 @@
+# What `scripts/rebrand.py` renames: upstream's DeckCraft becomes Lámina, in file contents and in
+# paths. The weekly upstream sync applies the same rules to upstream's tree before merging it, so
+# a rule added here applies to everything upstream sends from then on.
+#
+# Replacements are literal and case-sensitive, applied in order: put the longer, more specific
+# ones first. Keep spans are found before any replacement, so a replacement never reaches inside
+# one. The product is written "Lámina" wherever people read it; names that end up in file paths,
+# bundle folders, registry keys and identifiers use the plain ASCII "Lamina"/"lamina".
+
+# Left as they are wherever they appear (in file contents and in paths).
+keep = [
+    # Family names baked into the binary test fonts under crates/*/tests/fixtures; the tests must
+    # ask for the names the fonts carry.
+    "DeckCraft(?= Colr Squares| Legacy)",
+    "DeckCraftLegacy-(?=Regular|Semibold)",
+    # Links to upstream's issues, pull requests and commits, and to other people's repositories:
+    # history, not branding. Links to upstream's tree and repository page are renamed below.
+    "(https?://)?github\\.com/storytold/[\\w.-]+/(issues|pull|commit|discussions)/[^\\s)\\]\"'<>`]*",
+    "https?://(github\\.com|raw\\.githubusercontent\\.com)/(?!storytold/(deckcraft|craft-fonts|craft-i18n|craft-libs|egui|winit)\\b|getnodalia|danielmigueltejedor)[^\\s)\\]\"'<>`]*",
+    # A Cargo [patch] names the source it overrides, which other crates still point at.
+    "\\[patch\\.\"https://github\\.com/storytold/[^\"]+\"\\]",
+    # Upstream's issues named without a link (`storytold/deckcraft#123`).
+    "storytold/[\\w.-]+#\\d+",
+    # Upstream's repository in the sync workflow and in the record of what came from it.
+    "(?<=UPSTREAM_REPO: )storytold/deckcraft",
+    # The native file's signature, which files already saved carry: the manifest's format tag
+    # and the zip's mimetype entry. Renaming them would make every existing file unreadable.
+    "(?<=format: )\"deckcraft\"",
+    "(?<=format != )\"deckcraft\"",
+    "(?<=\"format\": )\"deckcraft\"",
+    "application/vnd\\.storyteller\\.deckcraft\\+zip",
+    # Credit for work done upstream.
+    "DeckCraft contributors",
+    "ArtCraft Team",
+]
+
+# Files left alone entirely.
+skip = [
+    ".github/rebrand.toml",
+    "scripts/rebrand.py",
+    # Licence notices keep upstream's copyright line, which the licences require.
+    "NOTICE",
+    "LICENSE-*",
+    "licenses/*",
+    # The record of what came from upstream, and upstream's own README kept for reference.
+    "docs/upstream.md",
+    "docs/upstream-readme.md",
+    "NODALIA_MIGRATION.md",
+    # Binary Finder layout of the disk image: rebuilt by its own script.
+    "*.DS_Store",
+]
+
+# Run after renaming: shorter names change how rustfmt wraps lines and sorts imports.
+after = [["cargo", "fmt", "--all"]]
+
+# Lines that keep this app's value when upstream's tree is rebranded (the sync passes --pin-from).
+[[pin]]
+file = "Cargo.toml"
+pattern = '^version = "[^"]*"'
+
+# Identity: app id, publisher, installer identities (a product of its own, never DeckCraft's).
+[[replace]]
+from = "ai.storyteller.deckcraft.presentation"
+to = "dev.danielmiguelt.lamina.presentation"
+
+[[replace]]
+from = "ai.storyteller.deckcraft"
+to = "dev.danielmiguelt.Lamina"
+
+[[replace]]
+from = "DeckCraft maintainers <deckcraft@storyteller.ai>"
+to = "Nodalia <https://github.com/getnodalia/lamina/issues>"
+
+[[replace]]
+from = "<developer id=\"ai.storyteller\">"
+to = "<developer id=\"dev.danielmiguelt\">"
+
+[[replace]]
+from = "Learning Machines LLC"
+to = "Nodalia"
+
+[[replace]]
+from = "6F9C69E7-7825-40D2-BF26-C274DA676425"
+to = "842B3BA4-B875-4CFD-80D8-E4C69EF70667"
+
+[[replace]]
+from = "D87EA444-41A4-4C19-922E-66D1A29461FF"
+to = "C379F6EB-258A-48E4-B099-53DB3E036EDE"
+
+# The shared libraries, fonts and translations: Nodalia keeps them in getnodalia/foundation, on
+# vendor branches.
+[[replace]]
+from = "github.com/storytold/craft-fonts/blob/main/"
+to = "github.com/getnodalia/foundation/blob/vendor/craft-fonts/main/"
+
+[[replace]]
+from = "github.com/storytold/craft-i18n/blob/main/"
+to = "github.com/getnodalia/foundation/blob/vendor/craft-i18n/main/"
+
+[[replace]]
+from = "github.com/storytold/craft-libs/tree/main/"
+to = "github.com/getnodalia/foundation/tree/vendor/craft-libs/main/"
+
+[[replace]]
+from = "github.com/storytold/craft-libs/blob/main/"
+to = "github.com/getnodalia/foundation/blob/vendor/craft-libs/main/"
+
+[[replace]]
+from = "github.com/storytold/egui/blob/"
+to = "github.com/getnodalia/foundation/blob/"
+
+[[replace]]
+from = "github.com/storytold/craft-fonts"
+to = "github.com/getnodalia/foundation/tree/vendor/craft-fonts/main"
+
+[[replace]]
+from = "github.com/storytold/craft-i18n"
+to = "github.com/getnodalia/foundation/tree/vendor/craft-i18n/main"
+
+[[replace]]
+from = "github.com/storytold/craft-libs"
+to = "github.com/getnodalia/foundation/tree/vendor/craft-libs/main"
+
+[[replace]]
+from = "github.com/storytold/egui"
+to = "github.com/getnodalia/foundation/tree/vendor/egui/main"
+
+[[replace]]
+from = "github.com/storytold/winit"
+to = "github.com/getnodalia/foundation/tree/vendor/winit/master"
+
+[[replace]]
+from = "storytold/craft-fonts"
+to = "getnodalia/foundation (vendor/craft-fonts)"
+
+[[replace]]
+from = "storytold/craft-i18n"
+to = "getnodalia/foundation (vendor/craft-i18n)"
+
+[[replace]]
+from = "storytold/craft-libs"
+to = "getnodalia/foundation (vendor/craft-libs)"
+
+[[replace]]
+from = "storytold/winprint.rs"
+to = "getnodalia/foundation (vendor/winprint.rs)"
+
+# Where the app lives: its repository, releases, container images and web page.
+[[replace]]
+from = "ghcr.io/storytold/deckcraft"
+to = "ghcr.io/getnodalia/lamina"
+
+[[replace]]
+from = "storytold/deckcraft"
+to = "getnodalia/lamina"
+
+[[replace]]
+from = "https://discord.gg/artcraft"
+to = "https://github.com/getnodalia/lamina/issues"
+
+[[replace]]
+from = "getartcraft.com/apps/deckcraft"
+to = "getnodalia.com/lamina"
+
+[[replace]]
+from = "getartcraft.com"
+to = "getnodalia.com"
+
+# Upstream's community lives on Discord; Lámina's lives in its issue tracker (the link itself is
+# renamed above).
+[[replace]]
+from = "Join the ArtCraft community on Discord"
+to = "Report a problem or suggest an idea"
+
+[[replace]]
+from = "Join our community on Discord"
+to = "Report a problem or suggest an idea"
+
+[[replace]]
+from = "Discord   {DISCORD}"
+to = "Issues    {DISCORD}"
+
+[[replace]]
+from = "\"discord\": DISCORD"
+to = "\"issues\": DISCORD"
+
+[[replace]]
+from = "{} (Discord)"
+to = "{} (issues)"
+
+# The family the app belongs to: install folders, the About box.
+[[replace]]
+from = "ArtCraft"
+to = "Nodalia"
+
+# Names that end up in paths, bundle folders, registry keys and identifiers: plain ASCII.
+[[replace]]
+from = "DeckCraft.app"
+to = "Lamina.app"
+
+[[replace]]
+from = "DeckCraft.icns"
+to = "Lamina.icns"
+
+[[replace]]
+from = "DeckCraft.AppDir"
+to = "Lamina.AppDir"
+
+[[replace]]
+from = "DeckCraft.Presentation"
+to = "Lamina.Presentation"
+
+[[replace]]
+from = "DeckCraft.Shell"
+to = "Lamina.Shell"
+
+[[replace]]
+from = "DeckCraft-notarize"
+to = "Lamina-notarize"
+
+[[replace]]
+from = "MacOS/DeckCraft"
+to = "MacOS/Lamina"
+
+[[replace]]
+from = "Name=\"DeckCraft\" />"
+to = "Name=\"Lamina\" />"
+
+[[replace]]
+from = "Software\\DeckCraft"
+to = "Software\\Lamina"
+
+[[replace]]
+from = "DeckCraftVersion"
+to = "LaminaVersion"
+
+[[replace]]
+from = "DeckCraftBuildCommit"
+to = "LaminaBuildCommit"
+
+[[replace]]
+from = "DeckCraftLegacy"
+to = "LaminaLegacy"
+
+# A byte string can only hold ASCII.
+[[replace]]
+from = "b\"DeckCraft\".as_slice()"
+# PDF writes non-ASCII info strings as UTF-16BE with a byte-order mark.
+to = '[&[0xFE, 0xFF][..], &"Lámina".encode_utf16().flat_map(u16::to_be_bytes).collect::<Vec<u8>>()].concat().as_slice()'
+
+# The name, in every casing upstream uses.
+[[replace]]
+from = "DeckCraft"
+to = "Lámina"
+
+[[replace]]
+from = "Deckcraft"
+to = "Lamina"
+
+[[replace]]
+from = "deckcraft"
+to = "lamina"
+
+[[replace]]
+from = "DECKCRAFT"
+to = "LAMINA"

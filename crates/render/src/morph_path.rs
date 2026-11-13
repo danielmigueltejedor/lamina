@@ -1,11 +1,11 @@
 //! Morph of an outline: a frame shape whose geometry turns from the old shape's into its own (a
-//! circle into a star), with the points aligned by `deckcraft_geom::morph`.
+//! circle into a star), with the points aligned by `lamina_geom::morph`.
 
-use deckcraft_geom::Xfrm;
-use deckcraft_geom::morph::{Fade, GeometryMorph};
-use deckcraft_geom::preset::Geometry;
-use deckcraft_model::{Geom, Shape, ShapeId};
 use kurbo::Vec2;
+use lamina_geom::Xfrm;
+use lamina_geom::morph::{Fade, GeometryMorph};
+use lamina_geom::preset::Geometry;
+use lamina_model::{Geom, Shape, ShapeId};
 
 use crate::shape_geometry;
 

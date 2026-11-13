@@ -21,12 +21,12 @@ unchanged. Native unwind guards cannot catch WASM aborts or process-wide allocat
 ## Building and validation
 
 Rust 1.95 or newer is required. The workspace pins `craft-pdf` 0.1.0 and its Krilla 0.8.2
-patch to `https://github.com/storytold/craft-libs` revision
+patch to `https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main` revision
 `39adbdf756569c8e03adb747d5e063f468ca98c1`. Both packages resolve from that immutable Git source;
 a sibling checkout is unnecessary. Publish and review this shared-library prerequisite
 before publishing the app migration, so fresh CI and release builds can fetch it.
 
-Run `cargo test -p deckcraft-pdf` for export contracts and `cargo xtask ci` for all workspace
+Run `cargo test -p lamina-pdf` for export contracts and `cargo xtask ci` for all workspace
 gates. PDF contract tests also run with `wasm-bindgen-test-runner` on
 `wasm32-unknown-unknown`. The `pdf-deps` gate verifies the two writer source pins,
 retained Krilla image/text features and the development-only parser boundary.

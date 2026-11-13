@@ -2,7 +2,7 @@
 
 Current candidate font pin: `37827adc41fd165f9a9234ac40f94dbad353aa69` restores the complete prior Latin catalog alongside the migration fallbacks. All three workflows use that published revision.
 
-Status update (2026-10-25): the candidate includes main `80f13011d5a3c353369c6e38250df6e5a260f3e0`, preserving its table-cell selection, text AutoFormat, edit-point history, fill controls, status accessibility and GPU-test serialization. IME deletion's undo entry retains main's new point-type state. Status-control assertions locate the actual laid-out status row, avoiding the identically named ribbon control without assuming fixed UI zoom. Managed run `egui037-deckcraft-status-row-ci-20261025-0753` passed the focused status regression and all eight CI stages: 2,045 passing test executions, zero failures and six ignored across 61 summaries. These are execution counts, including repeated tests. Required font coverage was separately validated in run 0724; the merged tree retains it and its tests. Cargo dependency pins and lockfile are unchanged by this refresh. Native/browser GUI, native IME and paired application performance remain open. Publication requires separate explicit approval; human review and human merge are required.
+Status update (2026-10-25): the candidate includes main `80f13011d5a3c353369c6e38250df6e5a260f3e0`, preserving its table-cell selection, text AutoFormat, edit-point history, fill controls, status accessibility and GPU-test serialization. IME deletion's undo entry retains main's new point-type state. Status-control assertions locate the actual laid-out status row, avoiding the identically named ribbon control without assuming fixed UI zoom. Managed run `egui037-lamina-status-row-ci-20261025-0753` passed the focused status regression and all eight CI stages: 2,045 passing test executions, zero failures and six ignored across 61 summaries. These are execution counts, including repeated tests. Required font coverage was separately validated in run 0724; the merged tree retains it and its tests. Cargo dependency pins and lockfile are unchanged by this refresh. Native/browser GUI, native IME and paired application performance remain open. Publication requires separate explicit approval; human review and human merge are required.
 
 Review follow-up (2026-10-25): managed run `egui037-deck-review-green-ci-20261025-0810` passed the required-font regression and all eight CI stages, including WASM: 2,058 passing test executions, zero failures and six ignored across 61 summaries. Native builds now require BIZ UDPGothic Bold while web builds require Regular only; the missing-Bold regression failed with the old acceptance behavior and passed with the fix. Accessibility queries now distinguish combo-box purpose from selected value. Complexity refactors preserve the existing behavior. Long-paragraph IME deletion still scans a prefix/suffix; bounded-cost and paired performance qualification remain open. Remote SonarCloud and CodeRabbit must rerun on the eventual published commit.
 
@@ -14,7 +14,7 @@ The local candidate reconciles `main` through
 `38d2ade2b77de39c0e06278ddfd44d1082ff80a8` with the migration base
 `770f4653bff0700b33d8475181e168da90a7ad4f`. All five source files listed in the
 historical review below belong in the review commit. The source passed full CI
-job `egui037-deckcraft-regression-ci-20261025-0445`: all eight stages, with 1,991
+job `egui037-lamina-regression-ci-20261025-0445`: all eight stages, with 1,991
 test passes, zero failures and six ignored tests across 60 test summaries.
 
 The final regression additions exercise the Notes accessibility toggle, no-document
@@ -34,7 +34,7 @@ app performance remain open. No publication or merge is authorized by these resu
 > release; any eventual commit must include all five untracked files (see the final status section).
 > Build, test, benchmark, commit and publication remain with the parent's managed `task.py`
 > workflow and its separate publication approval.
-> **Implementation checkout:** `/home/codex/work/CraftApps/egui037-migration-20261022/deckcraft-implementation`
+> **Implementation checkout:** `/home/codex/work/CraftApps/egui037-migration-20261022/lamina-implementation`
 > at local base `770f4653bff0700b33d8475181e168da90a7ad4f` (dirty union). The earlier dirty
 > implementation snapshot `9aef21e627cb447dd2180cd804db85343e73e5cf` and the historical planning
 > baseline `b47195feec0f0fe4220d8943ad1c8add5dad8072` are retained only as review history.
@@ -44,7 +44,7 @@ app performance remain open. No publication or merge is authorized by these resu
 > human approval of the exact contents and validation.
 > **Review:** a fresh adversarial review of this plan, then a separate adversarial review of each
 > implementation PR, is required before landing. This revision resolves the independent review in
-> `plan-reviews/deckcraft-v1.md`: the lifecycle phase model, screenshot ownership, font feature,
+> `plan-reviews/lamina-v1.md`: the lifecycle phase model, screenshot ownership, font feature,
 > E21b/PRIMARY gaps, production pin provenance and performance sampling have been corrected. The
 > final current local review is `final-landing/deck-final-review0045.txt`; its disposition is
 > recorded in the final status section.
@@ -121,13 +121,13 @@ stock 0.37.0 stage exists only to isolate the API diff.
 | Manifest/package | egui-family use | Notes |
 |---|---|---|
 | root `Cargo.toml` | workspace `egui = "0.36"` with no feature, `egui_extras = "0.36"` (unused), `eframe = "0.36"` (`default-features = false`), `egui_kittest = "0.36"`; `[patch.crates-io] krilla` | `egui_extras` has no consumer; do not add or patch it "for completeness" |
-| `crates/ui-egui/Cargo.toml` (`deckcraft-ui-egui`) | `egui = { workspace = true }` with **no `default_fonts`**; dev `egui_kittest` with `wgpu, snapshot`; build `serde_json, toml` | Library and example `examples/icon_gallery.rs`. Add `features = ["default_fonts"]` here (or to a shared workspace feature) so standalone `cargo test -p deckcraft-ui-egui` does not depend on an app's feature unification |
-| `crates/fonts/Cargo.toml` (`deckcraft-fonts`) | direct `epaint_default_fonts = "0.36"` | Must move to 0.37 and be patched to the same fork source when the fork is used, or a second `epaint_default_fonts` source appears |
-| `apps/deckcraft/Cargo.toml` (`deckcraft`) | `eframe` with `default_fonts, wgpu, accesskit, links, wayland, x11`; `egui`; native `rfd, arboard, image, cpal`; macOS `fmv-macos-events`; Linux/BSD direct `winit 0.30` with X11 | `eframe` defaults are off, so the feature list is explicit; winit must be patched consistently with eframe on Linux/BSD |
-| `apps/deckcraft-web/Cargo.toml` (`deckcraft-web`) | wasm-only `eframe` with `default_fonts, wgpu, accesskit`; `rfd`, `wasm-bindgen`, `web-sys` | WebGPU with WebGL2 fallback; trunk build |
-| `apps/deckcraft-cli`, `crates/mcp`, engine and below | no egui | Unaffected except through `deckcraft-ui-egui` tests |
+| `crates/ui-egui/Cargo.toml` (`lamina-ui-egui`) | `egui = { workspace = true }` with **no `default_fonts`**; dev `egui_kittest` with `wgpu, snapshot`; build `serde_json, toml` | Library and example `examples/icon_gallery.rs`. Add `features = ["default_fonts"]` here (or to a shared workspace feature) so standalone `cargo test -p lamina-ui-egui` does not depend on an app's feature unification |
+| `crates/fonts/Cargo.toml` (`lamina-fonts`) | direct `epaint_default_fonts = "0.36"` | Must move to 0.37 and be patched to the same fork source when the fork is used, or a second `epaint_default_fonts` source appears |
+| `apps/lamina/Cargo.toml` (`lamina`) | `eframe` with `default_fonts, wgpu, accesskit, links, wayland, x11`; `egui`; native `rfd, arboard, image, cpal`; macOS `fmv-macos-events`; Linux/BSD direct `winit 0.30` with X11 | `eframe` defaults are off, so the feature list is explicit; winit must be patched consistently with eframe on Linux/BSD |
+| `apps/lamina-web/Cargo.toml` (`lamina-web`) | wasm-only `eframe` with `default_fonts, wgpu, accesskit`; `rfd`, `wasm-bindgen`, `web-sys` | WebGPU with WebGL2 fallback; trunk build |
+| `apps/lamina-cli`, `crates/mcp`, engine and below | no egui | Unaffected except through `lamina-ui-egui` tests |
 | `xtask/Cargo.toml` | no egui | CI/bench/parity tooling |
-| `apps/deckcraft/build.rs` | Windows icon/VERSIONINFO only | No egui change |
+| `apps/lamina/build.rs` | Windows icon/VERSIONINFO only | No egui change |
 
 There are no `vendor/` directories, no nested Cargo workspaces, no `[patch]` sections outside the
 root, and no `egui_extras`, `egui_plot`, `egui_dock`, `egui_tiles` or `egui_system_font_provider`
@@ -136,19 +136,19 @@ forks and the existing `krilla` patch, which must be preserved.
 
 ### 2.3 Entry points and target-specific code
 
-- `apps/deckcraft/src/main.rs:39-62` — `impl eframe::App for App`: `logic`, `raw_input_hook`,
+- `apps/lamina/src/main.rs:39-62` — `impl eframe::App for App`: `logic`, `raw_input_hook`,
   `ui`, `on_exit`. `on_exit` saves preferences and, on macOS, exits before eframe/AccessKit tears
   down the window (#279).
-- `apps/deckcraft/src/main.rs:212-311` — `main`: `NativeOptions`, title bar/fullsize flags,
+- `apps/lamina/src/main.rs:212-311` — `main`: `NativeOptions`, title bar/fullsize flags,
   app id/icon, X11/Wayland choice, Windows DX12/FXC configuration, macOS Apple events, run_native,
   `SlideApp::new`, preferences, AutoRecover open, control server, sample/open files, show start.
-- `apps/deckcraft/src/control_server.rs` — localhost JSON-lines control server; passes a cloned
+- `apps/lamina/src/control_server.rs` — localhost JSON-lines control server; passes a cloned
   `egui::Context` to requests; has tests for timeouts/abandonment.
-- `apps/deckcraft/src/display.rs` — Linux/BSD X11 vs Wayland choice; `with_x11` event-loop hook.
-- `apps/deckcraft/src/graphics.rs` — Windows DX12-only wgpu instance and FXC compiler defaults.
-- `apps/deckcraft/src/apple_events.rs` — Finder/quit Apple events; calls `ctx.request_repaint`.
-- `apps/deckcraft/src/pasteboard.rs` — arboard HTML and image pasteboard.
-- `apps/deckcraft-web/src/main.rs` and `web.rs:76-116` — wasm shell, `WebShell::{logic, raw_input_hook, ui}`;
+- `apps/lamina/src/display.rs` — Linux/BSD X11 vs Wayland choice; `with_x11` event-loop hook.
+- `apps/lamina/src/graphics.rs` — Windows DX12-only wgpu instance and FXC compiler defaults.
+- `apps/lamina/src/apple_events.rs` — Finder/quit Apple events; calls `ctx.request_repaint`.
+- `apps/lamina/src/pasteboard.rs` — arboard HTML and image pasteboard.
+- `apps/lamina-web/src/main.rs` and `web.rs:76-116` — wasm shell, `WebShell::{logic, raw_input_hook, ui}`;
   browser drop-read and picker inbox; downloads.
 - `crates/ui-egui/src/lib.rs` — `SlideApp` state (`:435-518`), `run` (`:656-674`), `run_ui`
   (`:838...`), `logic` (`:1540-1602`), `raw_input_hook` (`:1652-1655`), `keyboard`
@@ -169,20 +169,20 @@ forks and the existing `krilla` patch, which must be preserved.
 - Extensive unit/integration tests live in `crates/ui-egui/src/*_tests.rs` and inline `#[cfg(test)]`
   modules. Most UI tests build `egui_kittest::Harness` with
   `build_ui_state(|ui, app| { app.logic(ui.ctx()); app.ui(ui); }, SlideApp::new(...))`.
-  `ui_soak_tests.rs` has an ignored long soak selected by `DECKCRAFT_UI_SOAK_STEPS`.
+  `ui_soak_tests.rs` has an ignored long soak selected by `LAMINA_UI_SOAK_STEPS`.
 - There are no committed snapshot images or snapshot calls in the baseline UI tests; the
   `snapshot` kittest feature is enabled but only a few tests call `h.render()` to `/tmp`.
 - `crates/ui-egui/examples/icon_gallery.rs` renders the icon set; it is not a UI golden test.
 - `cargo xtask ci` is the repository gate: `fmt --check`, `pdf-deps`, `clippy -D warnings`,
   `cargo test --workspace`, asset attribution, layering, wasm32 checks. `cargo xtask bench`
-  wraps `deckcraft-cli bench` and compares against `docs/benchmarks/baseline.json`; **that file
+  wraps `lamina-cli bench` and compares against `docs/benchmarks/baseline.json`; **that file
   does not exist in the baseline**, so the first implementation task is to create a baseline in
   evidence, not to treat a missing file as a pass.
 - GitHub CI is Ubuntu-only for gates; FreeBSD is a reusable workflow; Windows ARM64 and release
   packaging are separate; macOS is release-only. The Windows build/GUI evidence must come from a
   fresh `VMs/craft-windows` clone under the server workflow, not from Linux cross-compilation.
 - Historical compiler diagnostics under
-  `/home/codex/work/ssd2/task-evidence/egui037-audit-20261022/{fork,stock}/deckcraft.errors`
+  `/home/codex/work/ssd2/task-evidence/egui037-audit-20261022/{fork,stock}/lamina.errors`
   are clues about the old source state, not acceptance for this checkout. They identify `Role`
   renames, `UserData`/`Event::Screenshot`, and `Event::MouseWheel.source`.
 
@@ -218,7 +218,7 @@ Verified against the stock `0.37.0` sources and the suite candidate:
 | kittest | unnamed inputs accepted; missing glyphs draw tofu | unnamed visible inputs panic by default; missing glyphs panic by default (`MissingGlyphPolicy::Panic`), `allow_missing_glyphs()` opts out | Audit and label text fields; keep panic policy for curated UI screens; opt out only for arbitrary-script soak tests |
 | Accessibility | `WidgetType`; fewer names/roles | `Role`; `Response::accessible_name`, `labelled_by`, `Ui::name_inputs`, panel resize handles, invisible widgets hidden; `Response::widget_info` **does** register an AccessKit role/label/value | Add names only where missing; keep and repair existing `widget_info` where it already supplies role/label/value. Do not treat `widget_info` as output-only and do not replace a working role with a bare name |
 | Panels/root UI | panels on a root `Ui`, state keyed by the supplied `Id` | same model, but `Panel` stores `IdSalt` and keys by `parent_ui.scope_id().with_salt(self.id_salt)`; panel/Scene clip respects parent (#8562) | Keep the current panel order and nesting; unchanged strings still produce different effective IDs, so keep parent-salted panel identities; assert app-owned UiState dimensions survive save/reopen; no persisted egui panel reset exists (§4.5). Never call `root_ui` inside `App::ui` |
-| Default fonts | egui's default features included `default_fonts` | `default_fonts` is no longer an `egui` default; eframe still enables it by default; only `apps/deckcraft` and `apps/deckcraft-web` enable it explicitly | Add `egui/default_fonts` to `deckcraft-ui-egui` itself or a shared workspace feature, keep the explicit app features, and test the library standalone; `theme::font_definitions` calls `FontDefinitions::default()`, which is empty without the feature |
+| Default fonts | egui's default features included `default_fonts` | `default_fonts` is no longer an `egui` default; eframe still enables it by default; only `apps/lamina` and `apps/lamina-web` enable it explicitly | Add `egui/default_fonts` to `lamina-ui-egui` itself or a shared workspace feature, keep the explicit app features, and test the library standalone; `theme::font_definitions` calls `FontDefinitions::default()`, which is empty without the feature |
 | `AsId` / deprecated APIs | used | removed | Remove any remaining uses; `-D warnings` makes deprecations failures |
 | root UI API | `Context::run` | `Context::run_ui`, `Context::run_pass`, `Context::root_ui`; `root_ui` panics if the root `Ui` is already borrowed (#8535) | Tests/headless use `run_ui`; app code never calls `root_ui` from inside `App::ui`/`run_ui` |
 | hidden windows | eframe has `update` (logic+ui) and `update_logic_only` (logic only) | same contract | Both native and web call `App::logic` and `App::ui` inside `Context::run_ui` per pass. The minimized/occluded root uses `run_logic` only when no paint is wanted; a pending screenshot, `RequestPaintWhileHidden`, or a visible descendant forces a full UI pass. Never use visibility as a logic-only test |
@@ -285,7 +285,7 @@ Keep `SlideApp` as the owner of all app state. Route work by what consumes it, n
 3. **Render-adjacent helpers** (`textures`, `media` texture sync, `screenshots`) — called from `ui`
    or from the app's result-drain path and never own document state.
 
-The `App` wrapper in `apps/deckcraft/src/main.rs` and `WebShell` in `apps/deckcraft-web/src/web.rs`
+The `App` wrapper in `apps/lamina/src/main.rs` and `WebShell` in `apps/lamina-web/src/web.rs`
 remain thin: Apple/drop events, then `app.logic(ctx)`, then `app.ui(ui)`. No generic context
 bridge is added.
 
@@ -395,7 +395,7 @@ No command or persistence contract changes:
 - `control::handle` continues to call `app.run`, `app.save_all`, `app.open_path`, etc.
 - `Session` history remains snapshot-based; do not add undo entries for `logic`, screenshots,
   autosave, focus changes, copy/cut, or theme/font installation.
-- `.deckcraft`, `.pptx`, recovery and settings formats are unchanged. `UiState`/`Prefs` serde
+- `.lamina`, `.pptx`, recovery and settings formats are unchanged. `UiState`/`Prefs` serde
   compatibility tests continue.
 - A frame replay (Grid sizing pass) must produce the same document and one undo entry. Add a
   mutation-check test that forces `request_discard` while clicking a mutating control and asserts
@@ -438,9 +438,9 @@ Actions:
 
 There is no docking library. The app's viewports are:
 
-- `view.newWindow`: immediate viewport `Id::from_hash_of("deckcraft_doc_window")`, title `name:2`,
+- `view.newWindow`: immediate viewport `Id::from_hash_of("lamina_doc_window")`, title `name:2`,
   960×640, min 480×360; shows the live document texture, next/previous buttons, close request.
-- Presenter view: immediate viewport `Id::from_hash_of("deckcraft_presenter")`, 1100×700, notes,
+- Presenter view: immediate viewport `Id::from_hash_of("lamina_presenter")`, 1100×700, notes,
   clock, controls.
 - Full-screen show: root viewport enters/exits fullscreen; no child viewport.
 
@@ -475,12 +475,12 @@ Reasons:
 
 Actions:
 
-- Add `features = ["default_fonts"]` to `deckcraft-ui-egui`'s `egui` dependency (or a shared
-  workspace feature consumed by both the library and apps). Today only `apps/deckcraft` and
-  `apps/deckcraft-web` enable it; `crates/ui-egui/Cargo.toml:21` does not, and in 0.37
+- Add `features = ["default_fonts"]` to `lamina-ui-egui`'s `egui` dependency (or a shared
+  workspace feature consumed by both the library and apps). Today only `apps/lamina` and
+  `apps/lamina-web` enable it; `crates/ui-egui/Cargo.toml:21` does not, and in 0.37
   `FontDefinitions::default()` is empty without the feature. `theme::font_definitions` builds the
   UI families from it, and `examples/icon_gallery.rs` is affected too. Test
-  `cargo test -p deckcraft-ui-egui` standalone with and without `CRAFT_FONTS_DIR`; do not rely on
+  `cargo test -p lamina-ui-egui` standalone with and without `CRAFT_FONTS_DIR`; do not rely on
   app feature unification.
 - Update `crates/fonts/Cargo.toml` `epaint_default_fonts` to `0.37.0` (or the same reviewed
   storytold source). Its constants (`HACK_REGULAR`, `UBUNTU_LIGHT`) remain the last-resort face.
@@ -684,17 +684,17 @@ Lámina. The shape is:
 
 ```toml
 [patch.crates-io]
-winit = { git = "https://github.com/storytold/winit", rev = "<reviewed published storytold winit full SHA with W15P>" }
-eframe = { git = "https://github.com/storytold/egui", rev = "<reviewed published storytold egui full SHA with E1-E21 + E21b>" }
-egui = { git = "https://github.com/storytold/egui", rev = "<same reviewed storytold egui full SHA>" }
-egui-winit = { git = "https://github.com/storytold/egui", rev = "<same reviewed storytold egui full SHA>" }
-egui-wgpu = { git = "https://github.com/storytold/egui", rev = "<same reviewed storytold egui full SHA>" }
-egui_kittest = { git = "https://github.com/storytold/egui", rev = "<same reviewed storytold egui full SHA>" }
-epaint = { git = "https://github.com/storytold/egui", rev = "<same reviewed storytold egui full SHA>" }
-epaint_default_fonts = { git = "https://github.com/storytold/egui", rev = "<same reviewed storytold egui full SHA>" }
-ecolor = { git = "https://github.com/storytold/egui", rev = "<same reviewed storytold egui full SHA>" }
-emath = { git = "https://github.com/storytold/egui", rev = "<same reviewed storytold egui full SHA>" }
-krilla = { git = "https://github.com/storytold/craft-libs", rev = "c3487320b2d1de657b860b3c8abb44e1f2b32bd8", version = "=0.8.2" }
+winit = { git = "https://github.com/getnodalia/foundation/tree/vendor/winit/master", rev = "<reviewed published storytold winit full SHA with W15P>" }
+eframe = { git = "https://github.com/getnodalia/foundation/tree/vendor/egui/main", rev = "<reviewed published storytold egui full SHA with E1-E21 + E21b>" }
+egui = { git = "https://github.com/getnodalia/foundation/tree/vendor/egui/main", rev = "<same reviewed storytold egui full SHA>" }
+egui-winit = { git = "https://github.com/getnodalia/foundation/tree/vendor/egui/main", rev = "<same reviewed storytold egui full SHA>" }
+egui-wgpu = { git = "https://github.com/getnodalia/foundation/tree/vendor/egui/main", rev = "<same reviewed storytold egui full SHA>" }
+egui_kittest = { git = "https://github.com/getnodalia/foundation/tree/vendor/egui/main", rev = "<same reviewed storytold egui full SHA>" }
+epaint = { git = "https://github.com/getnodalia/foundation/tree/vendor/egui/main", rev = "<same reviewed storytold egui full SHA>" }
+epaint_default_fonts = { git = "https://github.com/getnodalia/foundation/tree/vendor/egui/main", rev = "<same reviewed storytold egui full SHA>" }
+ecolor = { git = "https://github.com/getnodalia/foundation/tree/vendor/egui/main", rev = "<same reviewed storytold egui full SHA>" }
+emath = { git = "https://github.com/getnodalia/foundation/tree/vendor/egui/main", rev = "<same reviewed storytold egui full SHA>" }
+krilla = { git = "https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main", rev = "c3487320b2d1de657b860b3c8abb44e1f2b32bd8", version = "=0.8.2" }
 ```
 
 The `aiongg/egui` `a4f9a17f` and `aiongg/winit` `8b35388b` revisions are source-review inputs, not
@@ -707,7 +707,7 @@ patch and its `cargo xtask pdf-deps` check.
 
 **Publication rules.** No machine-local path overrides may be committed. Only public git URLs and
 immutable full SHAs are publishable. A branch name is not acceptable, and an `aiongg` personal-fork
-SHAs must not appear in a production manifest or release. The `deckcraft` app is `publish = false`,
+SHAs must not appear in a production manifest or release. The `lamina` app is `publish = false`,
 so its root patch and lock are not crates.io publication artifacts, but releases and CI must
 still resolve the public storytold revisions. No stage is pushed or published without fresh human
 approval of the exact contents and validation.
@@ -744,7 +744,7 @@ The required-input gate is explicit, but CI and FreeBSD qualification remain par
   `craft-common-actions` adds one (or the caller can otherwise set that environment); do not cite
   FreeBSD as required-font evidence before then.
 
-The font assets stay in the central `storytold/craft-fonts` repository; no font file is added to
+The font assets stay in the central `getnodalia/foundation (vendor/craft-fonts)` repository; no font file is added to
 this checkout.
 
 ### 5.2 Fork patch ledger and Lámina decisions
@@ -762,8 +762,8 @@ reviewed addition. Lámina decisions:
 | E7 `0670c58a` egui-winit | Windows letter keys from virtual-key code on non-A–Z layouts | Keep. Relevant to shortcuts. | Russian/Arabic/Hebrew layout shortcut test; remove on upstream |
 | E8 `1b03c10f` egui TextEdit | no clipping of glyphs above/below row | Keep. Relevant to notes/dialog text. | Thai/Vietnamese/Arabic marks; remove on upstream |
 | E9 `b2f5cafc...` egui RTL style | mirrors menus, scroll bars, headers, title bars, combo boxes, popups, resize grips | Keep. No app code sets `right_to_left`, so LTR must not change. | LTR geometry golden and RTL review; remove on upstream |
-| E10 `dc90c13e...` eframe web | named keys not text; `code`-based letters; `lang` on hidden input/speech | Keep. Relevant to `deckcraft-web`. | Browser keyboard/IME test; wasm compile; remove on upstream |
-| E11 `92e61afd` epaint | glyphs rasterized on single-threaded vello_cpu; no multithreading panic | Keep for egui text. Lámina's `deckcraft-render` uses its own vello_cpu and already has a filters/threads regression test. | UI text with filters/emoji; slide renderer tests; remove on upstream |
+| E10 `dc90c13e...` eframe web | named keys not text; `code`-based letters; `lang` on hidden input/speech | Keep. Relevant to `lamina-web`. | Browser keyboard/IME test; wasm compile; remove on upstream |
+| E11 `92e61afd` epaint | glyphs rasterized on single-threaded vello_cpu; no multithreading panic | Keep for egui text. Lámina's `lamina-render` uses its own vello_cpu and already has a filters/threads regression test. | UI text with filters/emoji; slide renderer tests; remove on upstream |
 | E17 `520435df` egui language | `Context::set_language`, `UiBuilder::language`, AccessKit language | Keep but do not enable an app locale yet. | AccessKit language test only if the app sets it; otherwise compile-only |
 | E18 `89de8f3c` eframe | `Frame::set_ui_language`; web fallback | Keep available; Lámina has no localized UI. | No app call in this migration; revisit with localization |
 | E19 `d64047bf...` egui/winit | one Latin letter-key rule; `keyboard_layout_is_latin`, `latin_layout_chars` | Keep. Relevant to shortcuts. | Shortcut tests; remove with winit API |
@@ -849,14 +849,14 @@ stage is published without fresh human approval of contents and validation.
 ### D1 — atomic final-fork 0.37 compatibility PR
 
 Dependencies: D0 and final reviewed/published storytold egui/winit including P2b, P7, P7b/E21b, W15P/W27 and P7c. Files: root `Cargo.toml`, `Cargo.lock`, `crates/fonts/Cargo.toml`,
-`crates/ui-egui/Cargo.toml` and `src/*`, `apps/deckcraft*` if the App trait/feature graph requires
+`crates/ui-egui/Cargo.toml` and `src/*`, `apps/lamina*` if the App trait/feature graph requires
 it, tests. Stock 0.37 remains an isolated comparison workspace, never a production stage.
 
 - Bump `egui/eframe/egui_kittest` to 0.37; `epaint_default_fonts` to 0.37. Pin the complete immutable final egui-family/winit patches; preserve krilla.
 - Explicitly enable native `eframe/clipboard` and verify cross-process copy/cut/paste.
 - Include the compatible canvas E21b producer, incoming E21 byte handling and owner/clear/final-pass contract.
-- Add `default_fonts` to `deckcraft-ui-egui`'s `egui` dependency (or a shared workspace feature),
-  not just the apps; verify `cargo test -p deckcraft-ui-egui` standalone.
+- Add `default_fonts` to `lamina-ui-egui`'s `egui` dependency (or a shared workspace feature),
+  not just the apps; verify `cargo test -p lamina-ui-egui` standalone.
 - Replace `WidgetType` imports/variants with `Role`; `TextEdit -> TextInput`,
   `Checkbox -> CheckBox`, `SelectableLabel -> Button`, `Other -> Unknown` initially.
 - Replace egui `Id::new` with `Id::unique`; replace every `ui.id()` and `UiBuilder::id` with
@@ -868,7 +868,7 @@ it, tests. Stock 0.37 remains an isolated comparison workspace, never a producti
   `Event::Screenshot`.
 - Fix kittest fallout in this first green PR: required accessible names for genuinely unnamed
   inputs (keep working `widget_info`), missing-glyph/glyph-coverage replacements, the
-  `default_fonts` feature fix for `deckcraft-ui-egui`, any `ATTRIBUTION.md` rows for changed
+  `default_fonts` feature fix for `lamina-ui-egui`, any `ATTRIBUTION.md` rows for changed
   assets, and all gate updates. Do not defer names/glyph/feature/attribution/gate work to a later
   stage, and verify app-owned settings sizes without an invented PanelState migration.
 - Gate: workspace `cargo xtask ci`; UI kittest suite; wasm check; native smoke; review every
@@ -877,7 +877,7 @@ it, tests. Stock 0.37 remains an isolated comparison workspace, never a producti
 ### D2 — Lifecycle, hidden logic, multi-pass and screenshots
 
 Dependencies: D1. Files: `crates/ui-egui/src/lib.rs`, `control.rs`, `media.rs`, `opening.rs`,
-`uifonts.rs`, `textures.rs`, tests; `apps/deckcraft/src/main.rs`, `apps/deckcraft-web/src/web.rs`.
+`uifonts.rs`, `textures.rs`, tests; `apps/lamina/src/main.rs`, `apps/lamina-web/src/web.rs`.
 
 - Add the monotonic app clock; move autosave deadlines, media clock and show/animation advancement
   into `logic` on every call; split video texture sync into `ui`.
@@ -951,7 +951,7 @@ Required new/updated tests:
 1. **Commands/undo:** insert shape, type text, move, undo/redo; assert document state and exactly
    one undo entry per user action. Include a Grid `request_discard` pass and assert no duplicate
    command/undo.
-2. **Save/reopen:** build sample deck, save `.deckcraft` to a temp path via `Services::write`,
+2. **Save/reopen:** build sample deck, save `.lamina` to a temp path via `Services::write`,
    close, reopen, assert slide count, shape text, selection-independent content; repeat for a
    `.pptx` round trip where existing format tests apply.
 3. **Screenshot correlation:** capture the `ScreenshotCallback`s from viewport output and complete
@@ -973,7 +973,7 @@ Required new/updated tests:
    area; title/ribbon/status do not overlap; pane widths persisted; clipped content not drawn
    over neighboring panels; app-owned settings dimensions survive save/reopen without an egui
    PanelState migration, and session-local outline resizing works.
-8. **Fonts/glyphs:** standalone `cargo test -p deckcraft-ui-egui` renders with the library's own
+8. **Fonts/glyphs:** standalone `cargo test -p lamina-ui-egui` renders with the library's own
    `default_fonts`, with and without `CRAFT_FONTS_DIR`; curated screens use kittest's default
    missing-glyph panic; fallback faces added once and `UiFonts` enforces its per-face and aggregate
    budget under adversarial multi-script input; soak test uses `allow_missing_glyphs()` only for
@@ -1033,13 +1033,13 @@ Run each as a temporary local patch, never commit, and record the failure output
 
 ### 7.4 Platform gates
 
-- **Linux native:** X11 and Wayland (Hyprland/KWin if available), 1×/2×, `deckcraft --sample
+- **Linux native:** X11 and Wayland (Hyprland/KWin if available), 1×/2×, `lamina --sample
   --control`; `ui.screenshot`, `ui.resize`, input/IME, regular clipboard, W15P PRIMARY, viewports.
 - **Windows native:** fresh clone from `VMs/craft-windows`, new ports, separate source/target,
-  `Build-Pliego` equivalent for Lámina (`cargo build --release -p deckcraft` with
+  `Build-Pliego` equivalent for Lámina (`cargo build --release -p lamina` with
   `CRAFT_FONTS_DIR`), DX12/FXC, Windows IME/layout, screenshot/GUI via `vm.py`/`guest-exec.py`,
   `ui.screenshot`, doc window, save/reopen.
-- **Web:** `trunk build --release` in `apps/deckcraft-web`; Chrome/Chromium with WebGPU and
+- **Web:** `trunk build --release` in `apps/lamina-web`; Chrome/Chromium with WebGPU and
   `?webgl`; load sample, open/save/download, keyboard/IME, CJK/emoji rendering, hidden-tab
   `run_logic`, no console panic. A wasm compile is not browser acceptance.
 - **macOS:** release CI or real hardware only; AccessKit/on_exit, traffic lights, Apple events,
@@ -1054,11 +1054,11 @@ For each implementation stage:
 ```
 cargo xtask ci
 cargo xtask bench          # after a baseline exists; evidence copy
-cargo test -p deckcraft-ui-egui   # with the reviewed CRAFT_FONTS_DIR
-cargo test -p deckcraft-ui-egui   # without CRAFT_FONTS_DIR, separate job
-cargo test -p deckcraft
-cargo check -p deckcraft-web --target wasm32-unknown-unknown
-trunk build --release      # apps/deckcraft-web, when web behavior changed
+cargo test -p lamina-ui-egui   # with the reviewed CRAFT_FONTS_DIR
+cargo test -p lamina-ui-egui   # without CRAFT_FONTS_DIR, separate job
+cargo test -p lamina
+cargo check -p lamina-web --target wasm32-unknown-unknown
+trunk build --release      # apps/lamina-web, when web behavior changed
 ```
 
 Run through `task.py run/status/finish` with the stage's unique task and evidence; do not run a
@@ -1086,8 +1086,8 @@ samples are captured in D0 before any production change.
 
 ### 8.2 Operations
 
-- Headless (`cargo xtask bench` / `deckcraft-cli bench --runs N --json`): open `.deckcraft`,
-  open `.pptx`, render all slides at 1×, save `.deckcraft`, save `.pptx`, export PDF; peak RSS.
+- Headless (`cargo xtask bench` / `lamina-cli bench --runs N --json`): open `.lamina`,
+  open `.pptx`, render all slides at 1×, save `.lamina`, save `.pptx`, export PDF; peak RSS.
 - UI native via control channel:
   - cold start to first `ui.inspect` (process start → reply), 20+ fresh processes;
   - idle 60 s: CPU time, `perf.fps`, repaint count if exposed;
@@ -1147,7 +1147,7 @@ clamp-only shortcut.
 
 ## 9. Evidence, documentation and cleanup
 
-- Evidence root: `/home/codex/work/ssd2/task-evidence/egui037-migration-20261022/deckcraft/`
+- Evidence root: `/home/codex/work/ssd2/task-evidence/egui037-migration-20261022/lamina/`
   (or the per-task evidence path returned by `task.py`). Keep baseline/candidate locks, source
   diffs, raw performance JSON, screenshots, test logs, mutation-check logs and exact font/fixture
   identities.
@@ -1246,7 +1246,7 @@ clamp-only shortcut.
 - [ ] Every visible input has an accessible name; working `widget_info` roles/values retained;
       roles/selected states asserted; missing-name mutation check fails as expected.
 - [ ] Curated glyph coverage passes with kittest panic policy; `UiFonts` per-face and aggregate
-      budgets tested; standalone `deckcraft-ui-egui` tests pass with and without `CRAFT_FONTS_DIR`.
+      budgets tested; standalone `lamina-ui-egui` tests pass with and without `CRAFT_FONTS_DIR`.
 - [ ] PasteImage, W15P PRIMARY, pre-existing DeleteSurrounding + E21b outgoing text, RTL/grapheme/
       non-Latin shortcuts and the #8763 selection-action regression tested.
 - [ ] GPU surface/texture limits, filtering, DX12 FXC and #8731 text tessellation measured; no panic
@@ -1322,7 +1322,7 @@ workspace's read-only copy.
 
 The user clarified that reviewed plans remain local and implementation proceeds before publication. The earlier requirement to publish/land this plan first is superseded; pushes and PR publication still require explicit approval.
 
-Canonical `storytold/deckcraft` `main` now resolves to `0f4fffcf6c71ffa16029d07ac23752fedd783547`. The owned checkout was fast-forwarded to this revision. Earlier baseline SHAs and line anchors above are retained as historical review evidence; use this new revision and its exact lockfile for current-main integration and paired measurements. The original refs remain reachable.
+Canonical `getnodalia/lamina` `main` now resolves to `0f4fffcf6c71ffa16029d07ac23752fedd783547`. The owned checkout was fast-forwarded to this revision. Earlier baseline SHAs and line anchors above are retained as historical review evidence; use this new revision and its exact lockfile for current-main integration and paired measurements. The original refs remain reachable.
 
 No migration API redesign required by this delta; preserve the merged packaging, test and chrono changes where present.
 
@@ -1456,8 +1456,8 @@ publication packet; old dirty-union hashes below are historical evidence only.
 |---|---|---|
 | egui family (`egui`, `eframe`, `egui-winit`, `egui-wgpu`, `epaint`, `ecolor`, `emath`, `epaint_default_fonts`, `egui_kittest`, …) | `storytold/egui` `6d518fc799681571963842f95b55a6b68431b15a` | `Cargo.toml` patch entries and `Cargo.lock` agree |
 | winit | `storytold/winit` `a517b3846ee8457d84ee4975110bfda6797c44dc` | `Cargo.toml` patch entry |
-| craft-media | `storytold/craft-libs` `f0ad6c1e1d297908915f4be315b0fcfc9be7b5d4` | intentionally separate craft-libs pin |
-| craft-pdf / krilla patch | `storytold/craft-libs` `9f75d3dc19b4b514c4f3d4847ed1ec1b0e86b4ef` | intentionally separate craft-libs pin |
+| craft-media | `getnodalia/foundation (vendor/craft-libs)` `f0ad6c1e1d297908915f4be315b0fcfc9be7b5d4` | intentionally separate craft-libs pin |
+| craft-pdf / krilla patch | `getnodalia/foundation (vendor/craft-libs)` `9f75d3dc19b4b514c4f3d4847ed1ec1b0e86b4ef` | intentionally separate craft-libs pin |
 
 The craft-media `f0ad6c1e…` and craft-pdf `9f75d3dc…` pins are intentionally separate from the
 egui/winit pins; they are **not** required to move to `25da1314…`. The font inputs bundled by

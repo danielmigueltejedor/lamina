@@ -1,10 +1,9 @@
 # Attribution
 
-Every asset DeckCraft includes, bundles, embeds at build time or shows in its documentation, with
+Every asset Lámina includes, bundles, embeds at build time or shows in its documentation, with
 its author, source and licence. The policy is in [AGENTS.md](AGENTS.md) §1. `cargo xtask assets`
-fails if a file under `assets/`, `docs/images/` or `docs/brand/` is missing from this table.
 
-DeckCraft contains **no Microsoft, Adobe, Avid or Autodesk iconography, images, fonts, themes,
+Lámina contains **no Microsoft, Adobe, Avid or Autodesk iconography, images, fonts, themes,
 templates or other assets**. Its themes, colour schemes, layouts, preset-shape geometry, sample
 deck and UI icons are original work of the DeckCraft contributors (drawn or generated in code).
 Icons placed from Insert › Icons are Lucide paths (ISC; Feather-derived icons MIT), not Microsoft
@@ -14,18 +13,13 @@ artwork. The ribbon and menu icons stay original drawings.
 
 | Asset | Author | Source | Licence | Used for |
 |---|---|---|---|---|
-| `docs/brand/artcraft-logo.svg`, `docs/brand/artcraft-logo.png` | ArtCraft Team | ArtCraft brand kit (project owner) | ArtCraft trademark, `docs/brand/LICENSE-brand.txt` (not open source) | README header |
-| `docs/brand/artcraft-logo-white.svg`, `docs/brand/artcraft-logo-white.png` | ArtCraft Team | ArtCraft brand kit | ArtCraft trademark, `docs/brand/LICENSE-brand.txt` | README header (dark mode) |
-| `docs/brand/artcraft-mark.svg`, `docs/brand/artcraft-mark.png` | ArtCraft Team | ArtCraft brand kit | ArtCraft trademark, `docs/brand/LICENSE-brand.txt` | README footer, About |
-| `docs/brand/artcraft-mark-black.svg`, `docs/brand/artcraft-mark-black.png` | ArtCraft Team | ArtCraft brand kit | ArtCraft trademark, `docs/brand/LICENSE-brand.txt` | Mark for light backgrounds |
-| `docs/brand/LICENSE-brand.txt` | ArtCraft Team | ArtCraft brand kit | — (licence text) | Terms for the ArtCraft marks |
-| `assets/app-icon/deckcraft-1024.png`, `assets/app-icon/hicolor/*/apps/ai.storyteller.deckcraft.png` | DeckCraft contributors | rendered by DeckCraft from `assets/app-icon/icon-source.deckcraft` (shapes only) | MIT OR Apache-2.0 | Placeholder app icon (presentation board) until the mascot icon is drawn |
+| `assets/app-icon/lamina-1024.png`, `assets/app-icon/hicolor/*/apps/dev.danielmiguelt.Lamina.png` | DeckCraft contributors | rendered by Lámina from `assets/app-icon/icon-source.lamina` (shapes only) | MIT OR Apache-2.0 | Placeholder app icon (presentation board) until the mascot icon is drawn |
 | `packaging/macos/dmg/background.svg` | @danielmigueltejedor | original work for this repository (2026-11-12), drawn by `tools/dmg-background/draw_background.py` in getnodalia/nodalia-design; flat shapes only, text is outlined Sora glyph paths (OFL-1.1); no third-party artwork | MIT OR Apache-2.0 (`LICENSE-MIT`, `LICENSE-APACHE`) | Lámina macOS DMG window background for the Finder window; `packaging/macos/dmg/generate.py` renders it to `background.tiff` |
 | `packaging/macos/dmg/background.tiff` | @danielmigueltejedor | Rendered from `packaging/macos/dmg/background.svg` by `packaging/macos/dmg/generate.py` | MIT OR Apache-2.0 (`LICENSE-MIT`, `LICENSE-APACHE`) | 1x + 2x HiDPI TIFF for the macOS DMG window; includes LittleCMS's built-in sRGB profile ("No copyright, use freely") |
-| `assets/app-icon/deckcraft.icns`, `assets/app-icon/deckcraft.ico` | DeckCraft contributors | generated from the PNGs above by `packaging/icons.sh` (sips/iconutil, `cargo xtask ico`) | MIT OR Apache-2.0 | macOS and Windows app icons |
-| `assets/app-icon/hicolor/scalable/apps/ai.storyteller.deckcraft.svg` | Lámina contributors; source portrait: Wikimedia Commons | App icon: portrait of Cicero over the app colour, derived from [Hans Witdoeck - Twelve Famous Greek and Roman Men - M. Tullius Cicero.jpg](https://commons.wikimedia.org/wiki/File:Hans_Witdoeck_-_Twelve_Famous_Greek_and_Roman_Men_-_M._Tullius_Cicero.jpg) | MIT OR Apache-2.0 (`assets/app-icon/LICENSE.txt`); source portrait: public domain |
-| `assets/app-icon/icon-source.deckcraft` | DeckCraft contributors | made with `deckcraft-cli run` (see git history) | MIT OR Apache-2.0 | Source of the placeholder icon |
-| `docs/images/editor.png`, `docs/images/shape-format.png`, `docs/images/format-pane.png`, `docs/images/slide-sorter.png`, `docs/images/dark-mode.png`, `docs/images/sample-deck.png` | DeckCraft contributors | Screenshots of DeckCraft and slides rendered by `deckcraft-cli` from the built-in sample deck (original content; Inter font, OFL-1.1) | MIT OR Apache-2.0 | README screenshots |
+| `assets/app-icon/lamina.icns`, `assets/app-icon/lamina.ico` | DeckCraft contributors | generated from the PNGs above by `packaging/icons.sh` (sips/iconutil, `cargo xtask ico`) | MIT OR Apache-2.0 | macOS and Windows app icons |
+| `assets/app-icon/hicolor/scalable/apps/dev.danielmiguelt.Lamina.svg` | Lámina contributors; source portrait: Wikimedia Commons | App icon: portrait of Cicero over the app colour, derived from [Hans Witdoeck - Twelve Famous Greek and Roman Men - M. Tullius Cicero.jpg](https://commons.wikimedia.org/wiki/File:Hans_Witdoeck_-_Twelve_Famous_Greek_and_Roman_Men_-_M._Tullius_Cicero.jpg) | MIT OR Apache-2.0 (`assets/app-icon/LICENSE.txt`); source portrait: public domain |
+| `assets/app-icon/icon-source.lamina` | DeckCraft contributors | made with `lamina-cli run` (see git history) | MIT OR Apache-2.0 | Source of the placeholder icon |
+| `docs/images/editor.png`, `docs/images/shape-format.png`, `docs/images/format-pane.png`, `docs/images/slide-sorter.png`, `docs/images/dark-mode.png`, `docs/images/sample-deck.png` | DeckCraft contributors | Screenshots of Lámina and slides rendered by `lamina-cli` from the built-in sample deck (original content; Inter font, OFL-1.1) | MIT OR Apache-2.0 | README screenshots |
 | `crates/media/tests/fixtures/tone*` (`tone.mp3`, `.m4a`, `.aac`, `.ogg`, `.opus`, `.flac`, `.wma`, `tone-alac.m4a`) | DeckCraft contributors | synthesised 0.5 s 440 Hz sine, encoded by `crates/media/tests/fixtures/make.sh` (ffmpeg as the encoder only) | CC0-1.0 | Audio decoding tests |
 | `crates/media/tests/fixtures/clip-*` (`clip-h264.mp4`, `clip-h264.mov`, `clip-hevc.mp4`, `clip-vp8.webm`, `clip-vp9.webm`, `clip-av1.mkv`) | DeckCraft contributors | 6 frames of a colour gradient generated by `make.sh` (python3), encoded by ffmpeg (x264 / x265 / libvpx / libvpx-vp9 / SVT-AV1 as encoders only) | CC0-1.0 | Video decoding tests |
 | `crates/media/tests/fixtures/damaged/*` (`ebml-header.mkv`, `ebml-position.webm`, `demux-loop.mp4`, `demux-loop.m4a`) | DeckCraft contributors | the `clip-*` and `tone*` fixtures above with bytes changed by a mutation fuzzer | CC0-1.0 | Damaged media must not panic or hang |
@@ -43,14 +37,14 @@ artwork. The ribbon and menu icons stay original drawings.
 |---|---|---|---|---|
 | Ubuntu Light (`Ubuntu-Light.ttf`, via the `epaint_default_fonts` crate 0.37) | Dalton Maag Ltd for Canonical | https://crates.io/crates/epaint_default_fonts | Ubuntu Font Licence 1.0 | Last-resort text face when no other font is available; UI fallback |
 | Hack Regular, Noto Emoji (via `epaint_default_fonts` / egui) | Source Foundry; Google | https://crates.io/crates/epaint_default_fonts | MIT / Bitstream-Vera, OFL-1.1 | egui UI fallback glyphs |
-| `epaint_default_fonts::EGUI_ICONS`, `epaint_default_fonts::EMOJI_ICON` (dependency font inputs) | John Slegers | [egui 6d518fc7](https://github.com/storytold/egui/tree/6d518fc799681571963842f95b55a6b68431b15a/crates/epaint_default_fonts/fonts), [emoji-icon-font](https://github.com/jslegers/emoji-icon-font) | MIT (Copyright (c) 2014 John Slegers; full upstream text in `NOTICE`) | egui-icons.ttf is the five-glyph subset, included by default_fonts independently of monochrome_emoji_fonts; emoji-icon-font.ttf is the full monochrome fallback. Dependency assets unmodified here; no font file copied into this repository. |
+| `epaint_default_fonts::EGUI_ICONS`, `epaint_default_fonts::EMOJI_ICON` (dependency font inputs) | John Slegers | [egui 6d518fc7](https://github.com/getnodalia/foundation/tree/vendor/egui/main/tree/6d518fc799681571963842f95b55a6b68431b15a/crates/epaint_default_fonts/fonts), [emoji-icon-font](https://github.com/jslegers/emoji-icon-font) | MIT (Copyright (c) 2014 John Slegers; full upstream text in `NOTICE`) | egui-icons.ttf is the five-glyph subset, included by default_fonts independently of monochrome_emoji_fonts; emoji-icon-font.ttf is the full monochrome fallback. Dependency assets unmodified here; no font file copied into this repository. |
 
 ## Embedded at build time from craft-fonts (`CRAFT_FONTS_DIR`)
 
 Release builds (and local builds with a craft-fonts checkout) embed the fonts listed in
-[craft-fonts](https://github.com/storytold/craft-fonts) `fonts/latin-manifest.txt` and
+[craft-fonts](https://github.com/getnodalia/foundation/tree/vendor/craft-fonts/main) `fonts/latin-manifest.txt` and
 `fonts/manifest.txt` (per-file authors, sources, SHA-256 and licences in its
-[ATTRIBUTION.md](https://github.com/storytold/craft-fonts/blob/main/ATTRIBUTION.md)), except the
+[ATTRIBUTION.md](https://github.com/getnodalia/foundation/blob/vendor/craft-fonts/main/ATTRIBUTION.md)), except the
 families excluded by `crates/fonts/build.rs`:
 
 | Families | Licence | Notes |

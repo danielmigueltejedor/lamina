@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/danielmigueltejedor/nodalia-web/main/assets/brand/nodalia-wordmark-badge.svg" width="150" alt="Nodalia">
   </a>
   <br><br>
-  <img src="https://raw.githubusercontent.com/danielmigueltejedor/lamina/main/assets/app-icon/hicolor/512x512/apps/ai.storyteller.deckcraft.png" width="192" alt="Lámina">
+  <img src="https://raw.githubusercontent.com/danielmigueltejedor/lamina/main/assets/app-icon/hicolor/512x512/apps/dev.danielmiguelt.Lamina.png" width="192" alt="Lámina">
   <h1>Lámina</h1>
   <p><strong>The presentation application of the Nodalia suite.</strong></p>
 
@@ -40,7 +40,7 @@ You need a recent stable Rust toolchain.
 ```bash
 git clone https://github.com/getnodalia/lamina.git
 cd lamina
-cargo run --release -p deckcraft
+cargo run --release -p lamina
 ```
 
 ## Project status

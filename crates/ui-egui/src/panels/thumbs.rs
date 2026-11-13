@@ -3,9 +3,9 @@
 
 use std::collections::HashSet;
 
-use deckcraft_engine::Target;
-use deckcraft_model::SlideId;
 use egui::{Align2, Color32, CornerRadius, Rect, Role, Sense, Stroke, Ui, WidgetInfo, pos2, vec2};
+use lamina_engine::Target;
+use lamina_model::SlideId;
 use serde_json::json;
 
 use crate::SlideApp;
@@ -113,7 +113,7 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
 }
 
 /// Slide index -> the first section starting there, built once instead of searched per slide.
-fn section_starts(doc: &deckcraft_model::Presentation) -> std::collections::HashMap<usize, usize> {
+fn section_starts(doc: &lamina_model::Presentation) -> std::collections::HashMap<usize, usize> {
     let mut index_of = std::collections::HashMap::new();
     for (i, s) in doc.slides.iter().enumerate() {
         index_of.entry(s.id).or_insert(i);
@@ -384,11 +384,11 @@ fn master_list(app: &mut SlideApp, ui: &mut Ui) {
                     (wpx, (wpx as f64 * doc.slide_size.height / doc.slide_size.width.max(1.0)).clamp(1.0, 1e9) as u32),
                     crate::textures::max_side(ui.ctx()),
                 );
-                let pic = deckcraft_render::render_layout(
+                let pic = lamina_render::render_layout(
                     &doc,
                     mi,
                     li,
-                    &deckcraft_render::RenderOpts {
+                    &lamina_render::RenderOpts {
                         scale: px.0 as f64 / doc.slide_size.width.max(1.0),
                         edit: true,
                         size: Some(px),
@@ -434,7 +434,7 @@ mod tests {
 
     use super::*;
     use crate::Services;
-    use deckcraft_engine::Session;
+    use lamina_engine::Session;
 
     fn harness() -> Harness<'static, SlideApp> {
         let mut h = Harness::builder().with_size(egui::vec2(1200.0, 800.0)).build_ui_state(
@@ -457,10 +457,10 @@ mod tests {
         let mut doc = (*s.active().unwrap().doc).clone();
         let ids: Vec<_> = doc.slides.iter().map(|sl| sl.id).collect();
         doc.sections = vec![
-            deckcraft_model::Section { name: "a".into(), slides: vec![ids[0], ids[1]] },
-            deckcraft_model::Section { name: "dup".into(), slides: vec![ids[0]] },
-            deckcraft_model::Section { name: "c".into(), slides: vec![ids[2]] },
-            deckcraft_model::Section { name: "empty".into(), slides: vec![] },
+            lamina_model::Section { name: "a".into(), slides: vec![ids[0], ids[1]] },
+            lamina_model::Section { name: "dup".into(), slides: vec![ids[0]] },
+            lamina_model::Section { name: "c".into(), slides: vec![ids[2]] },
+            lamina_model::Section { name: "empty".into(), slides: vec![] },
         ];
         let starts = section_starts(&doc);
         assert_eq!(starts.get(&0), Some(&0), "the first section starting at a slide wins");

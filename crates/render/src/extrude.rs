@@ -6,10 +6,10 @@
 //! rig and material, and the sides are drawn farthest first. Without a turned camera an extrusion
 //! points at the viewer and nothing of it shows.
 
-use deckcraft_color::{Rgba, SchemeSlot};
-use deckcraft_model::ColorRef;
-use deckcraft_model::resolve::Ctx;
 use kurbo::{Affine, BezPath, Vec2};
+use lamina_color::{Rgba, SchemeSlot};
+use lamina_model::ColorRef;
+use lamina_model::resolve::Ctx;
 use vello_cpu::RenderContext;
 
 use crate::camera::{self, Camera};

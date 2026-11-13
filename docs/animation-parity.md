@@ -19,7 +19,7 @@ save.
 **Measured against PowerPoint (2026-10-13).** Synthetic two-colour decks with asymmetric markers
 were built in PowerPoint for Windows over COM with every transition and option (150 variants,
 2 s each), exported with `CreateVideo` at 30 fps, and compared frame by frame with
-`deckcraft-cli render-transition` at the same progress (`plan/powerpoint/tools/synth_transitions.ps1`,
+`lamina-cli render-transition` at the same progress (`plan/powerpoint/tools/synth_transitions.ps1`,
 `trans_compare.py`). Mean absolute difference over all variants at t = 0.1…0.9 (0–255): **35.7
 before, 15.0 after**. Curves (fades are a smoothstep, moves ease in-out; Cover, Uncover and Pan
 have their own measured curves), directions and option meanings (e.g. Glitter starts on the
@@ -46,7 +46,7 @@ perspective-correct subdivided meshes.
 | Morph: Words and Characters | yes | yes (#5) |
 | Morph: geometry (circle to star) | yes | yes (#27) |
 | Morph: `!!` name forcing, pictures, 3-D models, ink | yes | names partly; no 3-D or ink |
-| Frame-by-frame comparison with PowerPoint | | done (Windows, 2026-10-13); headless frames: `deckcraft-cli render-transition` |
+| Frame-by-frame comparison with PowerPoint | | done (Windows, 2026-10-13); headless frames: `lamina-cli render-transition` |
 
 ## Animations: 64 of ~190 effects
 

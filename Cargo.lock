@@ -1001,336 +1001,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c87e182de0887fd5361989c677c4e8f5000cd9491d6d563161a8f3a5519fc7f"
 
 [[package]]
-name = "deckcraft"
-version = "0.15.0"
-dependencies = [
- "arboard",
- "chrono",
- "cpal",
- "deckcraft-engine",
- "deckcraft-media",
- "deckcraft-ui-egui",
- "eframe",
- "egui",
- "fmv-macos-events",
- "image",
- "log",
- "rfd",
- "serde_json",
- "winit",
- "winresource",
-]
-
-[[package]]
-name = "deckcraft-anim"
-version = "0.15.0"
-dependencies = [
- "deckcraft-geom",
- "deckcraft-model",
- "serde",
-]
-
-[[package]]
-name = "deckcraft-av1"
-version = "0.15.0"
-dependencies = [
- "deckcraft-bitstream",
- "rayon",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "deckcraft-bitstream"
-version = "0.15.0"
-dependencies = [
- "craft-media",
-]
-
-[[package]]
-name = "deckcraft-cli"
-version = "0.15.0"
-dependencies = [
- "deckcraft-engine",
- "deckcraft-mcp",
- "serde_json",
- "zip",
-]
-
-[[package]]
-name = "deckcraft-color"
-version = "0.15.0"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "deckcraft-engine"
-version = "0.15.0"
-dependencies = [
- "chrono",
- "deckcraft-anim",
- "deckcraft-color",
- "deckcraft-fonts",
- "deckcraft-format",
- "deckcraft-geom",
- "deckcraft-media",
- "deckcraft-model",
- "deckcraft-pdf",
- "deckcraft-pptx",
- "deckcraft-render",
- "deckcraft-text",
- "i_overlay",
- "image",
- "js-sys",
- "log",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "zip",
-]
-
-[[package]]
-name = "deckcraft-fonts"
-version = "0.15.0"
-dependencies = [
- "epaint_default_fonts",
- "harfrust 0.13.3",
- "kurbo",
- "log",
- "skrifa 0.47.0",
- "unicode-bidi",
-]
-
-[[package]]
-name = "deckcraft-format"
-version = "0.15.0"
-dependencies = [
- "deckcraft-model",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "zip",
-]
-
-[[package]]
-name = "deckcraft-geom"
-version = "0.15.0"
-dependencies = [
- "kurbo",
- "serde",
-]
-
-[[package]]
-name = "deckcraft-h264"
-version = "0.15.0"
-dependencies = [
- "deckcraft-bitstream",
- "rayon",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "deckcraft-hevc"
-version = "0.15.0"
-dependencies = [
- "deckcraft-bitstream",
- "rayon",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "deckcraft-isobmff"
-version = "0.15.0"
-dependencies = [
- "craft-media",
-]
-
-[[package]]
-name = "deckcraft-matroska"
-version = "0.15.0"
-dependencies = [
- "craft-media",
-]
-
-[[package]]
-name = "deckcraft-mcp"
-version = "0.15.0"
-dependencies = [
- "deckcraft-engine",
- "deckcraft-render",
- "log",
- "serde_json",
-]
-
-[[package]]
-name = "deckcraft-media"
-version = "0.15.0"
-dependencies = [
- "deckcraft-av1",
- "deckcraft-h264",
- "deckcraft-hevc",
- "deckcraft-isobmff",
- "deckcraft-matroska",
- "deckcraft-ogg",
- "deckcraft-opus",
- "deckcraft-vp9",
- "image",
- "log",
- "symphonia",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "deckcraft-metafile"
-version = "0.15.0"
-dependencies = [
- "image",
- "kurbo",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "deckcraft-model"
-version = "0.15.0"
-dependencies = [
- "deckcraft-color",
- "deckcraft-geom",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "unicode-segmentation",
-]
-
-[[package]]
-name = "deckcraft-ogg"
-version = "0.15.0"
-
-[[package]]
-name = "deckcraft-opus"
-version = "0.15.0"
-
-[[package]]
-name = "deckcraft-pdf"
-version = "0.15.0"
-dependencies = [
- "craft-pdf",
- "deckcraft-fonts",
- "deckcraft-model",
- "deckcraft-render",
- "deckcraft-text",
- "hayro-syntax",
- "krilla",
- "kurbo",
- "log",
- "serde",
- "thiserror 2.0.21",
- "wasm-bindgen-test",
-]
-
-[[package]]
-name = "deckcraft-pptx"
-version = "0.15.0"
-dependencies = [
- "deckcraft-color",
- "deckcraft-engine",
- "deckcraft-geom",
- "deckcraft-model",
- "image",
- "log",
- "quick-xml",
- "serde_json",
- "thiserror 2.0.21",
- "zip",
-]
-
-[[package]]
-name = "deckcraft-render"
-version = "0.15.0"
-dependencies = [
- "deckcraft-anim",
- "deckcraft-color",
- "deckcraft-fonts",
- "deckcraft-geom",
- "deckcraft-metafile",
- "deckcraft-model",
- "deckcraft-text",
- "image",
- "kurbo",
- "log",
- "skrifa 0.47.0",
- "vello_common",
- "vello_cpu",
-]
-
-[[package]]
-name = "deckcraft-text"
-version = "0.15.0"
-dependencies = [
- "chrono",
- "deckcraft-color",
- "deckcraft-fonts",
- "deckcraft-geom",
- "deckcraft-model",
- "unicode-bidi",
- "unicode-linebreak",
- "unicode-segmentation",
-]
-
-[[package]]
-name = "deckcraft-ui-egui"
-version = "0.15.0"
-dependencies = [
- "craft-ui",
- "deckcraft-anim",
- "deckcraft-color",
- "deckcraft-engine",
- "deckcraft-fonts",
- "deckcraft-geom",
- "deckcraft-media",
- "deckcraft-model",
- "deckcraft-render",
- "deckcraft-text",
- "egui",
- "egui_extras",
- "egui_kittest",
- "log",
- "nodalia-update",
- "serde",
- "serde_json",
- "skrifa 0.47.0",
- "toml",
- "web-time",
-]
-
-[[package]]
-name = "deckcraft-vp9"
-version = "0.15.0"
-dependencies = [
- "deckcraft-bitstream",
- "rayon",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "deckcraft-web"
-version = "0.15.0"
-dependencies = [
- "craft-web-api",
- "craft-web-host",
- "deckcraft-engine",
- "deckcraft-ui-egui",
- "eframe",
- "egui",
- "js-sys",
- "log",
- "rfd",
- "serde_json",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
-]
-
-[[package]]
 name = "derive_arbitrary"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2776,6 +2446,336 @@ dependencies = [
  "polycool",
  "serde",
  "smallvec",
+]
+
+[[package]]
+name = "lamina"
+version = "0.1.0-dev"
+dependencies = [
+ "arboard",
+ "chrono",
+ "cpal",
+ "eframe",
+ "egui",
+ "fmv-macos-events",
+ "image",
+ "lamina-engine",
+ "lamina-media",
+ "lamina-ui-egui",
+ "log",
+ "rfd",
+ "serde_json",
+ "winit",
+ "winresource",
+]
+
+[[package]]
+name = "lamina-anim"
+version = "0.1.0-dev"
+dependencies = [
+ "lamina-geom",
+ "lamina-model",
+ "serde",
+]
+
+[[package]]
+name = "lamina-av1"
+version = "0.1.0-dev"
+dependencies = [
+ "lamina-bitstream",
+ "rayon",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "lamina-bitstream"
+version = "0.1.0-dev"
+dependencies = [
+ "craft-media",
+]
+
+[[package]]
+name = "lamina-cli"
+version = "0.1.0-dev"
+dependencies = [
+ "lamina-engine",
+ "lamina-mcp",
+ "serde_json",
+ "zip",
+]
+
+[[package]]
+name = "lamina-color"
+version = "0.1.0-dev"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "lamina-engine"
+version = "0.1.0-dev"
+dependencies = [
+ "chrono",
+ "i_overlay",
+ "image",
+ "js-sys",
+ "lamina-anim",
+ "lamina-color",
+ "lamina-fonts",
+ "lamina-format",
+ "lamina-geom",
+ "lamina-media",
+ "lamina-model",
+ "lamina-pdf",
+ "lamina-pptx",
+ "lamina-render",
+ "lamina-text",
+ "log",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "zip",
+]
+
+[[package]]
+name = "lamina-fonts"
+version = "0.1.0-dev"
+dependencies = [
+ "epaint_default_fonts",
+ "harfrust 0.13.3",
+ "kurbo",
+ "log",
+ "skrifa 0.47.0",
+ "unicode-bidi",
+]
+
+[[package]]
+name = "lamina-format"
+version = "0.1.0-dev"
+dependencies = [
+ "lamina-model",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "zip",
+]
+
+[[package]]
+name = "lamina-geom"
+version = "0.1.0-dev"
+dependencies = [
+ "kurbo",
+ "serde",
+]
+
+[[package]]
+name = "lamina-h264"
+version = "0.1.0-dev"
+dependencies = [
+ "lamina-bitstream",
+ "rayon",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "lamina-hevc"
+version = "0.1.0-dev"
+dependencies = [
+ "lamina-bitstream",
+ "rayon",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "lamina-isobmff"
+version = "0.1.0-dev"
+dependencies = [
+ "craft-media",
+]
+
+[[package]]
+name = "lamina-matroska"
+version = "0.1.0-dev"
+dependencies = [
+ "craft-media",
+]
+
+[[package]]
+name = "lamina-mcp"
+version = "0.1.0-dev"
+dependencies = [
+ "lamina-engine",
+ "lamina-render",
+ "log",
+ "serde_json",
+]
+
+[[package]]
+name = "lamina-media"
+version = "0.1.0-dev"
+dependencies = [
+ "image",
+ "lamina-av1",
+ "lamina-h264",
+ "lamina-hevc",
+ "lamina-isobmff",
+ "lamina-matroska",
+ "lamina-ogg",
+ "lamina-opus",
+ "lamina-vp9",
+ "log",
+ "symphonia",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "lamina-metafile"
+version = "0.1.0-dev"
+dependencies = [
+ "image",
+ "kurbo",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "lamina-model"
+version = "0.1.0-dev"
+dependencies = [
+ "lamina-color",
+ "lamina-geom",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "unicode-segmentation",
+]
+
+[[package]]
+name = "lamina-ogg"
+version = "0.1.0-dev"
+
+[[package]]
+name = "lamina-opus"
+version = "0.1.0-dev"
+
+[[package]]
+name = "lamina-pdf"
+version = "0.1.0-dev"
+dependencies = [
+ "craft-pdf",
+ "hayro-syntax",
+ "krilla",
+ "kurbo",
+ "lamina-fonts",
+ "lamina-model",
+ "lamina-render",
+ "lamina-text",
+ "log",
+ "serde",
+ "thiserror 2.0.21",
+ "wasm-bindgen-test",
+]
+
+[[package]]
+name = "lamina-pptx"
+version = "0.1.0-dev"
+dependencies = [
+ "image",
+ "lamina-color",
+ "lamina-engine",
+ "lamina-geom",
+ "lamina-model",
+ "log",
+ "quick-xml",
+ "serde_json",
+ "thiserror 2.0.21",
+ "zip",
+]
+
+[[package]]
+name = "lamina-render"
+version = "0.1.0-dev"
+dependencies = [
+ "image",
+ "kurbo",
+ "lamina-anim",
+ "lamina-color",
+ "lamina-fonts",
+ "lamina-geom",
+ "lamina-metafile",
+ "lamina-model",
+ "lamina-text",
+ "log",
+ "skrifa 0.47.0",
+ "vello_common",
+ "vello_cpu",
+]
+
+[[package]]
+name = "lamina-text"
+version = "0.1.0-dev"
+dependencies = [
+ "chrono",
+ "lamina-color",
+ "lamina-fonts",
+ "lamina-geom",
+ "lamina-model",
+ "unicode-bidi",
+ "unicode-linebreak",
+ "unicode-segmentation",
+]
+
+[[package]]
+name = "lamina-ui-egui"
+version = "0.1.0-dev"
+dependencies = [
+ "craft-ui",
+ "egui",
+ "egui_extras",
+ "egui_kittest",
+ "lamina-anim",
+ "lamina-color",
+ "lamina-engine",
+ "lamina-fonts",
+ "lamina-geom",
+ "lamina-media",
+ "lamina-model",
+ "lamina-render",
+ "lamina-text",
+ "log",
+ "nodalia-update",
+ "serde",
+ "serde_json",
+ "skrifa 0.47.0",
+ "toml",
+ "web-time",
+]
+
+[[package]]
+name = "lamina-vp9"
+version = "0.1.0-dev"
+dependencies = [
+ "lamina-bitstream",
+ "rayon",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "lamina-web"
+version = "0.1.0-dev"
+dependencies = [
+ "craft-web-api",
+ "craft-web-host",
+ "eframe",
+ "egui",
+ "js-sys",
+ "lamina-engine",
+ "lamina-ui-egui",
+ "log",
+ "rfd",
+ "serde_json",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
 ]
 
 [[package]]
@@ -6173,7 +6173,7 @@ checksum = "9440ea3e5aeabb0ac63af70daf835274065238cdd0cec83418f417eae38bacee"
 
 [[package]]
 name = "xtask"
-version = "0.15.0"
+version = "0.1.0-dev"
 dependencies = [
  "serde_json",
 ]

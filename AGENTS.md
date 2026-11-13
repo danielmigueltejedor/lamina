@@ -56,10 +56,6 @@ Ubuntu-Font-1.0, Bitstream-Vera); Creative Commons (CC0-1.0, CC-BY-4.0, CC-BY-SA
 domain; or contributor-original (created by a contributor who licenses it under
 `MIT OR Apache-2.0`).
 
-One narrow exception: the ArtCraft name, wordmark and logos in `docs/brand/` are trademarks of the
-ArtCraft Team (not open source, terms in `docs/brand/LICENSE-brand.txt`), used only unmodified to
-identify the project.
-
 Forbidden: system fonts that are not openly licensed, vendor emoji artwork, stock photos, "free
 for personal use" material, screenshots of other people's software, anything whose licence you
 cannot prove from its original source.
@@ -71,8 +67,8 @@ allowed: our UI, our/Lucide icons, OFL fonts, and decks built only from allowed 
 
 - **`ATTRIBUTION.md`** (repo root) lists every asset file — committed, fetched at build time
   (craft-fonts) or bundled through a Cargo dependency — with author, source (URL + version or
-  commit), licence and use. `cargo xtask assets` fails if a file under `assets/`, `docs/images/`
-  or `docs/brand/` has no row.
+  commit), licence and use. `cargo xtask assets` fails if a file under `assets/` or `docs/images/`
+  has no row.
 - **`NOTICE`** keeps the notices the licences require.
 - Fonts live in [getnodalia/foundation's `vendor/craft-fonts/main` branch](https://github.com/getnodalia/foundation/tree/vendor/craft-fonts/main), never in this
   repo. Lámina embeds its `fonts/latin-manifest.txt` and
@@ -123,11 +119,11 @@ People trust Lámina with their talks; a crash loses work. **This outranks featu
 | L1 | `model` (presentation, masters, layouts, slides, shapes, text, themes, inheritance, text edit ops) |
 | L2 | `fonts`, `text` (layout), |
 | L3 | `render` (vello_cpu) |
-| L4 | `format` (.deckcraft), `pptx` |
+| L4 | `format` (.lamina), `pptx` |
 | L5 | `engine` (session, history, commands, tools, keys, sample) |
 | L6 | `mcp` |
 | L7 | `ui-egui` (swappable; nothing below depends on egui/eframe/winit/rfd) |
-| apps | `deckcraft` (desktop), `deckcraft-cli`, `deckcraft-web` |
+| apps | `lamina` (desktop), `lamina-cli`, `lamina-web` |
 
 - **Everything is a command** (`crates/engine/src/cmd/*`): id, label, ribbon/menu place,
   shortcut, params doc, `enabled`, `run`, plus tests. Ids follow PowerPoint's ribbon and menus
@@ -147,7 +143,7 @@ declare the crate-level lint attributes before modules; crate-level `//!` docume
 
 ## 6. Running and looking at the app
 
-- `cargo run --release -p deckcraft -- --sample --control 7990` (sample deck + control channel).
+- `cargo run --release -p lamina -- --sample --control 7990` (sample deck + control channel).
 - Drive it: JSON lines on `127.0.0.1:7990`, e.g.
   `{"id":1,"method":"engine.execute","params":{"command":"shape.insert","params":{"preset":"star5","rect":[100,100,200,200]}}}`
   then `{"id":2,"method":"ui.screenshot","params":{"path":"/tmp/shot.png"}}`. Methods:
@@ -155,9 +151,9 @@ declare the crate-level lint attributes before modules; crate-level `//!` docume
 - **For UI work, look at the result** (screenshot, read the PNG). If available, compare with the observations
   in `plan/powerpoint/01-observed-ui.md`. Otherwise verify the intended behaviour against the task and
   committed documentation; the optional notebook is not a prerequisite.
-- Headless: `deckcraft-cli render --sample --all --scale 1 out/`,
-  `deckcraft-cli run --sample --cmd 'slide.new={"title":"Hi"}' --export out.png`.
-- MCP: `deckcraft-cli mcp` (headless) or `deckcraft-cli mcp --connect 7990` (drive the app).
+- Headless: `lamina-cli render --sample --all --scale 1 out/`,
+  `lamina-cli run --sample --cmd 'slide.new={"title":"Hi"}' --export out.png`.
+- MCP: `lamina-cli mcp` (headless) or `lamina-cli mcp --connect 7990` (drive the app).
   See `docs/mcp.md`.
 - Parallel agents: separate `CARGO_TARGET_DIR` per agent; edit only the crates you own.
 
@@ -196,8 +192,8 @@ the `ROADMAP.md` progress log, and update each touched doc's status line and rev
 
 ## CI workflows
 
-- Workflows call [getnodalia/foundation](https://github.com/getnodalia/foundation)'s reusable workflows, pinned by commit. Release and
-  Windows ARM64 still call the inherited ones; `NODALIA_MIGRATION.md` tracks them.
+- Workflows call [getnodalia/foundation](https://github.com/getnodalia/foundation)'s reusable workflows, pinned by commit. Release,
+  packaging and the upstream sync are this repository's own workflows.
 - Pin every action to a full commit SHA, give each job the least permissions it needs, and use only
   standard GitHub-hosted runners (Foundation's [CI standard](https://github.com/getnodalia/foundation/blob/main/standards/ci.md)).
 - Keep CI changes in their own pull request unless a change cannot work without them.
@@ -208,4 +204,8 @@ the `ROADMAP.md` progress log, and update each touched doc's status line and rev
 
 ## Release
 
-`release.yml` runs on a push to the `release` branch and drafts the release; a maintainer reviews the draft and publishes it. It still calls the inherited release workflow (see `NODALIA_MIGRATION.md`).
+Releases are automatic. A pull request that sets `[workspace.package] version` to a release
+version (no `-dev`) and adds its notes in `docs/release-notes/vX.Y.Z.md` (`docs/release-notes/README.md`
+has the format; `scripts/check-release-notes.sh` checks it) is all a release takes: once it merges,
+`release-auto.yml` tags the version through Foundation's `release-tag` workflow, builds the Linux,
+macOS (DMG) and Windows packages, and publishes the release with those notes. Nobody pushes tags.

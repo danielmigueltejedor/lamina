@@ -1,8 +1,8 @@
 //! Dialogs (Insert Table, Slide Size, Font, Paragraph, Tabs, Header & Footer, Hyperlink, Set Up Show, Zoom, …) and the
 //! About window. The start screen is File › Home (`backstage.rs`).
 
-use deckcraft_color::SchemeSlot;
 use egui::{Align2, Color32, CornerRadius, Rect, Sense, Stroke, Ui, pos2, vec2};
+use lamina_color::SchemeSlot;
 use serde_json::{Value, json};
 
 use crate::SlideApp;
@@ -48,7 +48,7 @@ fn title(id: &str) -> &'static str {
         "paragraph" => "Paragraph",
         "tabs" => "Tabs",
         "font" => "Font",
-        "about" => "About DeckCraft",
+        "about" => "About Lámina",
         "preferences" => "Preferences",
         "autocorrect" => "AutoCorrect",
         "gridOptions" => "Grid Options",
@@ -70,10 +70,10 @@ fn title(id: &str) -> &'static str {
         "smartart" => "Choose a SmartArt Graphic",
         "bullets" => "Bullets and Numbering",
         "action" => "Action Settings",
-        "quit" => "DeckCraft",
+        "quit" => "Lámina",
         "themeColors" => "Create New Theme Colors",
         "themeFonts" => "Create New Theme Fonts",
-        _ => "DeckCraft",
+        _ => "Lámina",
     }
 }
 
@@ -200,7 +200,7 @@ fn text_row(ui: &mut Ui, d: &mut Dialog, label: &str, key: &str) {
     d.fields.insert(key.into(), v);
 }
 
-use deckcraft_text::datetime::DATE_KINDS;
+use lamina_text::datetime::DATE_KINDS;
 
 mod about;
 mod alt_text;

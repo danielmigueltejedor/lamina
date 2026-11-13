@@ -3,11 +3,11 @@
 
 use std::sync::Arc;
 
-use deckcraft_color::{ColorTransform, Rgba, SchemeSlot};
-use deckcraft_geom::Xfrm;
-use deckcraft_model::style::{ColorRef, Dash, Effects, Fill, Glow, Gradient, GradientShape, GradientStop, Line, PatternFill, Reflection, Shadow};
-use deckcraft_model::text::{Align, AutoFit, BodyProps, ParaProps, Paragraph, Run, RunProps, Spacing, TabStop, TextBody, TextDir};
-use deckcraft_model::{Geom, Presentation, Shape, ShapeId, ShapeKind, defaults};
+use lamina_color::{ColorTransform, Rgba, SchemeSlot};
+use lamina_geom::Xfrm;
+use lamina_model::style::{ColorRef, Dash, Effects, Fill, Glow, Gradient, GradientShape, GradientStop, Line, PatternFill, Reflection, Shadow};
+use lamina_model::text::{Align, AutoFit, BodyProps, ParaProps, Paragraph, Run, RunProps, Spacing, TabStop, TextBody, TextDir};
+use lamina_model::{Geom, Presentation, Shape, ShapeId, ShapeKind, defaults};
 
 fn shape(p: &mut Presentation, name: &str, x: f64, y: f64, w: f64, h: f64) -> Shape {
     Shape { id: ShapeId(p.alloc_id().expect("id")), name: name.into(), xfrm: Some(Xfrm::new(x, y, w, h)), ..Default::default() }
@@ -74,7 +74,7 @@ fn style_deck() -> Presentation {
         ..Default::default()
     };
 
-    let layout = defaults::layout_of_kind(&p, deckcraft_model::LayoutType::Blank).unwrap_or_default();
+    let layout = defaults::layout_of_kind(&p, lamina_model::LayoutType::Blank).unwrap_or_default();
     let mut s = defaults::new_slide(&mut p, layout).expect("slide");
 
     let mut word = shape(&mut p, "Styled text", 40.0, 40.0, 400.0, 180.0);
@@ -150,8 +150,8 @@ fn style_deck() -> Presentation {
 }
 
 fn round(p: &Presentation) -> Presentation {
-    let bytes = deckcraft_pptx::export(p).expect("export");
-    deckcraft_pptx::import(&bytes).expect("import")
+    let bytes = lamina_pptx::export(p).expect("export");
+    lamina_pptx::import(&bytes).expect("import")
 }
 
 fn by_name<'a>(p: &'a Presentation, name: &str) -> &'a Shape {
@@ -263,12 +263,12 @@ fn text_and_group_3d_survive() {
     let mut grp = shape(&mut p3, "Group3D", 10.0, 60.0, 100.0, 80.0);
     grp.effects = Some(Effects { raw3d: Some(grp_3d.into()), ..Default::default() });
     grp.kind = ShapeKind::Group { children: vec![sh, sh_flat], child: Xfrm::new(10.0, 10.0, 100.0, 80.0) };
-    let layout = defaults::layout_of_kind(&p3, deckcraft_model::LayoutType::Blank).unwrap_or_default();
+    let layout = defaults::layout_of_kind(&p3, lamina_model::LayoutType::Blank).unwrap_or_default();
     let mut s3 = defaults::new_slide(&mut p3, layout).expect("slide");
     s3.shapes.push(grp);
     p3.slides.push(Arc::new(s3));
 
-    let bytes = deckcraft_pptx::export(&p3).expect("export");
+    let bytes = lamina_pptx::export(&p3).expect("export");
     let slide_xml = {
         use std::io::Read;
         let mut z = zip::ZipArchive::new(std::io::Cursor::new(&bytes)).expect("zip");
@@ -279,7 +279,7 @@ fn text_and_group_3d_survive() {
     assert!(!slide_xml.contains("<a:effectLst/>"), "Group3D with only raw3d must not emit empty effectLst: {slide_xml}");
     assert!(slide_xml.contains("<a:flatTx z=\"0\"/>"), "{slide_xml}");
 
-    let r3 = deckcraft_pptx::import(&bytes).expect("import");
+    let r3 = lamina_pptx::import(&bytes).expect("import");
     let r3_twice = round(&r3);
     let g3 = by_name(&r3, "Group3D");
     let g3_raw = g3.effects.as_ref().and_then(|e| e.raw3d.as_deref()).unwrap_or("");

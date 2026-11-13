@@ -12,8 +12,8 @@ use super::{
     Align2, BackKey, Click, Color32, CornerRadius, Key, Layer, LinkJump, Pos2, Rect, RenderOpts, Sense, ShapeId, ShapeState, Show, ShowAction,
     ShowState, SlideApp, Source, Stroke, TextureHandle, Ui, json, pos2, show_fills_screen, state_for, theme, vec2, viewport_visible,
 };
-use deckcraft_anim::{StepStamp, TriggerPlay};
-use deckcraft_model::Presentation;
+use lamina_anim::{StepStamp, TriggerPlay};
+use lamina_model::Presentation;
 
 /// Per-frame values the show's draw steps share.
 #[derive(Clone, Copy)]
@@ -43,7 +43,7 @@ struct Sl {
     t: f64,
     plays: Vec<TriggerPlay>,
     stamps: Vec<StepStamp>,
-    media: Vec<(ShapeId, deckcraft_geom::Xfrm, deckcraft_model::MediaClip)>,
+    media: Vec<(ShapeId, lamina_geom::Xfrm, lamina_model::MediaClip)>,
     hidden: Vec<ShapeId>,
     times: Vec<(ShapeId, f64)>,
     gifs: Vec<crate::media::Gif>,
@@ -149,7 +149,7 @@ pub fn ui(app: &mut SlideApp, ui: &mut Ui) {
             {
                 let size =
                     crate::textures::fit_size((480, (480.0 * doc.slide_size.height / doc.slide_size.width.max(1.0)).clamp(1.0, 1e9) as u32), 640);
-                let image = deckcraft_render::render_slide(
+                let image = lamina_render::render_slide(
                     &doc,
                     n,
                     &RenderOpts { scale: size.0 as f64 / doc.slide_size.width.max(1.0), size: Some(size), ..Default::default() },
@@ -165,7 +165,7 @@ pub fn ui(app: &mut SlideApp, ui: &mut Ui) {
                     let (w, h) = (doc.slide_size.width.max(1.0), doc.slide_size.height.max(1.0));
                     let scale = REMOTE_THUMB / w.max(h);
                     let size = (((w * scale).round() as u32).max(1), ((h * scale).round() as u32).max(1));
-                    let image = deckcraft_render::render_slide(&doc, i, &RenderOpts { scale, size: Some(size), ..Default::default() });
+                    let image = lamina_render::render_slide(&doc, i, &RenderOpts { scale, size: Some(size), ..Default::default() });
                     let preview = crate::presenter::Preview::from_image(&crate::textures::to_color_image(&image, false));
                     show.remote_grid.push(preview.unwrap_or(crate::presenter::Preview { width: 1, height: 1, rgba: vec![0; 4] }));
                 }
@@ -369,7 +369,7 @@ fn begin_slide(app: &mut SlideApp, show: &Show, f: &Fr, size: (u32, u32)) -> Sl 
     let media = crate::media::slide_media(doc, idx);
     let hidden: Vec<ShapeId> = media
         .iter()
-        .filter(|(id, _, clip)| clip.hide_while_not_playing && !app.media.status(*id).is_some_and(|s| s.state != deckcraft_media::PlayState::Ended))
+        .filter(|(id, _, clip)| clip.hide_while_not_playing && !app.media.status(*id).is_some_and(|s| s.state != lamina_media::PlayState::Ended))
         .map(|m| m.0)
         .collect();
     let gifs = app.media.gifs(doc_uid, doc, idx, now, &app.session.gif_paused);
@@ -453,7 +453,7 @@ fn draw_transition(show: &mut Show, f: &Fr, sl: &Sl, painter: &egui::Painter, te
             tr.from
                 .and_then(|i| doc.slides.get(i).map(|a| (i, a)))
                 .zip(doc.slides.get(idx))
-                .map(|((i, a), b)| (i, deckcraft_anim::morph_frame(doc, a, b, p, &hidden_b)))
+                .map(|((i, a), b)| (i, lamina_anim::morph_frame(doc, a, b, p, &hidden_b)))
         }
         _ => None,
     };
@@ -462,14 +462,14 @@ fn draw_transition(show: &mut Show, f: &Fr, sl: &Sl, painter: &egui::Painter, te
         let threads = if cfg!(target_arch = "wasm32") { 0 } else { std::thread::available_parallelism().map(|n| n.get().min(8) as u16).unwrap_or(0) };
         let opts =
             RenderOpts { scale: size.0 as f64 / doc.slide_size.width.max(1.0), size: Some(size), state: Some(&f), threads, ..Default::default() };
-        let text: Vec<deckcraft_render::TextMorph> =
-            m.text.iter().map(|x| deckcraft_render::TextMorph { old: x.old, new: x.new, from: x.from, to: x.to, chars: x.chars, t: m.mix }).collect();
-        let paths: Vec<deckcraft_render::PathMorph> = m
+        let text: Vec<lamina_render::TextMorph> =
+            m.text.iter().map(|x| lamina_render::TextMorph { old: x.old, new: x.new, from: x.from, to: x.to, chars: x.chars, t: m.mix }).collect();
+        let paths: Vec<lamina_render::PathMorph> = m
             .paths
             .iter()
-            .map(|x| deckcraft_render::PathMorph { id: x.id, from: x.from.clone(), from_box: x.from_box, to_box: x.to_box, t: m.mix })
+            .map(|x| lamina_render::PathMorph { id: x.id, from: x.from.clone(), from_box: x.from_box, to_box: x.to_box, t: m.mix })
             .collect();
-        let img = deckcraft_render::render_blend(doc, (from, idx), m.mix, &m.shapes, &text, &paths, &opts);
+        let img = lamina_render::render_blend(doc, (from, idx), m.mix, &m.shapes, &text, &paths, &opts);
         let ci = crate::textures::to_color_image(&img, false);
         let frame = match tr.morph.take() {
             Some(mut h) => {
@@ -487,12 +487,12 @@ fn draw_transition(show: &mut Show, f: &Fr, sl: &Sl, painter: &egui::Painter, te
         if p < 1.0 {
             // Slides split into background and content are rendered once per transition;
             // every frame only composites cached textures.
-            if tr.parts.is_none() && deckcraft_anim::uses_slide_parts(&tr.kind, &tr.option) {
+            if tr.parts.is_none() && lamina_anim::uses_slide_parts(&tr.kind, &tr.option) {
                 tr.parts = Some(part_textures(ctx, doc, tr.from, idx, size));
             }
             if tr.old.is_none()
                 && let Some(prev) = tr.from
-                && !deckcraft_anim::uses_slide_parts(&tr.kind, &tr.option)
+                && !lamina_anim::uses_slide_parts(&tr.kind, &tr.option)
             {
                 let threads =
                     if cfg!(target_arch = "wasm32") { 0 } else { std::thread::available_parallelism().map(|n| n.get().min(8) as u16).unwrap_or(0) };
@@ -539,9 +539,9 @@ fn draw_transition(show: &mut Show, f: &Fr, sl: &Sl, painter: &egui::Painter, te
 /// slide coming back the part of the old one.
 pub(super) fn transition_layers(kind: &str, option: &str, reverse: bool, p: f64, aspect: f64) -> Vec<Layer> {
     if !reverse {
-        return deckcraft_anim::transition_frame(kind, option, p, aspect);
+        return lamina_anim::transition_frame(kind, option, p, aspect);
     }
-    let mut layers = deckcraft_anim::transition_frame(kind, option, 1.0 - p, aspect);
+    let mut layers = lamina_anim::transition_frame(kind, option, 1.0 - p, aspect);
     for l in &mut layers {
         l.source = swap_old_new(l.source);
     }

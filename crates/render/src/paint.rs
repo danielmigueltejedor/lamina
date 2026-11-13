@@ -1,11 +1,11 @@
 //! Fills: solid, gradient, picture and pattern paints.
 
-use deckcraft_color::Rgba;
-use deckcraft_geom::preset::FillMode;
-use deckcraft_model::resolve::Ctx;
-use deckcraft_model::style::{ColorRef, Fill, GradientShape, PictureFill, PictureMode};
-use deckcraft_model::{PhType, Presentation};
 use kurbo::{Affine, BezPath, Point, Rect, Shape as _};
+use lamina_color::Rgba;
+use lamina_geom::preset::FillMode;
+use lamina_model::resolve::Ctx;
+use lamina_model::style::{ColorRef, Fill, GradientShape, PictureFill, PictureMode};
+use lamina_model::{PhType, Presentation};
 use vello_cpu::{RenderContext, peniko};
 
 use crate::{color, images, shade};
@@ -42,7 +42,7 @@ pub fn fill_path(
             let path_kind = matches!(&g.shape, GradientShape::Path { path: k, .. } if matches!(k.as_str(), "rect" | "shape"));
             if !g.rotate_with_shape && turned && !path_kind && m.determinant().abs() > 1e-12 {
                 let on_slide = m.transform_rect_bbox(bounds);
-                let upright = deckcraft_model::style::Gradient { rotate_with_shape: true, ..g.clone() };
+                let upright = lamina_model::style::Gradient { rotate_with_shape: true, ..g.clone() };
                 let paint_path = m * path.clone();
                 fill_path(ctx, rctx, &Fill::Gradient(upright), ph, &paint_path, on_slide, Affine::IDENTITY, mode, alpha, pres);
                 return;

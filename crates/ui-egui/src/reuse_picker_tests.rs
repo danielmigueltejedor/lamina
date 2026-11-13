@@ -4,9 +4,9 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use deckcraft_engine::Session;
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
+use lamina_engine::Session;
 use serde_json::json;
 
 use crate::{Services, SlideApp};
@@ -18,16 +18,16 @@ fn deck_bytes(titles: &[&str]) -> Vec<u8> {
     }
     // Drop the new deck's empty first slide, so slide `i` is `titles[i]`.
     s.execute("slide.delete", &json!({"index": 0})).unwrap();
-    deckcraft_engine::cmd::file::save_bytes(&s.doc().unwrap().doc, "deckcraft").unwrap()
+    lamina_engine::cmd::file::save_bytes(&s.doc().unwrap().doc, "lamina").unwrap()
 }
 
-/// An app whose open dialog picks `src.deckcraft`, read from the shared `file` bytes.
+/// An app whose open dialog picks `src.lamina`, read from the shared `file` bytes.
 fn harness(file: &Rc<RefCell<Vec<u8>>>) -> Harness<'static, SlideApp> {
     let mut s = Session::with_new();
     s.execute("slide.new", &json!({"layout": "blank"})).unwrap();
     let f = Rc::clone(file);
     let services = Services {
-        pick_open: Some(Box::new(|_| Some("/tmp/src.deckcraft".to_string()))),
+        pick_open: Some(Box::new(|_| Some("/tmp/src.lamina".to_string()))),
         read: Some(Box::new(move |_| Ok(f.borrow().clone()))),
         ..Services::default()
     };

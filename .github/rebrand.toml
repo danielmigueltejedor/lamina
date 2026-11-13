@@ -222,6 +222,12 @@ to = "Lamina-notarize"
 from = "MacOS/DeckCraft"
 to = "MacOS/Lamina"
 
+# The Windows install policy's name is the install folder (Nodalia\Lamina) and the registry key
+# (Software\Lamina) the installer and the updater share: ASCII, like the folder.
+[[replace]]
+from = "\"name\": \"DeckCraft\""
+to = "\"name\": \"Lamina\""
+
 [[replace]]
 from = "Name=\"DeckCraft\" />"
 to = "Name=\"Lamina\" />"

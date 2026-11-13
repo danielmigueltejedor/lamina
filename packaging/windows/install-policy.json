@@ -1,6 +1,6 @@
 {
   "id": "lamina",
-  "name": "Lámina",
+  "name": "Lamina",
   "upgradeCode": "842B3BA4-B875-4CFD-80D8-E4C69EF70667",
   "sources": [
     "lamina.wxs"

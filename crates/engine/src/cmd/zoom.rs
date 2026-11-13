@@ -7,10 +7,10 @@
 
 use std::sync::Arc;
 
-use deckcraft_geom::Xfrm;
-use deckcraft_model::style::PictureFill;
-use deckcraft_model::text::{Action, Hyperlink, TextBody};
-use deckcraft_model::{LayoutType, Shape, ShapeId, ShapeKind, SlideId, defaults};
+use lamina_geom::Xfrm;
+use lamina_model::style::PictureFill;
+use lamina_model::text::{Action, Hyperlink, TextBody};
+use lamina_model::{LayoutType, Shape, ShapeId, ShapeKind, SlideId, defaults};
 use serde_json::{Value, json};
 
 use super::{CommandSpec, NO_ID_SPACE, bad, bool_or, cmd, has_slide, str_param};

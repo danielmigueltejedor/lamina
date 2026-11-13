@@ -7,8 +7,8 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
-use deckcraft_model::resolve::Ctx;
-use deckcraft_model::{MediaId, Presentation, Shape, ShapeId, ShapeKind, Slide, SlideId};
+use lamina_model::resolve::Ctx;
+use lamina_model::{MediaId, Presentation, Shape, ShapeId, ShapeKind, Slide, SlideId};
 use serde::Serialize;
 
 /// The revised presentation a document is being compared with.
@@ -171,7 +171,7 @@ fn slide_title(s: &Slide) -> String {
     let t = s
         .shapes
         .iter()
-        .find(|x| x.ph.as_ref().is_some_and(|p| matches!(p.kind, deckcraft_model::PhType::Title | deckcraft_model::PhType::CtrTitle)))
+        .find(|x| x.ph.as_ref().is_some_and(|p| matches!(p.kind, lamina_model::PhType::Title | lamina_model::PhType::CtrTitle)))
         .and_then(|x| x.text.as_ref())
         .map(|b| b.text())
         .unwrap_or_default();
@@ -230,8 +230,8 @@ fn plain_shape(s: &Shape) -> Shape {
 
 /// The box a shape is drawn with: its own, else the one it inherits from its layout or master
 /// placeholder (`ctx`).
-fn drawn_box(ctx: Option<&Ctx>, s: &Shape) -> Option<deckcraft_model::Xfrm> {
-    s.xfrm.or_else(|| ctx.map(|c| deckcraft_model::resolve::xfrm(c, s)))
+fn drawn_box(ctx: Option<&Ctx>, s: &Shape) -> Option<lamina_model::Xfrm> {
+    s.xfrm.or_else(|| ctx.map(|c| lamina_model::resolve::xfrm(c, s)))
 }
 
 /// The rotation and flips a shape is drawn with (none without a box).
@@ -369,7 +369,7 @@ fn slide_details(cp: &Presentation, a: &Slide, rp: &Presentation, b: &Slide, med
 }
 
 fn max_shape_id(shapes: &[Shape], m: &mut u32) {
-    deckcraft_model::walk(shapes, &mut |s, _| *m = (*m).max(s.id.0));
+    lamina_model::walk(shapes, &mut |s, _| *m = (*m).max(s.id.0));
 }
 
 /// The revised slide made to live in `doc`: its media copied over (remapped on an id clash), shape
@@ -415,7 +415,7 @@ pub fn adopt(doc: &mut Presentation, rev: &Presentation, slide: &Slide, replacin
     // Shape ids used elsewhere in the open deck.
     let mut taken: HashSet<u32> = HashSet::new();
     for s in doc.slides.iter().filter(|s| Some(s.id) != replacing) {
-        deckcraft_model::walk(&s.shapes, &mut |x, _| {
+        lamina_model::walk(&s.shapes, &mut |x, _| {
             taken.insert(x.id.0);
         });
     }
@@ -471,13 +471,13 @@ pub fn adopt(doc: &mut Presentation, rev: &Presentation, slide: &Slide, replacin
     // draws it otherwise (placed or turned differently), the file's box is stored on it, so the
     // accepted slide looks as the file does and compares equal to it.
     if let (Some(file), Some(here)) = (Ctx::for_slide(rev, slide), Ctx::for_slide(doc, &sl)) {
-        let boxes: Vec<Option<deckcraft_model::Xfrm>> = slide
+        let boxes: Vec<Option<lamina_model::Xfrm>> = slide
             .shapes
             .iter()
             .zip(&sl.shapes)
             .map(|(f, h)| {
-                let want = deckcraft_model::resolve::xfrm(&file, f);
-                (h.xfrm.is_none() && deckcraft_model::resolve::xfrm(&here, h) != want).then_some(want)
+                let want = lamina_model::resolve::xfrm(&file, f);
+                (h.xfrm.is_none() && lamina_model::resolve::xfrm(&here, h) != want).then_some(want)
             })
             .collect();
         for (h, b) in sl.shapes.iter_mut().zip(boxes) {
@@ -533,7 +533,7 @@ mod tests {
 
     use crate::Session;
 
-    /// The sample deck, and a revised copy of it as base64 `.deckcraft` bytes: slide 1's title
+    /// The sample deck, and a revised copy of it as base64 `.lamina` bytes: slide 1's title
     /// retyped, slide 2 deleted, a new slide at the end, a shape moved on slide 3.
     fn decks() -> (Session, String, usize) {
         let mut s = Session::new();
@@ -541,7 +541,7 @@ mod tests {
         let n = s.doc().unwrap().doc.slides.len();
         let orig = s.execute("file.saveBytes", &json!({})).unwrap()["data"].as_str().unwrap().to_string();
         // Make the revision in a second document.
-        s.execute("file.openBytes", &json!({"name": "rev.deckcraft", "data": orig})).unwrap();
+        s.execute("file.openBytes", &json!({"name": "rev.lamina", "data": orig})).unwrap();
         let first = s.doc().unwrap().doc.slides[0].shapes.iter().find(|x| x.text.is_some()).unwrap().id.0;
         s.execute("edit.select", &json!({"ids": [first]})).unwrap();
         s.execute("text.edit", &json!({"id": first})).unwrap();
@@ -567,7 +567,7 @@ mod tests {
     #[test]
     fn lists_inserted_deleted_and_changed_slides() {
         let (mut s, rev, n) = decks();
-        let v = s.execute("review.compare", &json!({"name": "rev.deckcraft", "data": rev})).unwrap();
+        let v = s.execute("review.compare", &json!({"name": "rev.lamina", "data": rev})).unwrap();
         let k = kinds(&v);
         assert!(k.contains(&"deleted".into()) && k.contains(&"inserted".into()) && k.contains(&"changed".into()), "{v}");
         let ch = &v["changes"].as_array().unwrap()[0];
@@ -584,8 +584,8 @@ mod tests {
     fn many_inserted_slides_and_same_named_pictures_compare_by_index() {
         use std::sync::Arc;
 
-        use deckcraft_model::style::PictureFill;
-        use deckcraft_model::{Shape, ShapeId, ShapeKind, SlideId, defaults};
+        use lamina_model::style::PictureFill;
+        use lamina_model::{Shape, ShapeId, ShapeKind, SlideId, defaults};
 
         // One slide of 3,000 pictures of one image, all named "Box"; the revision has the same
         // pictures under other ids (matched by name, in order) and 3,000 slides inserted after it.
@@ -595,7 +595,7 @@ mod tests {
         let pic = |id: u32| Shape {
             id: ShapeId(id),
             name: "Box".into(),
-            xfrm: Some(deckcraft_model::Xfrm::new(10.0, 10.0, 50.0, 50.0)),
+            xfrm: Some(lamina_model::Xfrm::new(10.0, 10.0, 50.0, 50.0)),
             kind: ShapeKind::Picture { fill: PictureFill { media: img, ..Default::default() } },
             ..Default::default()
         };
@@ -615,11 +615,11 @@ mod tests {
 
     /// A deck with one slide: a table whose cell has a picture fill, a picture background and a
     /// transition sound. `tag` starts the bytes of each.
-    fn media_deck(tag: &str) -> deckcraft_model::Presentation {
+    fn media_deck(tag: &str) -> lamina_model::Presentation {
         use std::sync::Arc;
 
-        use deckcraft_model::style::PictureFill;
-        use deckcraft_model::{Background, Fill, Shape, ShapeId, ShapeKind, Table, Transition, defaults};
+        use lamina_model::style::PictureFill;
+        use lamina_model::{Background, Fill, Shape, ShapeId, ShapeKind, Table, Transition, defaults};
 
         let mut p = defaults::new_presentation(None);
         let cell = p.add_media("cell.png", "image/png", format!("{tag} cell").into_bytes()).expect("media");
@@ -638,7 +638,7 @@ mod tests {
 
     #[test]
     fn an_accepted_slide_keeps_its_cell_picture_background_and_sound() {
-        use deckcraft_model::{Background, Fill, MediaId, ShapeKind};
+        use lamina_model::{Background, Fill, MediaId, ShapeKind};
 
         // Both decks hold the same media ids with different bytes.
         let mut doc = media_deck("open");
@@ -672,7 +672,7 @@ mod tests {
         }
         let before = s.execute("file.saveBytes", &json!({})).unwrap()["data"].as_str().unwrap().to_string();
         s.execute("slide.reset", &json!({"index": 1})).unwrap();
-        let v = s.execute("review.compare", &json!({"name": "before.deckcraft", "data": before})).unwrap();
+        let v = s.execute("review.compare", &json!({"name": "before.lamina", "data": before})).unwrap();
         assert!(!v.to_string().contains("rotated"), "{v}");
     }
 
@@ -684,7 +684,7 @@ mod tests {
         let before = s.execute("file.saveBytes", &json!({})).unwrap()["data"].as_str().unwrap().to_string();
         s.execute("shape.move", &json!({"ids": [id], "dx": 40, "dy": 0})).unwrap();
         s.execute("shape.rotate", &json!({"ids": [id], "deg": 30})).unwrap();
-        let v = s.execute("review.compare", &json!({"name": "before.deckcraft", "data": before})).unwrap().to_string();
+        let v = s.execute("review.compare", &json!({"name": "before.lamina", "data": before})).unwrap().to_string();
         assert!(v.contains("moved") && v.contains("rotated"), "{v}");
     }
 
@@ -699,7 +699,7 @@ mod tests {
         let doc = std::sync::Arc::make_mut(&mut st.doc);
         let sl = std::sync::Arc::make_mut(&mut doc.slides[0]);
         sl.shapes.iter_mut().find(|x| x.id.0 as u64 == id).unwrap().descr = "A red box".into();
-        let v = s.execute("review.compare", &json!({"name": "before.deckcraft", "data": before})).unwrap().to_string();
+        let v = s.execute("review.compare", &json!({"name": "before.lamina", "data": before})).unwrap().to_string();
         assert!(v.contains("flipped") && v.contains("properties"), "{v}");
     }
 
@@ -711,7 +711,7 @@ mod tests {
         let before = s.execute("file.saveBytes", &json!({})).unwrap()["data"].as_str().unwrap().to_string();
         s.execute("shape.flip", &json!({"ids": [id]})).unwrap();
         s.execute("shape.change", &json!({"ids": [id], "preset": "ellipse"})).unwrap();
-        let v = s.execute("review.compare", &json!({"name": "before.deckcraft", "data": before})).unwrap().to_string();
+        let v = s.execute("review.compare", &json!({"name": "before.lamina", "data": before})).unwrap().to_string();
         assert!(v.contains("flipped") && v.contains("shape\""), "{v}");
     }
 
@@ -725,7 +725,7 @@ mod tests {
         let st = s.doc_mut().unwrap();
         let doc = std::sync::Arc::make_mut(&mut st.doc);
         let layout = doc.slides[1].layout;
-        let title = |sh: &deckcraft_model::Shape| sh.ph.as_ref().is_some_and(|p| matches!(p.kind, deckcraft_model::PhType::Title));
+        let title = |sh: &lamina_model::Shape| sh.ph.as_ref().is_some_and(|p| matches!(p.kind, lamina_model::PhType::Title));
         let (mi, li) = doc.masters.iter().enumerate().find_map(|(m, x)| x.layouts.iter().position(|l| l.id == layout).map(|l| (m, l))).unwrap();
         let ph = std::sync::Arc::make_mut(&mut doc.masters[mi]).layouts[li].shapes.iter_mut().find(|x| title(x)).unwrap();
         let mut x = ph.xfrm.unwrap();
@@ -739,7 +739,7 @@ mod tests {
         let t = sl.shapes.iter_mut().find(|x| title(x)).unwrap();
         x.rot = 0.0;
         t.xfrm = Some(x);
-        let v = s.execute("review.compare", &json!({"name": "before.deckcraft", "data": before})).unwrap();
+        let v = s.execute("review.compare", &json!({"name": "before.lamina", "data": before})).unwrap();
         assert!(v.to_string().contains("rotated"), "{v}");
     }
 
@@ -752,7 +752,7 @@ mod tests {
         s.execute("slide.new", &json!({"layout": "titleOnly", "title": "T"})).unwrap();
         s.execute("slide.reset", &json!({"index": 1})).unwrap();
         let file = s.execute("file.saveBytes", &json!({})).unwrap()["data"].as_str().unwrap().to_string();
-        let title = |sh: &deckcraft_model::Shape| sh.ph.as_ref().is_some_and(|p| matches!(p.kind, deckcraft_model::PhType::Title));
+        let title = |sh: &lamina_model::Shape| sh.ph.as_ref().is_some_and(|p| matches!(p.kind, lamina_model::PhType::Title));
         let st = s.doc_mut().unwrap();
         let doc = std::sync::Arc::make_mut(&mut st.doc);
         let layout = doc.slides[1].layout;
@@ -761,20 +761,20 @@ mod tests {
         let mut x = ph.xfrm.unwrap();
         x.rot = 30.0;
         ph.xfrm = Some(x);
-        let v = s.execute("review.compare", &json!({"name": "file.deckcraft", "data": file})).unwrap();
+        let v = s.execute("review.compare", &json!({"name": "file.lamina", "data": file})).unwrap();
         assert!(v.to_string().contains("rotated"), "{v}");
         s.execute("review.accept", &json!({"all": true})).unwrap();
         let st = s.doc().unwrap();
         let t = st.doc.slides[1].shapes.iter().find(|x| title(x)).unwrap();
         assert_eq!(t.xfrm.map(|x| x.rot), Some(0.0), "the file's box is stored: {:?}", t.xfrm);
-        let v = s.execute("review.compare", &json!({"name": "file.deckcraft", "data": file})).unwrap();
+        let v = s.execute("review.compare", &json!({"name": "file.lamina", "data": file})).unwrap();
         assert!(v["changes"].as_array().is_some_and(|c| c.is_empty()), "nothing left to accept: {v}");
     }
 
     #[test]
     fn each_change_says_which_side_it_is_on() {
         let (mut s, rev, _) = decks();
-        let v = s.execute("review.compare", &json!({"name": "rev.deckcraft", "data": rev})).unwrap();
+        let v = s.execute("review.compare", &json!({"name": "rev.lamina", "data": rev})).unwrap();
         for c in v["changes"].as_array().unwrap() {
             assert_eq!(c["number"].as_u64().unwrap(), c["slide"].as_u64().unwrap() + 1, "{c}");
             match c["kind"].as_str().unwrap() {
@@ -792,7 +792,7 @@ mod tests {
     #[test]
     fn accept_one_then_all_makes_the_decks_equal_and_undoes() {
         let (mut s, rev, n) = decks();
-        s.execute("review.compare", &json!({"name": "rev.deckcraft", "data": rev})).unwrap();
+        s.execute("review.compare", &json!({"name": "rev.lamina", "data": rev})).unwrap();
         let before = s.execute("review.revisions", &json!({})).unwrap()["changes"].as_array().unwrap().len();
         s.execute("review.accept", &json!({"index": 0})).unwrap();
         let after = s.execute("review.revisions", &json!({})).unwrap()["changes"].as_array().unwrap().len();
@@ -814,7 +814,7 @@ mod tests {
     #[test]
     fn reject_keeps_the_open_deck_and_accept_all_skips_rejected_revisions() {
         let (mut s, rev, n) = decks();
-        s.execute("review.compare", &json!({"name": "rev.deckcraft", "data": rev})).unwrap();
+        s.execute("review.compare", &json!({"name": "rev.lamina", "data": rev})).unwrap();
         let before = s.execute("review.revisions", &json!({})).unwrap()["changes"].as_array().unwrap().clone();
         let ins = before.iter().position(|c| c["kind"] == "inserted").unwrap();
         let doc = s.doc().unwrap().doc.clone();
@@ -847,7 +847,7 @@ mod tests {
     #[test]
     fn rejecting_one_revision_keeps_the_others_in_order() {
         let (mut s, rev, _) = decks();
-        s.execute("review.compare", &json!({"name": "rev.deckcraft", "data": rev})).unwrap();
+        s.execute("review.compare", &json!({"name": "rev.lamina", "data": rev})).unwrap();
         let before = s.execute("review.revisions", &json!({})).unwrap()["changes"].as_array().unwrap().clone();
         assert!(s.execute("review.reject", &json!({"index": before.len()})).is_err());
         s.execute("review.reject", &json!({"index": 0})).unwrap();

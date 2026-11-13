@@ -14,26 +14,22 @@ pub(super) fn cell_on_slide(st: &DocState, id: ShapeId, row: usize, col: usize) 
     let cell = tb.cell(row, col)?;
     let ctx = ctx_for(&st.doc, &st.selection)?;
     let heights = crate::cmd::table_drawn_heights(&st.doc, &st.selection, tb);
-    let rect = deckcraft_render::table_cell_rects(tb, &heights).into_iter().find(|(r, c, _)| *r == row && *c == col)?.2;
-    let mut body = deckcraft_render::table_cell_body(&ctx, tb, row, col, cell);
+    let rect = lamina_render::table_cell_rects(tb, &heights).into_iter().find(|(r, c, _)| *r == row && *c == col)?.2;
+    let mut body = lamina_render::table_cell_body(&ctx, tb, row, col, cell);
     if body.paragraphs.is_empty() {
-        body.paragraphs.push(deckcraft_model::text::Paragraph::default());
+        body.paragraphs.push(lamina_model::text::Paragraph::default());
     }
-    let tmp = deckcraft_model::Shape::table_cell(body.clone());
-    let layout = deckcraft_text::layout(
-        &ctx,
-        &tmp,
-        &body,
-        &deckcraft_text::Opts { rect, fields: &deckcraft_text::NoFields, prompt_color: None, no_shrink: false },
-    );
+    let tmp = lamina_model::Shape::table_cell(body.clone());
+    let layout =
+        lamina_text::layout(&ctx, &tmp, &body, &lamina_text::Opts { rect, fields: &lamina_text::NoFields, prompt_color: None, no_shrink: false });
     let x = xfrm_of(&st.doc, &st.selection, sh);
-    let to_slide = deckcraft_render::text_transform(x.affine(), rect, layout.rotation);
+    let to_slide = lamina_render::text_transform(x.affine(), rect, layout.rotation);
     Some(CellText { layout, to_slide })
 }
 
 pub(super) struct CellText {
-    pub(super) layout: deckcraft_text::TextLayout,
-    pub(super) to_slide: deckcraft_geom::Affine,
+    pub(super) layout: lamina_text::TextLayout,
+    pub(super) to_slide: lamina_geom::Affine,
 }
 
 pub(super) fn insert(s: &mut Session, p: &Value) -> Result<Value> {
@@ -171,7 +167,7 @@ pub(super) fn delete(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 /// Is paragraph `para` right-to-left (its lines run from the right)?
-fn para_rtl(layout: Option<&deckcraft_text::TextLayout>, body: &TextBody, para: usize) -> bool {
+fn para_rtl(layout: Option<&lamina_text::TextLayout>, body: &TextBody, para: usize) -> bool {
     match layout.and_then(|l| l.lines.iter().find(|x| x.para == para)) {
         Some(line) => line.rtl,
         None => body.paragraphs.get(para).and_then(|x| x.props.rtl).unwrap_or(false),
@@ -179,14 +175,14 @@ fn para_rtl(layout: Option<&deckcraft_text::TextLayout>, body: &TextBody, para: 
 }
 
 pub(super) fn move_caret(s: &mut Session, p: &Value) -> Result<Value> {
-    use deckcraft_text::Affinity;
+    use lamina_text::Affinity;
     let to = str_param(p, "to").unwrap_or("right").to_string();
     let extend = bool_or(p, "extend", false);
     let st = s.doc()?;
     let t = st.selection.text.clone().ok_or_else(|| bad("text.move", "not editing text"))?;
     let body = body_of(st, &t).cloned().unwrap_or_default();
     let layout = layout_for(st, &t);
-    let lp = |c: Pos| deckcraft_text::Pos { para: c.0, ch: c.1 };
+    let lp = |c: Pos| lamina_text::Pos { para: c.0, ch: c.1 };
     let caret = t.caret;
     let aff = if t.at_line_end() { Affinity::Upstream } else { Affinity::Downstream };
     // Left and right are on screen: in a right-to-left paragraph left goes forward in the text.
@@ -311,7 +307,7 @@ pub(super) fn select_para(s: &mut Session, p: &Value) -> Result<Value> {
 
 /// Turn leading tabs of a paragraph into its outline level (capped at 8) and strip them.
 /// Returns whether any tab was found.
-pub(crate) fn apply_leading_tabs(para: &mut deckcraft_model::text::Paragraph) -> bool {
+pub(crate) fn apply_leading_tabs(para: &mut lamina_model::text::Paragraph) -> bool {
     let tabs = para.runs.first().map(|r| r.text.chars().take_while(|c| *c == '\t').count()).unwrap_or(0);
     if tabs == 0 {
         return false;
@@ -339,7 +335,7 @@ pub(super) fn set(s: &mut Session, p: &Value) -> Result<Value> {
         };
         let Some(body) = target else { return Err(bad("text.set", "no text here (tables need `cell`)")) };
         let keep = body.paragraphs.first().and_then(|p| p.runs.first()).map(|r| r.props.clone()).unwrap_or_default();
-        let levels: Vec<(u8, deckcraft_model::text::ParaProps)> = body.paragraphs.iter().map(|p| (p.level, p.props.clone())).collect();
+        let levels: Vec<(u8, lamina_model::text::ParaProps)> = body.paragraphs.iter().map(|p| (p.level, p.props.clone())).collect();
         let mut nb = TextBody::from_text(&text);
         for (i, para) in nb.paragraphs.iter_mut().enumerate() {
             // Leading tabs set the outline level.

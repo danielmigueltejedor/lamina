@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <?ifndef HasCraftFontLicences ?>
+  <?define HasCraftFontLicences=0 ?>
+  <?endif?>
+  <Package Name="Lámina" Manufacturer="Nodalia" Version="$(var.Version)" UpgradeCode="842B3BA4-B875-4CFD-80D8-E4C69EF70667" Scope="perUserOrMachine" Compressed="yes" Language="1033">
+    <SummaryInformation Description="Lámina presentations and slide shows" Manufacturer="Nodalia" />
+    <?include $(sys.SOURCEFILEDIR)install-policy.wxi?>
+    <!-- Same-version upgrades let successive pre-releases of one X.Y.Z replace each other
+         (MSI versions are numeric, so 1.2.3-rc.1 and 1.2.3-rc.2 are both 1.2.3). -->
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of Lámina is already installed." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="LaminaIcon.ico" SourceFile="$(var.IconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="LaminaIcon.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://getnodalia.com/lamina" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://getnodalia.com/lamina" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/getnodalia/lamina/issues" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="CraftSuiteFolder" Name="Nodalia">
+        <Directory Id="INSTALLFOLDER" Name="Lamina" />
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder" />
+
+    <Feature Id="Main" Title="Lámina" Level="1">
+      <?if $(var.HasCraftFontLicences) = 1 ?>
+      <ComponentGroupRef Id="CraftFontLicences" />
+      <?endif?>
+      <ComponentGroupRef Id="LaminaFiles" />
+    </Feature>
+  <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+    <UI>
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="2" Condition="NOT Installed" />
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2" Condition="NOT Installed" />
+    </UI>
+  </Package>
+
+  <Fragment>
+    <?if $(var.HasCraftFontLicences) = 1 ?>
+    <ComponentGroup Id="CraftFontLicences" Directory="INSTALLFOLDER">
+      <Files Include="$(var.DocsDir)\**" />
+    </ComponentGroup>
+    <?endif?>
+    <ComponentGroup Id="LaminaFiles" Directory="INSTALLFOLDER">
+      <Component Id="LaminaApp" Guid="C379F6EB-258A-48E4-B099-53DB3E036EDE">
+        <File Id="LaminaNotice" Source="$(var.BinDir)\NOTICE" KeyPath="no" />
+        <File Id="LaminaExe" Source="$(var.BinDir)\lamina.exe" KeyPath="yes">
+          <!-- No Icon here, so the shortcut shows the icon embedded in lamina.exe (build.rs). An
+               MSI Icon is cached under %APPDATA%\Microsoft\Installer\{ProductCode}\, and every
+               update is a major upgrade with a new ProductCode that deletes the old folder. A
+               taskbar pin is a copy of this shortcut that the update never touches, so it kept
+               pointing at the deleted file and lost its icon (#1114). The exe's path survives
+               updates; the shortcut is not advertised, so it targets that path and its icon is the
+               exe's own. The Icon above stays for ARPPRODUCTICON (Apps and features). -->
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Lámina" Description="Lámina presentations and slide shows" WorkingDirectory="INSTALLFOLDER" Advertise="no" />
+        </File>
+
+        <!-- .lamina: Lámina's own format. -->
+        <ProgId Id="Lamina.Presentation" Description="Lámina Presentation" Icon="LaminaExe" IconIndex="0">
+          <Extension Id="lamina" ContentType="application/x-lamina">
+            <Verb Id="open" Command="Open" TargetFile="LaminaExe" Argument="&quot;%1&quot;" />
+          </Extension>
+        </ProgId>
+
+        <!-- "Open with" for PowerPoint formats, without becoming the default. -->
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\lamina.exe" Name="FriendlyAppName" Value="Lámina" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\lamina.exe\shell\open\command" Value="&quot;[#LaminaExe]&quot; &quot;%1&quot;" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\lamina.exe\SupportedTypes" Name=".lamina" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\lamina.exe\SupportedTypes" Name=".pptx" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\lamina.exe\SupportedTypes" Name=".potx" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\Applications\lamina.exe\SupportedTypes" Name=".ppsx" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\.pptx\OpenWithProgids" Name="Lamina.Presentation" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\.potx\OpenWithProgids" Name="Lamina.Presentation" Value="" Type="string" />
+        <RegistryValue Root="HKMU" Key="Software\Classes\.ppsx\OpenWithProgids" Name="Lamina.Presentation" Value="" Type="string" />
+
+        <RegistryValue Root="HKMU" Key="Software\Microsoft\Windows\CurrentVersion\App Paths\lamina.exe" Value="[#LaminaExe]" Type="string" />
+      <RegistryValue Root="HKMU" Key="Software\Lamina" Name="InstallDir" Value="[INSTALLFOLDER]" Type="string" />
+      </Component>
+
+      <Component Id="LaminaCli">
+        <File Id="LaminaCliExe" Source="$(var.BinDir)\lamina-cli.exe" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

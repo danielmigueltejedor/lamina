@@ -1,8 +1,8 @@
 //! Connectors glued to shapes: connection sites, snapping line ends to them, and rerouting attached
 //! connectors whenever the shapes they connect move, resize or rotate.
 
-use deckcraft_geom::{Affine, Point, Rect, Xfrm};
-use deckcraft_model::{Presentation, Shape, ShapeId, ShapeKind};
+use lamina_geom::{Affine, Point, Rect, Xfrm};
+use lamina_model::{Presentation, Shape, ShapeId, ShapeKind};
 
 use crate::Selection;
 use crate::cmd::xfrm_of;
@@ -20,7 +20,7 @@ pub fn sites_in(doc: &Presentation, sel: &Selection, s: &Shape, to_abs: Affine) 
         return vec![];
     }
     let x = xfrm_of(doc, sel, s);
-    let mut local = deckcraft_render::shape_geometry(s, x.w, x.h).sites;
+    let mut local = lamina_render::shape_geometry(s, x.w, x.h).sites;
     if local.is_empty() {
         local = vec![Point::new(x.w / 2.0, 0.0), Point::new(0.0, x.h / 2.0), Point::new(x.w / 2.0, x.h), Point::new(x.w, x.h / 2.0)];
     }
@@ -43,7 +43,7 @@ pub fn locate<'a>(doc: &Presentation, sel: &Selection, shapes: &'a [Shape], id: 
             if let ShapeKind::Group { children, child } = &s.kind {
                 let x = xfrm_of(doc, sel, s);
                 let ch = Rect::new(child.x, child.y, child.x + child.w, child.y + child.h);
-                let nested = to_abs * deckcraft_geom::group_child_affine(&x, ch);
+                let nested = to_abs * lamina_geom::group_child_affine(&x, ch);
                 if let Some(f) = rec(doc, sel, children, id, nested, depth + 1) {
                     return Some(f);
                 }

@@ -1,21 +1,21 @@
 [package]
-name = "deckcraft-render"
+name = "lamina-render"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "DeckCraft renderer: slides, layouts and masters to pixels (vello_cpu): fills, outlines, effects, pictures, text, tables, charts"
+description = "Lámina renderer: slides, layouts and masters to pixels (vello_cpu): fills, outlines, effects, pictures, text, tables, charts"
 
 [lints]
 workspace = true
 
 [dependencies]
-deckcraft-geom = { workspace = true }
-deckcraft-color = { workspace = true }
-deckcraft-metafile = { workspace = true }
-deckcraft-model = { workspace = true }
-deckcraft-anim = { workspace = true }
-deckcraft-fonts = { workspace = true }
-deckcraft-text = { workspace = true }
+lamina-geom = { workspace = true }
+lamina-color = { workspace = true }
+lamina-metafile = { workspace = true }
+lamina-model = { workspace = true }
+lamina-anim = { workspace = true }
+lamina-fonts = { workspace = true }
+lamina-text = { workspace = true }
 vello_cpu = { workspace = true }
 vello_common = { workspace = true }
 image = { workspace = true }

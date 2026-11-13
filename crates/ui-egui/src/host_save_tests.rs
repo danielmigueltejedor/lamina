@@ -41,7 +41,7 @@ fn pptx(slides: usize) -> Vec<u8> {
     while s.doc().unwrap().doc.slides.len() < slides {
         s.execute("slide.new", &json!({})).unwrap();
     }
-    deckcraft_engine::cmd::file::save_bytes(&s.doc().unwrap().doc, "pptx").unwrap()
+    lamina_engine::cmd::file::save_bytes(&s.doc().unwrap().doc, "pptx").unwrap()
 }
 
 fn edit(app: &mut SlideApp) {
@@ -57,7 +57,7 @@ fn path(app: &SlideApp) -> Option<String> {
     app.session.active().and_then(|d| d.path.clone())
 }
 
-/// The bug this prevents: Save of a .pptx the page sent came back as `<name>.deckcraft`. Save
+/// The bug this prevents: Save of a .pptx the page sent came back as `<name>.lamina`. Save
 /// now hands the page the opened file under its own name and format, not as a new file; Save As
 /// says it is a new file and becomes the file the next Save writes.
 #[test]
@@ -69,16 +69,16 @@ fn host_saves_go_back_to_the_opened_file() {
     app.save();
     assert!(!app.session.active().unwrap().is_dirty());
     edit(&mut app);
-    app.save_as_dialog("deckcraft");
+    app.save_as_dialog("lamina");
     assert!(!app.session.active().unwrap().is_dirty());
     edit(&mut app);
     app.save();
-    let names = [("Lecture 3.pptx", false), ("Lecture 3.deckcraft", true), ("Lecture 3.deckcraft", false)];
+    let names = [("Lecture 3.pptx", false), ("Lecture 3.lamina", true), ("Lecture 3.lamina", false)];
     assert_eq!(calls(&got), names.map(|(n, s)| (n.to_string(), s)));
     // The first save is a .pptx that reopens with the edit in it.
     let first = got.borrow()[0].2.clone();
-    assert!(first.windows(20).any(|w| w == b"ppt/presentation.xml"), "Save writes PowerPoint, not .deckcraft");
-    let reopened = deckcraft_engine::cmd::file::loaded_file("Lecture 3.pptx", &first).unwrap();
+    assert!(first.windows(20).any(|w| w == b"ppt/presentation.xml"), "Save writes PowerPoint, not .lamina");
+    let reopened = lamina_engine::cmd::file::loaded_file("Lecture 3.pptx", &first).unwrap();
     assert_eq!(reopened.doc.slides.len(), 3);
 }
 
@@ -87,7 +87,7 @@ fn host_saves_go_back_to_the_opened_file() {
 #[test]
 fn host_save_of_an_untitled_presentation_is_save_as() {
     let (mut app, got) = host_app(false);
-    let name = format!("{}.deckcraft", app.session.active().unwrap().title());
+    let name = format!("{}.lamina", app.session.active().unwrap().title());
     edit(&mut app);
     app.save();
     edit(&mut app);
@@ -102,7 +102,7 @@ fn a_file_the_page_never_sent_saves_as_a_new_file() {
     let (mut app, got) = host_app(false);
     app.open_or_insert_bytes("dropped.pptx", &pptx(1));
     app.save();
-    assert_eq!(calls(&got), [("dropped.deckcraft".to_string(), true)]);
+    assert_eq!(calls(&got), [("dropped.lamina".to_string(), true)]);
 }
 
 /// Exports and Print are copies: named after the presentation, not a new file, and the
@@ -167,10 +167,10 @@ fn palette_save_goes_to_the_page() {
 }
 
 /// A file the page sent without a name, or with a name that isn't a presentation's, has no file
-/// of its own: Save is a new `.deckcraft`, never an overwrite of an invented `Presentation.pptx`.
+/// of its own: Save is a new `.lamina`, never an overwrite of an invented `Presentation.pptx`.
 #[test]
 fn a_file_sent_without_a_presentation_name_saves_as_a_new_file() {
-    for (name, saved) in [(None, "Presentation.deckcraft"), (Some("Talk"), "Talk.deckcraft")] {
+    for (name, saved) in [(None, "Presentation.lamina"), (Some("Talk"), "Talk.lamina")] {
         let (mut app, got) = host_app(false);
         app.open_from_host(name, &pptx(2));
         assert_eq!(app.session.documents().len(), 1, "{name:?}");
@@ -191,23 +191,23 @@ fn an_outline_from_the_page_opens_as_a_new_presentation() {
     assert_eq!(app.session.active().unwrap().doc.slides.len(), 3);
     assert_eq!(path(&app), None);
     app.save();
-    assert_eq!(calls(&got), [("notes.deckcraft".to_string(), true)]);
+    assert_eq!(calls(&got), [("notes.lamina".to_string(), true)]);
 }
 
 /// A damaged file from the page opens as an untitled "(Repaired)" copy, so Save is a new file
 /// and can't overwrite the page's original with the emptied media.
 #[test]
 fn a_damaged_file_from_the_page_saves_as_a_new_repaired_file() {
-    let mut p = deckcraft_model::Presentation::default();
+    let mut p = lamina_model::Presentation::default();
     p.add_media("a.png", "image/png", b"PICTURE-BYTES-0123456789".to_vec());
-    let mut bad = deckcraft_engine::cmd::file::save_bytes(&p, "deckcraft").unwrap();
+    let mut bad = lamina_engine::cmd::file::save_bytes(&p, "lamina").unwrap();
     // Pictures are stored as they are, so flipping a byte breaks the entry's CRC.
     let at = bad.windows(13).position(|w| w == b"PICTURE-BYTES").unwrap();
     bad[at] ^= 0xff;
     let (mut app, got) = host_app(false);
-    app.open_from_host(Some("talk.deckcraft"), &bad);
+    app.open_from_host(Some("talk.lamina"), &bad);
     assert_eq!(path(&app), None);
     assert!(app.session.active().unwrap().title().ends_with("(Repaired)"));
     app.save();
-    assert_eq!(calls(&got), [("talk (Repaired).deckcraft".to_string(), true)]);
+    assert_eq!(calls(&got), [("talk (Repaired).lamina".to_string(), true)]);
 }

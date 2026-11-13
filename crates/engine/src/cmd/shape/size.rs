@@ -89,7 +89,7 @@ fn norm_deg(r: f64) -> f64 {
 }
 
 /// Width wins when both sides are set with the aspect locked, matching `shape.resize`.
-fn apply_size(x: &mut deckcraft_geom::Xfrm, spec: SizeSpec) {
+fn apply_size(x: &mut lamina_geom::Xfrm, spec: SizeSpec) {
     let ar = if x.h > 0.0 { x.w / x.h } else { 1.0 };
     let mut nw = x.w;
     let mut nh = x.h;
@@ -194,7 +194,7 @@ pub(super) fn flip(s: &mut Session, p: &Value) -> Result<Value> {
         // PowerPoint greys Flip out for a SmartArt graphic (SmartArt Design > Right to Left mirrors it),
         // also inside a group: ungrouping would hand the flip to the graphic.
         let mut graphic = false;
-        deckcraft_model::walk(std::slice::from_ref(&*sh), &mut |x, _| graphic |= x.diagram.is_some());
+        lamina_model::walk(std::slice::from_ref(&*sh), &mut |x, _| graphic |= x.diagram.is_some());
         if graphic {
             return Err(bad("shape.flip", "Flip is not available for a SmartArt graphic; use `smartArt.layout` to change how it is laid out"));
         }

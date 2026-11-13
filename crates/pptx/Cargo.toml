@@ -1,26 +1,26 @@
 [package]
-name = "deckcraft-pptx"
+name = "lamina-pptx"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "DeckCraft PPTX: Office Open XML (PresentationML/DrawingML) import and export, written from the public ECMA-376 standard"
+description = "Lámina PPTX: Office Open XML (PresentationML/DrawingML) import and export, written from the public ECMA-376 standard"
 
 [lints]
 workspace = true
 
 [dependencies]
-deckcraft-model = { workspace = true }
-deckcraft-geom = { workspace = true }
-deckcraft-color = { workspace = true }
+lamina-model = { workspace = true }
+lamina-geom = { workspace = true }
+lamina-color = { workspace = true }
 quick-xml = { workspace = true }
 zip = { workspace = true }
 thiserror = { workspace = true }
 log = { workspace = true }
 
 [dev-dependencies]
-deckcraft-engine = { workspace = true }
+lamina-engine = { workspace = true }
 serde_json = { workspace = true }
-deckcraft-color = { workspace = true }
-deckcraft-geom = { workspace = true }
+lamina-color = { workspace = true }
+lamina-geom = { workspace = true }
 image = { workspace = true }
 zip = { workspace = true }

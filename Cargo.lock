@@ -847,12 +847,12 @@ dependencies = [
 [[package]]
 name = "craft-fonts-build"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
 
 [[package]]
 name = "craft-i18n"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
 dependencies = [
  "fixed_decimal",
  "icu_decimal",
@@ -875,7 +875,7 @@ dependencies = [
 [[package]]
 name = "craft-media"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
 dependencies = [
  "thiserror 2.0.21",
 ]
@@ -883,7 +883,7 @@ dependencies = [
 [[package]]
 name = "craft-pdf"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
 dependencies = [
  "krilla",
  "thiserror 2.0.21",
@@ -892,7 +892,7 @@ dependencies = [
 [[package]]
 name = "craft-ui"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
 dependencies = [
  "craft-fonts-build",
  "craft-i18n",
@@ -912,7 +912,7 @@ dependencies = [
 [[package]]
 name = "craft-update"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
 dependencies = [
  "chrono",
  "dunce",
@@ -938,7 +938,7 @@ dependencies = [
 [[package]]
 name = "craft-web-api"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
 dependencies = [
  "js-sys",
  "serde_json",
@@ -949,7 +949,7 @@ dependencies = [
 [[package]]
 name = "craft-web-host"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
 dependencies = [
  "wasm-bindgen",
  "web-sys",
@@ -1027,16 +1027,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c87e182de0887fd5361989c677c4e8f5000cd9491d6d563161a8f3a5519fc7f"
 
 [[package]]
-name = "deckcraft"
+name = "lamina"
 version = "0.15.0"
 dependencies = [
  "arboard",
  "chrono",
  "cpal",
  "craft-update",
- "deckcraft-engine",
- "deckcraft-media",
- "deckcraft-ui-egui",
+ "lamina-engine",
+ "lamina-media",
+ "lamina-ui-egui",
  "eframe",
  "egui",
  "fmv-macos-events",
@@ -1049,63 +1049,63 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-anim"
+name = "lamina-anim"
 version = "0.15.0"
 dependencies = [
- "deckcraft-geom",
- "deckcraft-model",
+ "lamina-geom",
+ "lamina-model",
  "serde",
 ]
 
 [[package]]
-name = "deckcraft-av1"
+name = "lamina-av1"
 version = "0.15.0"
 dependencies = [
- "deckcraft-bitstream",
+ "lamina-bitstream",
  "rayon",
  "thiserror 2.0.21",
 ]
 
 [[package]]
-name = "deckcraft-bitstream"
+name = "lamina-bitstream"
 version = "0.15.0"
 dependencies = [
  "craft-media",
 ]
 
 [[package]]
-name = "deckcraft-cli"
+name = "lamina-cli"
 version = "0.15.0"
 dependencies = [
- "deckcraft-engine",
- "deckcraft-mcp",
+ "lamina-engine",
+ "lamina-mcp",
  "serde_json",
  "zip 3.0.0",
 ]
 
 [[package]]
-name = "deckcraft-color"
+name = "lamina-color"
 version = "0.15.0"
 dependencies = [
  "serde",
 ]
 
 [[package]]
-name = "deckcraft-engine"
+name = "lamina-engine"
 version = "0.15.0"
 dependencies = [
  "chrono",
- "deckcraft-anim",
- "deckcraft-color",
- "deckcraft-fonts",
- "deckcraft-format",
- "deckcraft-geom",
- "deckcraft-media",
- "deckcraft-model",
- "deckcraft-pdf",
- "deckcraft-pptx",
- "deckcraft-render",
- "deckcraft-text",
+ "lamina-anim",
+ "lamina-color",
+ "lamina-fonts",
+ "lamina-format",
+ "lamina-geom",
+ "lamina-media",
+ "lamina-model",
+ "lamina-pdf",
+ "lamina-pptx",
+ "lamina-render",
+ "lamina-text",
  "i_overlay",
  "image",
  "js-sys",
@@ -1117,7 +1117,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-fonts"
+name = "lamina-fonts"
 version = "0.15.0"
 dependencies = [
  "epaint_default_fonts",
@@ -1129,10 +1129,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-format"
+name = "lamina-format"
 version = "0.15.0"
 dependencies = [
- "deckcraft-model",
+ "lamina-model",
  "serde",
  "serde_json",
  "thiserror 2.0.21",
@@ -1140,7 +1140,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-geom"
+name = "lamina-geom"
 version = "0.15.0"
 dependencies = [
  "kurbo",
@@ -1148,59 +1148,59 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-h264"
+name = "lamina-h264"
 version = "0.15.0"
 dependencies = [
- "deckcraft-bitstream",
+ "lamina-bitstream",
  "rayon",
  "thiserror 2.0.21",
 ]
 
 [[package]]
-name = "deckcraft-hevc"
+name = "lamina-hevc"
 version = "0.15.0"
 dependencies = [
- "deckcraft-bitstream",
+ "lamina-bitstream",
  "rayon",
  "thiserror 2.0.21",
 ]
 
 [[package]]
-name = "deckcraft-isobmff"
+name = "lamina-isobmff"
 version = "0.15.0"
 dependencies = [
  "craft-media",
 ]
 
 [[package]]
-name = "deckcraft-matroska"
+name = "lamina-matroska"
 version = "0.15.0"
 dependencies = [
  "craft-media",
 ]
 
 [[package]]
-name = "deckcraft-mcp"
+name = "lamina-mcp"
 version = "0.15.0"
 dependencies = [
- "deckcraft-engine",
- "deckcraft-render",
+ "lamina-engine",
+ "lamina-render",
  "log",
  "serde_json",
 ]
 
 [[package]]
-name = "deckcraft-media"
+name = "lamina-media"
 version = "0.15.0"
 dependencies = [
- "deckcraft-av1",
- "deckcraft-h264",
- "deckcraft-hevc",
- "deckcraft-isobmff",
- "deckcraft-matroska",
- "deckcraft-ogg",
- "deckcraft-opus",
- "deckcraft-vp9",
+ "lamina-av1",
+ "lamina-h264",
+ "lamina-hevc",
+ "lamina-isobmff",
+ "lamina-matroska",
+ "lamina-ogg",
+ "lamina-opus",
+ "lamina-vp9",
  "image",
  "log",
  "symphonia",
@@ -1208,7 +1208,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-metafile"
+name = "lamina-metafile"
 version = "0.15.0"
 dependencies = [
  "image",
@@ -1217,11 +1217,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-model"
+name = "lamina-model"
 version = "0.15.0"
 dependencies = [
- "deckcraft-color",
- "deckcraft-geom",
+ "lamina-color",
+ "lamina-geom",
  "serde",
  "serde_json",
  "thiserror 2.0.21",
@@ -1229,22 +1229,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-ogg"
+name = "lamina-ogg"
 version = "0.15.0"
 
 [[package]]
-name = "deckcraft-opus"
+name = "lamina-opus"
 version = "0.15.0"
 
 [[package]]
-name = "deckcraft-pdf"
+name = "lamina-pdf"
 version = "0.15.0"
 dependencies = [
  "craft-pdf",
- "deckcraft-fonts",
- "deckcraft-model",
- "deckcraft-render",
- "deckcraft-text",
+ "lamina-fonts",
+ "lamina-model",
+ "lamina-render",
+ "lamina-text",
  "hayro-syntax",
  "krilla",
  "kurbo",
@@ -1255,13 +1255,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-pptx"
+name = "lamina-pptx"
 version = "0.15.0"
 dependencies = [
- "deckcraft-color",
- "deckcraft-engine",
- "deckcraft-geom",
- "deckcraft-model",
+ "lamina-color",
+ "lamina-engine",
+ "lamina-geom",
+ "lamina-model",
  "image",
  "log",
  "quick-xml 0.41.0",
@@ -1271,16 +1271,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-render"
+name = "lamina-render"
 version = "0.15.0"
 dependencies = [
- "deckcraft-anim",
- "deckcraft-color",
- "deckcraft-fonts",
- "deckcraft-geom",
- "deckcraft-metafile",
- "deckcraft-model",
- "deckcraft-text",
+ "lamina-anim",
+ "lamina-color",
+ "lamina-fonts",
+ "lamina-geom",
+ "lamina-metafile",
+ "lamina-model",
+ "lamina-text",
  "image",
  "kurbo",
  "log",
@@ -1290,34 +1290,34 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-text"
+name = "lamina-text"
 version = "0.15.0"
 dependencies = [
  "chrono",
- "deckcraft-color",
- "deckcraft-fonts",
- "deckcraft-geom",
- "deckcraft-model",
+ "lamina-color",
+ "lamina-fonts",
+ "lamina-geom",
+ "lamina-model",
  "unicode-bidi",
  "unicode-linebreak",
  "unicode-segmentation",
 ]
 
 [[package]]
-name = "deckcraft-ui-egui"
+name = "lamina-ui-egui"
 version = "0.15.0"
 dependencies = [
  "craft-ui",
  "craft-update",
- "deckcraft-anim",
- "deckcraft-color",
- "deckcraft-engine",
- "deckcraft-fonts",
- "deckcraft-geom",
- "deckcraft-media",
- "deckcraft-model",
- "deckcraft-render",
- "deckcraft-text",
+ "lamina-anim",
+ "lamina-color",
+ "lamina-engine",
+ "lamina-fonts",
+ "lamina-geom",
+ "lamina-media",
+ "lamina-model",
+ "lamina-render",
+ "lamina-text",
  "egui",
  "egui_extras",
  "egui_kittest",
@@ -1330,22 +1330,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "deckcraft-vp9"
+name = "lamina-vp9"
 version = "0.15.0"
 dependencies = [
- "deckcraft-bitstream",
+ "lamina-bitstream",
  "rayon",
  "thiserror 2.0.21",
 ]
 
 [[package]]
-name = "deckcraft-web"
+name = "lamina-web"
 version = "0.15.0"
 dependencies = [
  "craft-web-api",
  "craft-web-host",
- "deckcraft-engine",
- "deckcraft-ui-egui",
+ "lamina-engine",
+ "lamina-ui-egui",
  "eframe",
  "egui",
  "js-sys",
@@ -1465,7 +1465,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 [[package]]
 name = "ecolor"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "bytemuck",
  "emath",
@@ -1474,7 +1474,7 @@ dependencies = [
 [[package]]
 name = "eframe"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "ahash",
  "bytemuck",
@@ -1509,7 +1509,7 @@ dependencies = [
 [[package]]
 name = "egui"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "accesskit",
  "ahash",
@@ -1528,7 +1528,7 @@ dependencies = [
 [[package]]
 name = "egui-wgpu"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "ahash",
  "bytemuck",
@@ -1547,7 +1547,7 @@ dependencies = [
 [[package]]
 name = "egui-winit"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "accesskit_winit",
  "arboard",
@@ -1573,7 +1573,7 @@ dependencies = [
 [[package]]
 name = "egui_extras"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "ahash",
  "egui",
@@ -1586,7 +1586,7 @@ dependencies = [
 [[package]]
 name = "egui_glow"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "bytemuck",
  "egui",
@@ -1599,7 +1599,7 @@ dependencies = [
 [[package]]
 name = "egui_kittest"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "dify",
  "eframe",
@@ -1625,7 +1625,7 @@ checksum = "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be"
 [[package]]
 name = "emath"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "bytemuck",
 ]
@@ -1694,7 +1694,7 @@ dependencies = [
 [[package]]
 name = "epaint"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 dependencies = [
  "ahash",
  "bytemuck",
@@ -1720,7 +1720,7 @@ dependencies = [
 [[package]]
 name = "epaint_default_fonts"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 
 [[package]]
 name = "equivalent"
@@ -2791,7 +2791,7 @@ dependencies = [
 [[package]]
 name = "krilla"
 version = "0.8.2"
-source = "git+https://github.com/storytold/craft-libs?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/craft-libs/main?rev=1b34eba41e62138fc2438d2734523b302840b45d#1b34eba41e62138fc2438d2734523b302840b45d"
 dependencies = [
  "base64 0.22.1",
  "bumpalo",
@@ -6120,7 +6120,7 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 [[package]]
 name = "winit"
 version = "0.30.13"
-source = "git+https://github.com/storytold/winit.git?rev=a517b3846ee8457d84ee4975110bfda6797c44dc#a517b3846ee8457d84ee4975110bfda6797c44dc"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/winit/master.git?rev=a517b3846ee8457d84ee4975110bfda6797c44dc#a517b3846ee8457d84ee4975110bfda6797c44dc"
 dependencies = [
  "ahash",
  "android-activity",
@@ -6656,14 +6656,14 @@ dependencies = [
 [[patch.unused]]
 name = "egui_demo_lib"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 
 [[patch.unused]]
 name = "egui_inspection"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
 
 [[patch.unused]]
 name = "egui_system_font_provider"
 version = "0.37.0"
-source = "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+source = "git+https://github.com/getnodalia/foundation/tree/vendor/egui/main.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"

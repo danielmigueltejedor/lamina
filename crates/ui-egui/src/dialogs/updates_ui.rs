@@ -83,7 +83,7 @@ mod tests {
 
     #[test]
     fn an_offered_release_opens_the_prompt() {
-        let mut app = SlideApp::new(deckcraft_engine::Session::new(), crate::Services::default());
+        let mut app = SlideApp::new(lamina_engine::Session::new(), crate::Services::default());
         let ctx = egui::Context::default();
         assert!(!app.updates_rt.updater.prompt_open());
         app.updates_rt.updater.offer(craft_update::Release { tag: "v99.0.0".into(), ..Default::default() });
@@ -94,7 +94,7 @@ mod tests {
     /// An app whose updater keeps its outcome records under `root`, reads no launcher choice and
     /// asks no server, with the check at start turned on.
     fn app_with_records(root: &std::path::Path) -> SlideApp {
-        let mut app = SlideApp::new(deckcraft_engine::Session::new(), crate::Services::default());
+        let mut app = SlideApp::new(lamina_engine::Session::new(), crate::Services::default());
         app.updates_rt.updater = Updater::new(&crate::UPDATE_APP, VERSION)
             .with_paths(craft_update::Paths::under(root))
             .with_pins_path(root.join("pins.json"))
@@ -104,7 +104,7 @@ mod tests {
     }
 
     fn records_dir(name: &str) -> std::path::PathBuf {
-        let dir = std::env::temp_dir().join(format!("deckcraft-updates-{name}-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("lamina-updates-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         dir
     }

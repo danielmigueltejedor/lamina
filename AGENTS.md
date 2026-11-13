@@ -26,7 +26,7 @@ These apply to native Craft apps and to shared Rust libraries. Select them by re
 
 1. **Never crash.** Non-test code does not panic and has no `unsafe`, except where the repository file names an exception. Return errors, treat input as hostile, and bound recursion and allocations. New production crate roots copy the `deny` attribute from an existing crate: `clippy::unwrap_used`, `clippy::expect_used`, `clippy::panic`, `clippy::unimplemented`, `clippy::todo`, `clippy::unreachable`. Every crash fix comes with a test that panicked before the fix.
 2. **Clean room.** Learn from observed behaviour and public specifications. Do not copy another product's code, assets, strings or artwork. Check a dependency's licence before adding it.
-3. **Assets and fonts.** Every asset is original or suitably licensed, and is recorded in `ATTRIBUTION.md` in the same change. Font files live in [storytold/craft-fonts](https://github.com/storytold/craft-fonts), not in the app repository.
+3. **Assets and fonts.** Every asset is original or suitably licensed, and is recorded in `ATTRIBUTION.md` in the same change. Font files live in [getnodalia/foundation (vendor/craft-fonts)](https://github.com/getnodalia/foundation/tree/vendor/craft-fonts/main), not in the app repository.
 4. **Rust only for native Craft apps.** No handwritten JavaScript or TypeScript, and no Tauri, Electron or webview shell, in those apps. Shared tooling follows its documented technical scope and maintainer-approved exceptions. Craft PR Review's existing Tauri and TypeScript UI is one such exception. It does not relax this rule for native apps. Preserve any existing web build.
 5. **Time goes through `chrono`.** Do not hand-roll calendar conversion. For dates beyond what `chrono` can represent, follow [standards/time.md](https://github.com/storytold/craft-contrib/blob/main/standards/time.md).
 6. **Contributor credits.** Add or edit only your own person's entry in `contributors/people.toml`, and only after asking them. Never guess a name or hand-edit `contributors.json`.
@@ -53,7 +53,7 @@ Dependencies and assets use SPDX identifiers. An expression is allowed when ever
 
 # AGENTS.md — rules for every agent and contributor
 
-DeckCraft is a clean-room, open-source, pure-Rust presentation application targeting Microsoft
+Lámina is a clean-room, open-source, pure-Rust presentation application targeting Microsoft
 PowerPoint parity — and superiority (speed, openness, agent control). It runs natively on macOS,
 Windows, Linux and FreeBSD, and on the web via WASM. Siblings with the same conventions:
 PhotoCraft, VectorCraft, FilmCraft, LightCraft, PdfCraft, EffectCraft, DesignCraft
@@ -79,7 +79,7 @@ the app renders from those.
   product" includes PowerPoint, Office, Windows and the fonts they install (Aptos, Calibri,
   Cambria, Segoe, Consolas, Wingdings…).
 - This holds even when the vendor publishes the material under an open licence, if it is **visual
-  design**: DeckCraft does not embed or reference Adobe's Source Sans/Serif/Han families or Noto
+  design**: Lámina does not embed or reference Adobe's Source Sans/Serif/Han families or Noto
   CJK (Source Han rebranded); `crates/fonts/build.rs` excludes them.
 - **Never** recreate, trace, redraw or closely imitate a vendor icon, theme or graphic. Our icons
   are drawn in code or come from openly licensed sets (Lucide, ISC), and our themes, colours,
@@ -97,7 +97,7 @@ Ubuntu-Font-1.0, Bitstream-Vera); Creative Commons (CC0-1.0, CC-BY-4.0, CC-BY-SA
 domain; or contributor-original (created by a contributor who licenses it under
 `MIT OR Apache-2.0`).
 
-One narrow exception: the ArtCraft name, wordmark and logos in `docs/brand/` are trademarks of the
+One narrow exception: the Nodalia name, wordmark and logos in `docs/brand/` are trademarks of the
 ArtCraft Team (not open source, terms in `docs/brand/LICENSE-brand.txt`), used only unmodified to
 identify the project.
 
@@ -105,7 +105,7 @@ Forbidden: system fonts that are not openly licensed, vendor emoji artwork, stoc
 for personal use" material, screenshots of other people's software, anything whose licence you
 cannot prove from its original source.
 
-**Screenshots of DeckCraft** are contributor-original. Everything visible in them must itself be
+**Screenshots of Lámina** are contributor-original. Everything visible in them must itself be
 allowed: our UI, our/Lucide icons, OFL fonts, and decks built only from allowed assets.
 
 ### 1.3 Every asset is attributed
@@ -115,8 +115,8 @@ allowed: our UI, our/Lucide icons, OFL fonts, and decks built only from allowed 
   commit), licence and use. `cargo xtask assets` fails if a file under `assets/`, `docs/images/`
   or `docs/brand/` has no row.
 - **`NOTICE`** keeps the notices the licences require.
-- Fonts live in [storytold/craft-fonts](https://github.com/storytold/craft-fonts), never in this
-  repo. DeckCraft embeds its `fonts/latin-manifest.txt` and
+- Fonts live in [getnodalia/foundation (vendor/craft-fonts)](https://github.com/getnodalia/foundation/tree/vendor/craft-fonts/main), never in this
+  repo. Lámina embeds its `fonts/latin-manifest.txt` and
   `fonts/manifest.txt` when built with `CRAFT_FONTS_DIR` (local dev: `.cargo/config.toml` points at
   `../craft-fonts`).
 
@@ -145,7 +145,7 @@ once and tell the user.
 
 ## 3. Never crash
 
-People trust DeckCraft with their talks; a crash loses work. **This outranks feature work.**
+People trust Lámina with their talks; a crash loses work. **This outranks feature work.**
 - No `unwrap()`, `expect()`, `panic!`, `unreachable!`, `todo!`, `unimplemented!` in non-test
   code; no `unsafe` (`unsafe_code = "forbid"`). Every production crate root carries
   `#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]`.
@@ -164,11 +164,11 @@ People trust DeckCraft with their talks; a crash loses work. **This outranks fea
 | L1 | `model` (presentation, masters, layouts, slides, shapes, text, themes, inheritance, text edit ops) |
 | L2 | `fonts`, `text` (layout), |
 | L3 | `render` (vello_cpu) |
-| L4 | `format` (.deckcraft), `pptx` |
+| L4 | `format` (.lamina), `pptx` |
 | L5 | `engine` (session, history, commands, tools, keys, sample) |
 | L6 | `mcp` |
 | L7 | `ui-egui` (swappable; nothing below depends on egui/eframe/winit/rfd) |
-| apps | `deckcraft` (desktop), `deckcraft-cli`, `deckcraft-web` |
+| apps | `lamina` (desktop), `lamina-cli`, `lamina-web` |
 
 - **Everything is a command** (`crates/engine/src/cmd/*`): id, label, ribbon/menu place,
   shortcut, params doc, `enabled`, `run`, plus tests. Ids follow PowerPoint's ribbon and menus
@@ -188,7 +188,7 @@ declare the crate-level lint attributes before modules; crate-level `//!` docume
 
 ## 6. Running and looking at the app
 
-- `cargo run --release -p deckcraft -- --sample --control 7990` (sample deck + control channel).
+- `cargo run --release -p lamina -- --sample --control 7990` (sample deck + control channel).
 - Drive it: JSON lines on `127.0.0.1:7990`, e.g.
   `{"id":1,"method":"engine.execute","params":{"command":"shape.insert","params":{"preset":"star5","rect":[100,100,200,200]}}}`
   then `{"id":2,"method":"ui.screenshot","params":{"path":"/tmp/shot.png"}}`. Methods:
@@ -196,9 +196,9 @@ declare the crate-level lint attributes before modules; crate-level `//!` docume
 - **For UI work, look at the result** (screenshot, read the PNG). If available, compare with the observations
   in `plan/powerpoint/01-observed-ui.md`. Otherwise verify the intended behaviour against the task and
   committed documentation; the optional notebook is not a prerequisite.
-- Headless: `deckcraft-cli render --sample --all --scale 1 out/`,
-  `deckcraft-cli run --sample --cmd 'slide.new={"title":"Hi"}' --export out.png`.
-- MCP: `deckcraft-cli mcp` (headless) or `deckcraft-cli mcp --connect 7990` (drive the app).
+- Headless: `lamina-cli render --sample --all --scale 1 out/`,
+  `lamina-cli run --sample --cmd 'slide.new={"title":"Hi"}' --export out.png`.
+- MCP: `lamina-cli mcp` (headless) or `lamina-cli mcp --connect 7990` (drive the app).
   See `docs/mcp.md`.
 - Parallel agents: separate `CARGO_TARGET_DIR` per agent; edit only the crates you own.
 
@@ -215,7 +215,7 @@ docs:
 | `docs/roadmap.md` | Current focus, the beta plan, milestones |
 | `docs/parity-checklist.md` | Feature rows scored D/P/M; `cargo xtask parity` regenerates its summary |
 | `docs/file-format-parity.md`, `ui-parity.md`, `hardware-parity.md`, `localization-parity.md`, `animation-parity.md`, `slideshow-parity.md` | Per-dimension and per-feature detail |
-| `docs/architecture.md` | How DeckCraft is built today |
+| `docs/architecture.md` | How Lámina is built today |
 
 When a task lands, re-score its checklist row, delete or update its `gaps.md` entry, add a line to
 the `ROADMAP.md` progress log, and update each touched doc's status line and revision history.

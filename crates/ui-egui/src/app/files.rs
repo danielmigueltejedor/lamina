@@ -44,7 +44,7 @@ fn create_private_print_dir(base: &std::path::Path) -> std::io::Result<std::path
 
     for _ in 0..128 {
         let id = NEXT_DIR.fetch_add(1, Ordering::Relaxed);
-        let path = base.join(format!("deckcraft-print-{}-{id}", std::process::id()));
+        let path = base.join(format!("lamina-print-{}-{id}", std::process::id()));
         #[cfg(unix)]
         let mut builder = std::fs::DirBuilder::new();
         #[cfg(not(unix))]
@@ -74,11 +74,7 @@ fn purpose_of(purpose: &str) -> FilePurpose {
 }
 
 fn is_presentation_name(lower: &str) -> bool {
-    lower.ends_with(".deckcraft")
-        || lower.ends_with(".slidecraft")
-        || lower.ends_with(".pptx")
-        || lower.ends_with(".potx")
-        || lower.ends_with(".ppsx")
+    lower.ends_with(".lamina") || lower.ends_with(".slidecraft") || lower.ends_with(".pptx") || lower.ends_with(".potx") || lower.ends_with(".ppsx")
 }
 
 /// File → Open keeps the requested operation: a presentation opens, an outline becomes slides.
@@ -100,7 +96,7 @@ fn infer_command(name: &str, bytes: &[u8]) -> Option<&'static str> {
     if is_presentation_name(&lower) {
         return Some("file.openBytes");
     }
-    let ct = deckcraft_engine::cmd::insert::content_type(name, bytes);
+    let ct = lamina_engine::cmd::insert::content_type(name, bytes);
     if ct.starts_with("image/") {
         Some("insert.picture")
     } else if ct.starts_with("audio/") {
@@ -119,11 +115,11 @@ fn command_for(purpose: FilePurpose, name: &str, bytes: &[u8]) -> Result<&'stati
         FilePurpose::Picture => Some("insert.picture"),
         FilePurpose::Audio => Some("insert.audio"),
         FilePurpose::Video => Some("insert.video"),
-        FilePurpose::ChangePicture => deckcraft_engine::cmd::insert::content_type(name, bytes).starts_with("image/").then_some("picture.change"),
+        FilePurpose::ChangePicture => lamina_engine::cmd::insert::content_type(name, bytes).starts_with("image/").then_some("picture.change"),
         FilePurpose::Open => open_command(name),
         FilePurpose::Infer => infer_command(name, bytes),
     };
-    cmd.ok_or_else(|| format!("{name}: DeckCraft can't open this kind of file"))
+    cmd.ok_or_else(|| format!("{name}: Lámina can't open this kind of file"))
 }
 
 impl SlideApp {
@@ -183,7 +179,7 @@ impl SlideApp {
     }
 
     /// Exports the active presentation as `fmt` (`pdf`, `png`, `pngAll`, `jpeg`, `pptx`,
-    /// `deckcraft`, `outline`) through `file.export`: the save picker on the desktop, a download
+    /// `lamina`, `outline`) through `file.export`: the save picker on the desktop, a download
     /// on the web. `extra` adds `file.export` params (the PDF's layout, slides…). The
     /// presentation keeps its own file. Returns whether a file was written or handed over.
     pub fn export_as(&mut self, fmt: &str, extra: Value) -> bool {
@@ -196,10 +192,10 @@ impl SlideApp {
             "pptx" => ("pptx", "pptx", false),
             "outline" | "txt" => ("txt", "outline", false),
             "rtf" => ("rtf", "rtf", false),
-            "deckcraft" => ("deckcraft", "deckcraft", false),
+            "lamina" => ("lamina", "lamina", false),
             "gif" => ("gif", "gif", false),
             other => {
-                self.set_status(format!("DeckCraft can't export “{other}”"));
+                self.set_status(format!("Lámina can't export “{other}”"));
                 return false;
             }
         };
@@ -230,16 +226,16 @@ impl SlideApp {
                 }
                 return any;
             }
-            "pdf" => deckcraft_engine::cmd::file::pdf_bytes(&doc, &extra),
-            "gif" => deckcraft_engine::cmd::file::gif_bytes(&doc, &extra),
-            other => deckcraft_engine::cmd::file::save_bytes(&doc, other),
+            "pdf" => lamina_engine::cmd::file::pdf_bytes(&doc, &extra),
+            "gif" => lamina_engine::cmd::file::gif_bytes(&doc, &extra),
+            other => lamina_engine::cmd::file::save_bytes(&doc, other),
         };
         self.download(&suggested, bytes)
     }
 
     /// Hands `bytes` to the browser as a download (web); false (with the reason in the status
     /// bar) when there are no bytes or no way to download.
-    fn download(&mut self, name: &str, bytes: deckcraft_engine::Result<Vec<u8>>) -> bool {
+    fn download(&mut self, name: &str, bytes: lamina_engine::Result<Vec<u8>>) -> bool {
         match (bytes, self.services.download.as_mut()) {
             (Ok(b), Some(dl)) => {
                 dl(name, &b);
@@ -256,7 +252,7 @@ impl SlideApp {
         }
     }
 
-    /// File › Print: DeckCraft prints through a PDF. On the desktop the PDF (with the Print page's
+    /// File › Print: Lámina prints through a PDF. On the desktop the PDF (with the Print page's
     /// layout, slides and options) is written to the temporary folder and opened in the system's
     /// PDF viewer, which has the printers; on the web it downloads.
     pub fn print_pdf(&mut self, params: Value) -> bool {
@@ -264,7 +260,7 @@ impl SlideApp {
         let mut params = if params.is_object() { params } else { json!({}) };
         if self.services.pick_save.is_none() {
             // Web: the browser hands the PDF to the user.
-            let bytes = deckcraft_engine::cmd::file::pdf_bytes(&doc, &params);
+            let bytes = lamina_engine::cmd::file::pdf_bytes(&doc, &params);
             return self.download(&format!("{title}.pdf"), bytes);
         }
         let preview_path = match self.print_previews.create(&title) {
@@ -363,7 +359,7 @@ impl SlideApp {
             Some(Ok(bytes)) => {
                 let name = std::path::Path::new(&path).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
                 source["name"] = json!(name);
-                source["data"] = json!(deckcraft_engine::cmd::base64_encode(&bytes));
+                source["data"] = json!(lamina_engine::cmd::base64_encode(&bytes));
             }
             Some(Err(e)) => {
                 self.set_status(e.to_string());
@@ -421,7 +417,7 @@ impl SlideApp {
                     Some(Ok(bytes)) => {
                         let name = std::path::Path::new(&path).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
                         args["name"] = json!(name);
-                        args["data"] = json!(deckcraft_engine::cmd::base64_encode(&bytes));
+                        args["data"] = json!(lamina_engine::cmd::base64_encode(&bytes));
                         self.session.execute(cmd, &args)
                     }
                     _ => {
@@ -449,7 +445,7 @@ impl SlideApp {
 
     pub fn save_as_dialog(&mut self, format: &str) {
         let name = self.session.active().map(|d| d.title()).unwrap_or_else(|| "Presentation".into());
-        let ext = if format == "pptx" { "pptx" } else { "deckcraft" };
+        let ext = if format == "pptx" { "pptx" } else { "lamina" };
         let suggested = format!("{name}.{ext}");
         if let Some(pick) = self.services.pick_save.as_mut() {
             if let Some(path) = pick(&suggested) {
@@ -467,7 +463,7 @@ impl SlideApp {
         } else if let Some(dl) = self.services.download.as_mut()
             && let Some(d) = self.session.active()
         {
-            match deckcraft_engine::cmd::file::save_bytes(&d.doc, ext) {
+            match lamina_engine::cmd::file::save_bytes(&d.doc, ext) {
                 Ok(bytes) => dl(&suggested, &bytes),
                 Err(e) => self.set_status(e.to_string()),
             }
@@ -499,24 +495,24 @@ impl SlideApp {
                 Err(e) => self.set_status(e.to_string()),
             }
         } else {
-            self.save_as_dialog("deckcraft");
+            self.save_as_dialog("lamina");
         }
     }
 
     /// Saves to the page that keeps the files ([`Services::host_save`](crate::Services::host_save)).
     /// Save (`ext` `None`) writes the presentation's own file (the one the page sent, or the
     /// last one saved there) in that file's format, as the desktop app does; a presentation with
-    /// no file of its own is a new `.deckcraft` file, the name Save suggests on the desktop. Save
-    /// As (`pptx`, `deckcraft`) is a new file named after the presentation. Once the page has the
+    /// no file of its own is a new `.lamina` file, the name Save suggests on the desktop. Save
+    /// As (`pptx`, `lamina`) is a new file named after the presentation. Once the page has the
     /// bytes, the presentation is saved and that name is its file. Returns the name, or why it
     /// wasn't saved (also shown in the status bar).
     pub(super) fn save_to_host(&mut self, ext: Option<&str>) -> Result<String, String> {
-        use deckcraft_engine::cmd::file::{format_for_path, mark_saved, save_bytes};
+        use lamina_engine::cmd::file::{format_for_path, mark_saved, save_bytes};
         let Some(d) = self.session.active() else { return Err("no presentation is open".into()) };
         let own = d.path.as_deref().and_then(|p| std::path::Path::new(p).file_name()).map(|n| n.to_string_lossy().to_string());
         let (name, save_as) = match (ext, own) {
             (None, Some(own)) => (own, false),
-            (ext, _) => (format!("{}.{}", d.title(), ext.unwrap_or("deckcraft")), true),
+            (ext, _) => (format!("{}.{}", d.title(), ext.unwrap_or("lamina")), true),
         };
         let saved = save_bytes(&d.doc, format_for_path(&name)).map_err(|e| e.to_string()).and_then(|bytes| {
             let host = self.services.host_save.as_mut().ok_or("no page to save to")?;
@@ -549,7 +545,7 @@ impl SlideApp {
         let before = self.session.documents().len();
         let shown = name.unwrap_or("Presentation");
         let named = name.is_some_and(|n| is_presentation_name(&n.to_ascii_lowercase()));
-        let opened = deckcraft_engine::cmd::file::loaded_file(shown, bytes).and_then(|mut f| {
+        let opened = lamina_engine::cmd::file::loaded_file(shown, bytes).and_then(|mut f| {
             // `file.adopt` keeps the path only for a native file; a name the page didn't send
             // for a presentation must not become one.
             f.native &= named;
@@ -596,7 +592,7 @@ impl SlideApp {
                 UiRequest::Message { text } => self.set_status(text),
                 UiRequest::PickFile { purpose } => {
                     if purpose == "saveAs" {
-                        self.save_as_dialog("deckcraft");
+                        self.save_as_dialog("lamina");
                     }
                 }
                 UiRequest::Media { action, shape, ms } => {
@@ -697,9 +693,9 @@ impl SlideApp {
             }
         };
         let params = if cmd == "slide.fromOutline" {
-            json!({"text": deckcraft_engine::cmd::file::outline_text(bytes), "markdown": name.to_ascii_lowercase().ends_with(".md")})
+            json!({"text": lamina_engine::cmd::file::outline_text(bytes), "markdown": name.to_ascii_lowercase().ends_with(".md")})
         } else {
-            json!({"name": name, "data": deckcraft_engine::cmd::base64_encode(bytes)})
+            json!({"name": name, "data": lamina_engine::cmd::base64_encode(bytes)})
         };
         let result = if cmd == "file.openBytes" || self.viewing_target(&req.target) {
             self.session.execute(cmd, &params).map(|_| ()).map_err(|e| e.to_string())
@@ -796,7 +792,7 @@ impl SlideApp {
 /// `<name>2.png`... like the native export) when `all`. `transparent` leaves the slide
 /// background out (PNG only, #784).
 pub(crate) fn web_image_files(
-    doc: &deckcraft_model::Presentation,
+    doc: &lamina_model::Presentation,
     current: usize,
     all: bool,
     name: &str,
@@ -806,13 +802,13 @@ pub(crate) fn web_image_files(
     let slides: Vec<usize> = if all { (0..doc.slides.len()).collect() } else { vec![current] };
     let single = slides.len() == 1;
     let scale = 2.0;
-    let dpi = deckcraft_render::dpi_for_scale(scale);
+    let dpi = lamina_render::dpi_for_scale(scale);
     slides
         .into_iter()
         .enumerate()
         .map(|(k, i)| {
-            let opts = deckcraft_render::RenderOpts { scale, transparent_background: transparent && ext == "png", ..Default::default() };
-            let img = deckcraft_render::render_slide(doc, i, &opts);
+            let opts = lamina_render::RenderOpts { scale, transparent_background: transparent && ext == "png", ..Default::default() };
+            let img = lamina_render::render_slide(doc, i, &opts);
             let bytes = if ext == "png" { img.to_png_at(dpi) } else { img.to_jpeg_at(92, Some(dpi)) };
             let file = if single { format!("{name}.{ext}") } else { format!("{name}{}.{ext}", k + 1) };
             (file, bytes)
@@ -828,7 +824,7 @@ mod print_preview_tests {
     #[test]
     fn same_title_gets_distinct_private_paths_and_drop_cleans_them() {
         let stamp = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or_default();
-        let base = std::env::temp_dir().join(format!("deckcraft-print-test-{}-{stamp}", std::process::id()));
+        let base = std::env::temp_dir().join(format!("lamina-print-test-{}-{stamp}", std::process::id()));
         std::fs::create_dir(&base).unwrap();
         let (first, second) = {
             let mut previews = PrintPreviews::default();
@@ -853,7 +849,7 @@ mod print_preview_tests {
     #[test]
     fn explicit_cleanup_removes_previews() {
         let stamp = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or_default();
-        let base = std::env::temp_dir().join(format!("deckcraft-print-cleanup-test-{}-{stamp}", std::process::id()));
+        let base = std::env::temp_dir().join(format!("lamina-print-cleanup-test-{}-{stamp}", std::process::id()));
         std::fs::create_dir(&base).unwrap();
         let mut previews = PrintPreviews::default();
         let path = previews.create_in(&base, "Explicit cleanup").unwrap();

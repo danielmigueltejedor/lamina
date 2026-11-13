@@ -57,8 +57,8 @@ pub struct Services {
     /// presentation to that page instead of downloading it, with whether it is a new file
     /// ([`HostSaveFn`]). Save writes a presentation the page sent back under its own name and
     /// format, as the desktop app writes back to the file it opened; a presentation the page
-    /// never sent (an untitled one, a repaired copy) goes as a new `.deckcraft` file, as Save
-    /// suggests on the desktop. Save As (.pptx or .deckcraft) is always a new file. Either way the
+    /// never sent (an untitled one, a repaired copy) goes as a new `.lamina` file, as Save
+    /// suggests on the desktop. Save As (.pptx or .lamina) is always a new file. Either way the
     /// presentation is then that file, and the next Save goes to it. Exports and Print still go
     /// through `download`, which the host also points at the page: they are copies.
     pub host_save: Option<HostSaveFn>,
@@ -70,7 +70,7 @@ pub struct Services {
     /// Put HTML and its plain-text alternative on the system clipboard. `true` when it landed.
     pub clipboard_set_html: Option<Box<dyn FnMut(&str, &str) -> bool>>,
     /// Audio output for media playback (cpal on desktop); without one media plays silently.
-    pub audio_out: Option<Box<dyn deckcraft_media::AudioOut>>,
+    pub audio_out: Option<Box<dyn lamina_media::AudioOut>>,
     /// How many displays are connected, when the host can tell: Presenter View needs a second.
     pub displays: Option<Box<dyn FnMut() -> Option<usize>>>,
 }

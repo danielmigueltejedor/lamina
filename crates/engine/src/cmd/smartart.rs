@@ -5,13 +5,11 @@
 //! child rectangle, so the diagram keeps its size and place. Text typed straight into a diagram
 //! shape is read back into the nodes before each regeneration.
 
-use deckcraft_color::SchemeSlot;
-use deckcraft_geom::Xfrm;
-use deckcraft_model::style::{Gradient, GradientShape, GradientStop, Shadow};
-use deckcraft_model::text::{Align, AutoFit, Paragraph, TextBody};
-use deckcraft_model::{
-    ColorRef, ColorTransform, Diagram, DiagramNode, Effects, Fill, Geom, Line, Presentation, Shape, ShapeId, ShapeKind, ShapeStyle,
-};
+use lamina_color::SchemeSlot;
+use lamina_geom::Xfrm;
+use lamina_model::style::{Gradient, GradientShape, GradientStop, Shadow};
+use lamina_model::text::{Align, AutoFit, Paragraph, TextBody};
+use lamina_model::{ColorRef, ColorTransform, Diagram, DiagramNode, Effects, Fill, Geom, Line, Presentation, Shape, ShapeId, ShapeKind, ShapeStyle};
 use serde_json::{Value, json};
 
 use super::{CommandSpec, NO_ID_SPACE, bad, bool_or, cmd, current_shapes, has_selection, shape_of, str_param, targets, xfrm_of};
@@ -37,7 +35,7 @@ pub const MAX_LEVEL: u8 = 8;
 /// Most top-level shapes a layout draws.
 const MAX_SHAPES: usize = 40;
 
-/// DeckCraft's layouts, with the names PowerPoint's gallery gives them.
+/// Lámina's layouts, with the names PowerPoint's gallery gives them.
 pub const LAYOUTS: [(&str, &str); 45] = [
     ("list", "Vertical Bullet List"),
     ("blockList", "Basic Block List"),

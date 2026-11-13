@@ -1,7 +1,9 @@
 use super::clock::{monotonic_secs, now_ms};
 use super::ime_hooks::ime_in_ui_pass_key;
 use super::services::{InboxEvent, Services};
-use super::state::{FilePlace, FilePurpose, ImeDescriptorKey, ImeDestination, ImeTerminalStamp, LocatedPlace, RECENT_MAX, UiState, ViewMode};
+use super::state::{
+    FilePlace, FilePurpose, ImeDescriptorKey, ImeDestination, ImeTerminalStamp, LocatedPlace, RECENT_MAX, UiState, ViewMode, WindowControls,
+};
 #[cfg(not(target_arch = "wasm32"))]
 use super::updates_ui;
 use super::{
@@ -80,6 +82,8 @@ impl SlideApp {
             canvas_region: None,
             palette: None,
             integrated_titlebar: false,
+            client_frame: false,
+            decorations_sent: None,
             backstage: None,
             pending_urls: vec![],
             print_previews: files::PrintPreviews::default(),
@@ -308,6 +312,10 @@ impl SlideApp {
         self.sync_backstage();
         self.keyboard(&ctx);
         self.sync_backstage();
+        self.sync_decorations(&ctx);
+        if self.draws_window_controls() {
+            crate::window_edges::handle(&ctx);
+        }
         ribbon::title_bar(self, ui);
         if self.backstage.is_none() && self.session.active().is_some() {
             ribbon::show(self, ui);
@@ -317,7 +325,11 @@ impl SlideApp {
         if self.tick_anim_preview(now) {
             ctx.request_repaint();
         }
-        egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.chrome)).show(ui, |ui| {
+        // Below the ribbon the window is a row of Nodalia islands: slides, the canvas (with the
+        // notes under it) and the task pane, each rounded, with the window showing between them.
+        let gap = theme::ISLAND_GAP as i8;
+        let outer = egui::Frame::NONE.fill(t.chrome).inner_margin(egui::Margin { left: gap, right: gap, top: gap, bottom: gap });
+        egui::CentralPanel::default().frame(outer).show(ui, |ui| {
             if self.backstage.is_some() {
                 // File tab: the Backstage view replaces everything below the title bar.
                 backstage::show(self, ui);
@@ -338,10 +350,12 @@ impl SlideApp {
                     } else {
                         thumbs::show(self, ui);
                     }
-                    egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.canvas)).show(ui, |ui| {
-                        if self.ui.notes {
-                            status::notes_pane(self, ui);
-                        }
+                    // The notes are an island of their own under the canvas.
+                    if self.ui.notes {
+                        status::notes_pane(self, ui);
+                    }
+                    let island = egui::Frame::NONE.fill(t.canvas).corner_radius(theme::ISLAND_RADIUS);
+                    egui::CentralPanel::default().frame(island).show(ui, |ui| {
                         canvas::show(self, ui);
                     });
                 }
@@ -363,6 +377,24 @@ impl SlideApp {
         doc_window::show(self, &ctx);
         self.perf.frame_ms = now_ms() - t0;
         self.ui_end(&ctx);
+    }
+
+    /// Whether the title bar draws Nodalia's window controls (and the window has no system frame).
+    pub fn draws_window_controls(&self) -> bool {
+        self.client_frame && self.ui.window_controls == WindowControls::Nodalia
+    }
+
+    /// Asks the window for the system frame when the preference wants the desktop's controls,
+    /// and drops it for Nodalia's; once per change.
+    fn sync_decorations(&mut self, ctx: &egui::Context) {
+        if !self.client_frame {
+            return;
+        }
+        let system = !self.draws_window_controls();
+        if self.decorations_sent != Some(system) {
+            self.decorations_sent = Some(system);
+            ctx.send_viewport_cmd(egui::ViewportCommand::Decorations(system));
+        }
     }
 
     pub fn open_url(&mut self, url: &str) {

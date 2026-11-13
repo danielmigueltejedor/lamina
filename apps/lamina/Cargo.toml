@@ -41,3 +41,8 @@ fmv-macos-events = "=0.1.0"
 
 [target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
 winit = { version = "0.30", default-features = false, features = ["x11"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# The global menu on the desktop's top bar (`linux_menu`): already in the lock through rfd.
+zbus = { version = "=5.19.0", default-features = false, features = ["blocking-api"] }
+serde = { workspace = true }

@@ -99,7 +99,7 @@ fn options_cancel_puts_the_appearance_and_scale_back() {
     let (dark_before, scale_before) = (dark(h.state()), h.state().ui.ui_scale);
     open_options(&mut h);
 
-    h.query_by_label("Dark appearance").expect("the checkbox is there").click();
+    h.query_by_label(if dark(h.state()) { "Light" } else { "Dark" }).expect("the style radio is there").click();
     h.run_steps(2);
     assert!(dark(h.state()), "the appearance applies as it is toggled");
 

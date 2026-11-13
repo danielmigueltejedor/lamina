@@ -33,6 +33,7 @@ pub mod theme;
 pub mod toast;
 pub mod uifonts;
 pub mod widgets;
+pub mod window_edges;
 
 use std::collections::HashMap;
 use std::sync::mpsc::Receiver;
@@ -70,7 +71,7 @@ pub use panels::thumbs;
 pub use ribbon::qat;
 pub use services::{DownloadFn, HostSaveFn, Inbox, InboxEvent, InboxFile, OpenAsyncFn, PickFn, ReadFn, Services, WriteFn};
 use state::{FilePlace, FilePurpose, ImeDescriptorKey, ImeDestination, ImeTerminalStamp};
-pub use state::{RECENT_MAX, UiState, ViewMode, ZOOM_RANGE};
+pub use state::{RECENT_MAX, UiState, ViewMode, WindowControls, ZOOM_RANGE};
 
 /// The presentation (and place in it) captured when the request started.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -137,6 +138,7 @@ pub const UI_COMMANDS: &[(&str, &str, Option<&str>, &str)] = &[
     ("app.checkUpdates", "Check for Updates…", None, "{}"),
     ("app.palette", "Command Palette", Some("Cmd+Shift+P"), "{}"),
     ("app.preferences", "Preferences…", Some("Cmd+,"), "{}"),
+    ("app.shortcuts", "Keyboard Shortcuts", None, "{}"),
     ("app.openDialog", "Open…", None, "{purpose?}"),
     ("app.insertPictureDialog", "Picture from File…", None, "{}"),
     ("app.smartArtPictureDialog", "Insert Picture in SmartArt…", None, "{id?, index}"),
@@ -285,6 +287,12 @@ pub struct SlideApp {
     pub palette: Option<(String, usize)>,
     /// Integrated title bar (macOS traffic lights over our chrome).
     pub integrated_titlebar: bool,
+    /// The desktop lets Lámina draw its own window frame (Linux and the BSDs): with
+    /// [`state::WindowControls::Nodalia`] the window has no system title bar and the title bar
+    /// draws Nodalia's controls.
+    pub client_frame: bool,
+    /// The decorations last asked of the window, so a change of preference is sent once.
+    pub decorations_sent: Option<bool>,
     /// The File tab's full-window view (Backstage). Over a presentation it replaces the ribbon,
     /// slides and status bar until Esc or Back; with nothing open it is the start screen. Opening,
     /// creating or closing a presentation leaves it.

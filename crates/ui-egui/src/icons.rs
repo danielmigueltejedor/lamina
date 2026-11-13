@@ -1,4 +1,6 @@
-//! Ribbon and UI icons, drawn in code.
+//! Ribbon and UI icons. Every icon is drawn from the Nodalia Design Language's shared set
+//! (`nodalia-theme`), in its bold style; [`Icon::ndl_name`] says which NDL icon each one is. The
+//! in-code drawings below remain only as a fallback.
 //!
 //! Every icon here is an original drawing made from egui painter primitives on a 24×24 design
 //! grid (contributor-original, `MIT OR Apache-2.0`). Nothing is traced from or modelled on any
@@ -348,9 +350,144 @@ pub fn paint(painter: &egui::Painter, rect: egui::Rect, icon: Icon, ink: egui::C
     if !size.is_finite() || size <= 0.5 {
         return;
     }
+    let square = egui::Rect::from_center_size(rect.center(), vec2(size, size));
+    if let Some(ndl) = nodalia_theme::icons::get(icon.ndl_name()) {
+        let ink = if disabled { ink.gamma_multiply(0.35) } else { ink };
+        if nodalia_theme::icons::paint(painter, square, ndl, nodalia_theme::icons::Style::bold(ink)) {
+            return;
+        }
+    }
     let origin = rect.center() - vec2(size * 0.5, size * 0.5);
     let pen = Pen { p: painter, o: origin, k: size / 24.0, sw: stroke_width(size), ink, dis: disabled };
     draw(&pen, icon);
+}
+
+impl Icon {
+    /// The Nodalia Design Language icon this one is drawn with: the same name where NDL has it,
+    /// else the NDL icon that means the same thing here.
+    pub fn ndl_name(self) -> &'static str {
+        let name = self.name();
+        match name {
+            "account" => "user",
+            "align-obj-bottom" => "align-objects-bottom",
+            "align-obj-center" => "align-objects-center",
+            "align-obj-left" => "align-objects-left",
+            "align-obj-middle" => "align-objects-middle",
+            "align-obj-right" => "align-objects-right",
+            "align-obj-top" => "align-objects-top",
+            "align-objects" => "align-objects-center",
+            "arrange" => "rearrange",
+            "artistic-effects" => "effects",
+            "audio" => "volume",
+            "back-circle" => "arrow-left",
+            "background-styles" => "page-color",
+            "bring-to-front" => "move-top",
+            "bullets" => "list",
+            "cameo" => "video-camera",
+            "change-chart-type" => "chart-pie",
+            "change-picture" => "image",
+            "chart-styles" => "graphic-styles",
+            "coach" => "microphone",
+            "collapse" => "chevron-up",
+            "color-adjust" => "color-wheel",
+            "colors" => "palette",
+            "comments-bubble" => "comments",
+            "comments-small" => "comments",
+            "convert-smart-art" => "smart-art",
+            "corrections" => "contrast",
+            "date-time" => "calendar",
+            "decrease-indent" => "outdent",
+            "delete-comment" => "comment-delete",
+            "design-ideas" => "sparkle",
+            "distribute-h" => "distribute",
+            "distribute-v" => "distribute-vertical",
+            "duration" => "clock",
+            "edit-data" => "table",
+            "edit-shape" => "anchor-point",
+            "effect-options" => "properties",
+            "expand" => "chevron-down",
+            "eye" => "view",
+            "fit-small" => "fit",
+            "fit-to-window" => "fit",
+            "flip-h" => "flip",
+            "flip-v" => "flip-vertical",
+            "font-color" => "text-color",
+            "font-grow" => "grow-font",
+            "font-shrink" => "shrink-font",
+            "fonts" => "text",
+            "format-background" => "page-color",
+            "header-footer" => "header",
+            "highlighter-pen" => "highlight",
+            "icons" => "insert-icon",
+            "increase-indent" => "indent",
+            "ink-to-math" => "equation",
+            "ink-to-shape" => "shapes",
+            "ink-to-text" => "text",
+            "insert-above" => "row-insert",
+            "insert-below" => "row-insert",
+            "insert-left" => "column-insert",
+            "insert-right" => "column-insert",
+            "justify" => "align-justify",
+            "language" => "globe",
+            "lasso-select" => "lasso",
+            "loop" => "repeat",
+            "macros" => "code",
+            "merge-shapes" => "pathfinder-unite",
+            "models-3d" => "cube",
+            "more" => "more-horizontal",
+            "new-comment" => "comment-add",
+            "new-file" => "new",
+            "new-window" => "window",
+            "next-comment" => "comment-next",
+            "notes" => "panel-bottom",
+            "notes-small" => "panel-bottom",
+            "numbering" => "list-numbers",
+            "open-folder" => "open",
+            "picture" => "image",
+            "presenter-view" => "monitor",
+            "prev-comment" => "comment-previous",
+            "quick-styles" => "styles",
+            "read-only" => "lock",
+            "recent" => "history",
+            "remove-background" => "magic-wand",
+            "reset-picture" => "rotate-ccw",
+            "rotate-left" => "rotate-ccw",
+            "rotate-right" => "rotate",
+            "screen-recording" => "record",
+            "screenshot" => "camera",
+            "selection-pane" => "layers",
+            "send-to-back" => "move-bottom",
+            "set-up-show" => "settings",
+            "shading" => "fill",
+            "shape-effects" => "appearance",
+            "shape-fill" => "fill",
+            "shape-outline" => "stroke-weight",
+            "show-comments" => "comments",
+            "slide-number" => "page-number",
+            "slide-size" => "page-size",
+            "sound" => "music",
+            "spelling" => "spellcheck",
+            "switch-row-col" => "swap",
+            "symbol" => "special-character",
+            "text-fill" => "text-color",
+            "text-shadow" => "text-effects",
+            "themes" => "swatches",
+            "trigger" => "flash",
+            "trim-media" => "split-clip",
+            "variants" => "grid-view",
+            "video" => "film",
+            "view-normal-small" => "view-normal",
+            "view-outline" => "list-view",
+            "view-reading" => "book",
+            "view-reading-small" => "book",
+            "view-show-small" => "present",
+            "view-sorter" => "grid-view",
+            "view-sorter-small" => "grid-view",
+            "zoom-glass" => "search",
+            "zoom-in" => "zoom",
+            _ => name,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -370,6 +507,14 @@ mod tests {
             assert!(name.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-'), "{name} is not kebab-case");
         }
         assert_eq!(Icon::from_name("no-such-icon"), None);
+    }
+
+    /// Every icon is drawn from the shared Nodalia set, never from the old in-code drawings.
+    #[test]
+    fn every_icon_has_a_nodalia_drawing() {
+        for &icon in Icon::ALL {
+            assert!(nodalia_theme::icons::get(icon.ndl_name()).is_some(), "{} -> {} is not an NDL icon", icon.name(), icon.ndl_name());
+        }
     }
 
     #[test]

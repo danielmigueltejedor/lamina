@@ -124,7 +124,7 @@ impl Nav {
             Nav::Page(p) => p.label(),
             Nav::Save => "Save",
             Nav::Close => "Close",
-            Nav::Options => "Options",
+            Nav::Options => "Preferences",
         }
     }
     fn icon(self) -> Icon {

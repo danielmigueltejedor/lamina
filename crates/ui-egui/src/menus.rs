@@ -113,6 +113,20 @@ fn palette_items(session: &lamina_engine::Session, q: &str) -> Vec<(String, Stri
     items
 }
 
+/// Every command with a keyboard shortcut, as (label, shortcut), sorted by label: the Keyboard
+/// Shortcuts window.
+pub fn shortcut_list(session: &lamina_engine::Session) -> Vec<(String, &'static str)> {
+    let mut items: Vec<(String, &'static str)> = session
+        .commands()
+        .into_iter()
+        .filter_map(|c| c.shortcut.map(|k| (c.label.trim_end_matches('…').to_string(), k)))
+        .chain(crate::UI_COMMANDS.iter().filter_map(|c| c.2.map(|k| (c.1.trim_end_matches('…').to_string(), k))))
+        .collect();
+    items.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()).then(a.1.cmp(b.1)));
+    items.dedup();
+    items
+}
+
 /// ⇧⌘P: search every command by name and run it.
 pub fn palette(app: &mut SlideApp, ctx: &egui::Context) {
     let Some((mut query, mut sel)) = app.palette.take() else { return };
@@ -313,7 +327,21 @@ pub fn menu_tree() -> Vec<(&'static str, Vec<(&'static str, &'static str)>)> {
 
 #[cfg(test)]
 mod tests {
-    use super::palette_items;
+    use super::{palette_items, shortcut_list};
+
+    /// The Keyboard Shortcuts window lists the common ones, each once.
+    #[test]
+    fn shortcut_list_has_the_common_shortcuts_once() {
+        let session = lamina_engine::Session::with_new();
+        let list = shortcut_list(&session);
+        for label in ["Preferences", "Command Palette"] {
+            assert_eq!(list.iter().filter(|(l, _)| l == label).count(), 1, "{label}: {list:?}");
+        }
+        assert!(list.len() > 20, "{} shortcuts", list.len());
+        let mut sorted = list.clone();
+        sorted.sort_by(|a, b| a.0.to_lowercase().cmp(&b.0.to_lowercase()).then(a.1.cmp(b.1)));
+        assert_eq!(list, sorted);
+    }
 
     /// #79: the palette listed two "Export…" entries and the first (`file.export`) failed with "missing `path`".
     #[test]

@@ -188,6 +188,11 @@ to = "\"issues\": DISCORD"
 from = "{} (Discord)"
 to = "{} (issues)"
 
+# The install folder is ASCII, like the registry key the updater reads.
+[[replace]]
+from = "ArtCraft\\DeckCraft\\"
+to = "Nodalia\\Lamina\\"
+
 # The family the app belongs to: install folders, the About box.
 [[replace]]
 from = "ArtCraft"

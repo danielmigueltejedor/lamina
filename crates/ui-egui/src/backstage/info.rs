@@ -225,23 +225,5 @@ pub(super) fn about(app: &mut SlideApp, ui: &mut Ui) {
             ui.hyperlink_to("Report a problem or suggest an idea", lamina_engine::links::DISCORD);
             ui.hyperlink_to("Source on GitHub", lamina_engine::links::GITHUB);
         });
-        ui.add_space(40.0);
-        ui.vertical(|ui| {
-            ui.set_width(340.0);
-            heading(ui, "Appearance");
-            let dark = app.ui.brightness == theme::Brightness::Dark;
-            craft_ui::ComboBox::from_id_salt("backstage_appearance")
-                .width(260.0)
-                .selected_text(if dark { "Dark" } else { "Light" })
-                .show_ui(ui, |ui| {
-                    for (on, label) in [(false, "Light"), (true, "Dark")] {
-                        if ui.selectable_label(dark == on, label).clicked() {
-                            let _ = app.run("view.dark", json!({"on": on}));
-                        }
-                    }
-                })
-                .response
-                .widget_info(|| egui::WidgetInfo::labeled(egui::Role::ComboBox, true, "Appearance"));
-        });
     });
 }

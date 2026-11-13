@@ -748,16 +748,16 @@ fn print_slides_follow_the_settings() {
     assert_eq!(print_page_size(&bs, &doc), (doc.slide_size.width as f32, doc.slide_size.height as f32), "slides print slide-shaped");
 }
 
-/// Options in the File tab opens the Preferences dialog, and Cancel closes it (#782, #752).
+/// Preferences in the File tab opens the Preferences dialog, and Cancel closes it (#782, #752).
 #[test]
 fn options_in_backstage_opens_preferences_and_cancel_closes_it() {
     let mut h = harness(new_app());
     h.get_by_label("File").click();
     h.run_steps(3);
     assert!(h.state().backstage_open());
-    h.get_by_label("Options").click();
+    h.get_by_label("Preferences").click();
     h.run_steps(3);
-    assert!(h.state().dialog.is_some(), "Options opens Preferences dialog");
+    assert!(h.state().dialog.is_some(), "Preferences opens the Preferences dialog");
     assert_eq!(h.state().dialog.as_ref().map(|d| d.id.as_str()), Some("preferences"));
     h.query_all_by_role_and_label(Role::Button, "Cancel").next().expect("Cancel button").click_accesskit();
     h.run_steps(3);
@@ -778,26 +778,11 @@ fn about_has_product_links_and_credits_without_account_controls() {
     assert!(h.query_by_label("User Information").is_none());
     assert!(h.query_by_label("Source on GitHub").is_some());
     assert!(h.query_by_label("Report a problem or suggest an idea").is_some());
-    assert!(h.query_all_by_label("Appearance").next().is_some());
+    // The theme is chosen in Preferences only, as in every Nodalia app.
+    assert!(h.query_all_by_label("Appearance").next().is_none());
     click_on_page(&h, "Credits");
     h.run_steps(3);
     assert!(h.state().dialog.is_some());
     assert!(h.query_by_label("Contributors").is_some());
     assert!(h.query_by_label("Models").is_some());
-}
-
-/// At the 900-point minimum window width the About columns stack and Appearance stays on the page.
-#[test]
-fn about_appearance_stays_on_the_page_at_minimum_width() {
-    let mut h = Harness::builder().with_size(egui::vec2(900.0, 900.0)).build_ui_state(
-        |ui, app: &mut SlideApp| {
-            app.logic(ui.ctx());
-            app.ui(ui);
-        },
-        new_app(),
-    );
-    h.state_mut().run("app.backstage", json!({"page": "about"})).unwrap();
-    h.run_steps(3);
-    let r = h.query_all_by_role_and_label(Role::ComboBox, "Appearance").next().expect("Appearance selector").rect();
-    assert!(r.right() <= 900.0, "Appearance selector ends at {}, inside the window", r.right());
 }

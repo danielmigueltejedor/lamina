@@ -1340,9 +1340,12 @@ fn dlg_preferences(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
     if d.params.get("before").is_none() {
         d.params = json!({ "before": preferences_snapshot(app) });
     }
-    ui.label(egui::RichText::new("Appearance").font(theme::bold(13.0)));
+    // The office apps share this order: General (the one theme selector, and the window
+    // controls where Lámina draws its own frame), then Editing.
+    ui.label(egui::RichText::new("General").font(theme::bold(15.0)));
+    ui.add_space(4.0);
     ui.horizontal(|ui| {
-        ui.label("Style:");
+        ui.label("Display theme:");
         let dark = app.ui.brightness == theme::Brightness::Dark;
         if ui.radio(!dark, "Light").clicked() && dark {
             let _ = app.run("view.dark", json!({"on": false}));
@@ -1356,11 +1359,9 @@ fn dlg_preferences(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             ui.label("Window controls:");
             let wc = &mut app.ui.window_controls;
             ui.radio_value(wc, crate::WindowControls::Nodalia, "Nodalia");
-            ui.radio_value(wc, crate::WindowControls::System, "The desktop's own");
+            ui.radio_value(wc, crate::WindowControls::System, "Use the desktop's");
         });
     }
-    ui.add_space(8.0);
-    ui.label(egui::RichText::new("General").font(theme::bold(13.0)));
     // While the pointer holds the slider its value only waits in the dialog: applying it
     // would rescale the slider under the pointer and run it to an end (#767). It applies
     // on release, and at once from the keyboard.
@@ -1391,8 +1392,9 @@ fn dlg_preferences(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
         ui.radio_value(units, lamina_geom::Unit::Inches, "Inches");
         ui.radio_value(units, lamina_geom::Unit::Centimeters, "Centimeters");
     });
-    ui.add_space(8.0);
-    ui.label(egui::RichText::new("Editing").font(theme::bold(13.0)));
+    ui.add_space(18.0);
+    ui.label(egui::RichText::new("Editing").font(theme::bold(15.0)));
+    ui.add_space(4.0);
     ui.checkbox(&mut app.session.prefs.smart_guides, "Show smart guides");
     ui.checkbox(&mut app.session.prefs.snap_to_grid, "Snap objects to grid");
     ui.checkbox(&mut app.session.prefs.smart_quotes, "Replace straight quotes with smart quotes");

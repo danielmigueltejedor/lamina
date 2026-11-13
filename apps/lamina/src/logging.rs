@@ -3,14 +3,14 @@
 //! Without a logger every `log::warn!`/`log::error!` in the workspace (the crash guard's panic
 //! report, a failed crash-recovery save, PowerPoint parts that were skipped on import, audio output
 //! problems) vanished. A launch from a desktop menu has no terminal, so the file is what a bug report
-//! can attach: `<settings dir>/logs/deckcraft.log`, beside `ui.json` and `prefs.json`. Each start
-//! moves the previous log to `deckcraft.1.log` (and that one to `.2`), so the log of a run that
+//! can attach: `<settings dir>/logs/lamina.log`, beside `ui.json` and `prefs.json`. Each start
+//! moves the previous log to `lamina.1.log` (and that one to `.2`), so the log of a run that
 //! crashed survives the next launch.
 //!
-//! Levels: `info` for DeckCraft's own crates, `warn` for everything else (wgpu and naga are
+//! Levels: `info` for Lámina's own crates, `warn` for everything else (wgpu and naga are
 //! chatty). `RUST_LOG` replaces that with env_logger-style directives: `debug`,
-//! `warn,deckcraft_pptx=trace`, `wgpu_core=info`. A directive ending in `*` matches every target
-//! that starts with it (`deckcraft*=debug`).
+//! `warn,lamina_pptx=trace`, `wgpu_core=info`. A directive ending in `*` matches every target
+//! that starts with it (`lamina*=debug`).
 //!
 //! Records logged before the settings directory is known are kept (up to [`MAX_PENDING`]) and
 //! written once the file is attached. Writing never panics: a file that can't be created or written
@@ -29,17 +29,17 @@ use std::time::SystemTime;
 use log::LevelFilter;
 
 /// The current log file's name inside the log directory.
-pub const LOG_FILE: &str = "deckcraft.log";
+pub const LOG_FILE: &str = "lamina.log";
 /// The log directory inside the settings directory.
 pub const LOG_DIR: &str = "logs";
-/// How many previous logs are kept (`deckcraft.1.log` … `deckcraft.<KEEP>.log`).
+/// How many previous logs are kept (`lamina.1.log` … `lamina.<KEEP>.log`).
 pub const KEEP: usize = 2;
 /// The log file stops growing past this size (a runaway warning can't fill the disk).
 pub const MAX_FILE_BYTES: u64 = 16 * 1024 * 1024;
 /// Records kept in memory until the log file is attached.
 pub const MAX_PENDING: usize = 512;
 /// The built-in filter when `RUST_LOG` is unset or empty.
-pub const DEFAULT_FILTER: &str = "warn,deckcraft*=info";
+pub const DEFAULT_FILTER: &str = "warn,lamina*=info";
 
 /// Per-target level filter parsed from env_logger-style directives.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -127,7 +127,7 @@ fn utc_parts(secs: u64, nanos: u32) -> (i64, chrono::NaiveDateTime) {
 }
 
 fn numbered(dir: &Path, n: usize) -> PathBuf {
-    if n == 0 { dir.join(LOG_FILE) } else { dir.join(format!("deckcraft.{n}.log")) }
+    if n == 0 { dir.join(LOG_FILE) } else { dir.join(format!("lamina.{n}.log")) }
 }
 
 /// Shift the previous logs up one (`.log` → `.1.log` → … → `.<KEEP>.log`, the oldest dropped)
@@ -302,7 +302,7 @@ mod tests {
 
     fn temp_dir(tag: &str) -> PathBuf {
         static N: AtomicUsize = AtomicUsize::new(0);
-        let d = std::env::temp_dir().join(format!("deckcraft-logging-{tag}-{}-{}", std::process::id(), N.fetch_add(1, Ordering::Relaxed)));
+        let d = std::env::temp_dir().join(format!("lamina-logging-{tag}-{}-{}", std::process::id(), N.fetch_add(1, Ordering::Relaxed)));
         let _ = std::fs::remove_dir_all(&d);
         d
     }
@@ -316,12 +316,12 @@ mod tests {
     }
 
     #[test]
-    fn the_default_filter_shows_deckcraft_info_and_other_crates_warnings() {
+    fn the_default_filter_shows_lamina_info_and_other_crates_warnings() {
         let f = Filter::parse(DEFAULT_FILTER);
-        assert_eq!(f.level_for("deckcraft"), LevelFilter::Info);
-        assert_eq!(f.level_for("deckcraft::audio"), LevelFilter::Info);
-        assert_eq!(f.level_for("deckcraft_engine::guard"), LevelFilter::Info);
-        assert_eq!(f.level_for("deckcraft_pptx::read"), LevelFilter::Info);
+        assert_eq!(f.level_for("lamina"), LevelFilter::Info);
+        assert_eq!(f.level_for("lamina::audio"), LevelFilter::Info);
+        assert_eq!(f.level_for("lamina_engine::guard"), LevelFilter::Info);
+        assert_eq!(f.level_for("lamina_pptx::read"), LevelFilter::Info);
         assert_eq!(f.level_for("wgpu_core::device"), LevelFilter::Warn);
         assert_eq!(f.level_for("naga"), LevelFilter::Warn);
         assert_eq!(f.max(), LevelFilter::Info);
@@ -329,17 +329,17 @@ mod tests {
 
     #[test]
     fn directives_follow_env_logger_and_the_most_specific_one_wins() {
-        let f = Filter::parse("info,wgpu_core=error,deckcraft_pptx=trace,deckcraft_pptx::opc=off");
+        let f = Filter::parse("info,wgpu_core=error,lamina_pptx=trace,lamina_pptx::opc=off");
         assert_eq!(f.level_for("eframe"), LevelFilter::Info);
         assert_eq!(f.level_for("wgpu_core::instance"), LevelFilter::Error);
-        assert_eq!(f.level_for("deckcraft_pptx::read"), LevelFilter::Trace);
-        assert_eq!(f.level_for("deckcraft_pptx::opc"), LevelFilter::Off);
+        assert_eq!(f.level_for("lamina_pptx::read"), LevelFilter::Trace);
+        assert_eq!(f.level_for("lamina_pptx::opc"), LevelFilter::Off);
         assert_eq!(f.max(), LevelFilter::Trace);
         // A module name is matched at `::` boundaries, not as a bare prefix.
         assert_eq!(f.level_for("wgpu_core_extra"), LevelFilter::Info);
         // A trailing `*` is a prefix.
-        assert_eq!(Filter::parse("warn,deckcraft_ui*=debug").level_for("deckcraft_ui_egui::canvas"), LevelFilter::Debug);
-        assert_eq!(Filter::parse("warn,deckcraft_ui*=debug").level_for("deckcraft_engine"), LevelFilter::Warn);
+        assert_eq!(Filter::parse("warn,lamina_ui*=debug").level_for("lamina_ui_egui::canvas"), LevelFilter::Debug);
+        assert_eq!(Filter::parse("warn,lamina_ui*=debug").level_for("lamina_engine"), LevelFilter::Warn);
         // A bare target name sets that target to the most verbose level, as env_logger does.
         assert_eq!(Filter::parse("naga").level_for("naga::front"), LevelFilter::Trace);
         assert_eq!(Filter::parse("naga").level_for("eframe"), LevelFilter::Error);
@@ -356,13 +356,13 @@ mod tests {
             "=",
             "==",
             "=debug",
-            "deckcraft=",
+            "lamina=",
             "nonsense=loud",
             "🦀=info",
             "*",
             "*=debug",
             "a=b=c",
-            "warn,,deckcraft=DEBUG",
+            "warn,,lamina=DEBUG",
             " \t ",
             "\u{0}",
             "é*=trace",
@@ -370,12 +370,12 @@ mod tests {
         ];
         for spec in specs {
             let f = Filter::parse(spec);
-            for target in ["deckcraft", "", "🦀", "é", "a::b"] {
+            for target in ["lamina", "", "🦀", "é", "a::b"] {
                 let _ = f.level_for(target);
             }
             let _ = f.max();
         }
-        assert_eq!(Filter::parse("warn,,deckcraft=DEBUG").level_for("deckcraft"), LevelFilter::Debug);
+        assert_eq!(Filter::parse("warn,,lamina=DEBUG").level_for("lamina"), LevelFilter::Debug);
         assert_eq!(Filter::parse("nonsense=loud").level_for("nonsense"), LevelFilter::Error);
         assert_eq!(Filter::parse("=debug").max(), LevelFilter::Error, "a directive without a name is skipped");
         assert_eq!(Filter::parse("*=debug").level_for("anything"), LevelFilter::Debug, "a lone `*` matches every target");
@@ -418,9 +418,9 @@ mod tests {
             std::fs::write(&path, format!("run {run}")).expect("write");
         }
         assert_eq!(read(&dir.join(LOG_FILE)), "run 4");
-        assert_eq!(read(&dir.join("deckcraft.1.log")), "run 3");
-        assert_eq!(read(&dir.join("deckcraft.2.log")), "run 2");
-        assert!(!dir.join("deckcraft.3.log").exists(), "only {KEEP} old logs are kept");
+        assert_eq!(read(&dir.join("lamina.1.log")), "run 3");
+        assert_eq!(read(&dir.join("lamina.2.log")), "run 2");
+        assert!(!dir.join("lamina.3.log").exists(), "only {KEEP} old logs are kept");
         let _ = std::fs::remove_dir_all(&dir);
     }
 
@@ -441,10 +441,10 @@ mod tests {
                 "2026-10-08T07:59:17.728Z",
                 log::Level::Warn,
                 "main",
-                "deckcraft_pptx::opc",
+                "lamina_pptx::opc",
                 "pptx: skipping oversized part ppt/media/image1.png"
             ),
-            "2026-10-08T07:59:17.728Z WARN  [main] deckcraft_pptx::opc: pptx: skipping oversized part ppt/media/image1.png\n"
+            "2026-10-08T07:59:17.728Z WARN  [main] lamina_pptx::opc: pptx: skipping oversized part ppt/media/image1.png\n"
         );
         // A multi-line message keeps its lines; the record still ends in exactly one newline.
         assert!(format_line("t", log::Level::Error, "w", "x", "a\nb\n").ends_with("x: a\nb\n"));
@@ -513,23 +513,23 @@ mod tests {
     fn the_logger_filters_records_and_writes_them_to_the_attached_file() {
         let dir = temp_dir("logger");
         let logger = AppLogger::new(Filter::parse(DEFAULT_FILTER), false);
-        record(&logger, log::Level::Info, "deckcraft", "DeckCraft starting");
+        record(&logger, log::Level::Info, "lamina", "Lámina starting");
         record(&logger, log::Level::Info, "wgpu_core::device", "too chatty");
         let path = logger.attach_dir(&dir).expect("attach");
         assert_eq!(path, dir.join(LOG_FILE));
         record(&logger, log::Level::Warn, "wgpu_hal::vulkan", "a real warning");
-        record(&logger, log::Level::Debug, "deckcraft", "below info");
+        record(&logger, log::Level::Debug, "lamina", "below info");
         let text = read(&path);
         let lines: Vec<&str> = text.lines().collect();
         assert_eq!(lines.len(), 2, "{text}");
-        assert!(lines.first().is_some_and(|l| l.contains(" INFO  [") && l.ends_with("deckcraft: DeckCraft starting")), "{text}");
+        assert!(lines.first().is_some_and(|l| l.contains(" INFO  [") && l.ends_with("lamina: Lámina starting")), "{text}");
         assert!(lines.get(1).is_some_and(|l| l.ends_with("wgpu_hal::vulkan: a real warning")), "{text}");
-        assert!(logger.enabled(&log::Metadata::builder().level(log::Level::Info).target("deckcraft_engine::recovery").build()));
+        assert!(logger.enabled(&log::Metadata::builder().level(log::Level::Info).target("lamina_engine::recovery").build()));
         assert!(!logger.enabled(&log::Metadata::builder().level(log::Level::Info).target("naga").build()));
         // A second launch rotates: the first log becomes `.1`.
         let second = AppLogger::new(Filter::parse(DEFAULT_FILTER), false);
         assert_eq!(second.attach_dir(&dir).expect("attach again"), dir.join(LOG_FILE));
-        assert_eq!(read(&dir.join("deckcraft.1.log")), text);
+        assert_eq!(read(&dir.join("lamina.1.log")), text);
         let _ = std::fs::remove_dir_all(&dir);
     }
 
@@ -542,14 +542,14 @@ mod tests {
             for _ in 0..4 {
                 s.spawn(|| {
                     for _ in 0..100 {
-                        record(&logger, log::Level::Info, "deckcraft", "from a worker");
+                        record(&logger, log::Level::Info, "lamina", "from a worker");
                     }
                 });
             }
         });
         let text = read(&path);
         assert_eq!(text.lines().count(), 400);
-        assert!(text.lines().all(|l| l.ends_with("deckcraft: from a worker")), "{text}");
+        assert!(text.lines().all(|l| l.ends_with("lamina: from a worker")), "{text}");
         let _ = std::fs::remove_dir_all(&dir);
     }
 
@@ -577,7 +577,7 @@ mod tests {
             panic!("poison the sink");
         }));
         assert!(logger.sink.is_poisoned());
-        record(&logger, log::Level::Info, "deckcraft", "after the panic");
+        record(&logger, log::Level::Info, "lamina", "after the panic");
         assert!(read(&path).contains("after the panic"));
         let _ = std::fs::remove_dir_all(&dir);
     }

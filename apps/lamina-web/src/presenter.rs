@@ -1,5 +1,5 @@
 //! Same-origin popup transport. Each window starts its own eframe/WASM runner.
-use deckcraft_ui_egui::presenter::{Command, DeltaCache, Host, Snapshot, View};
+use lamina_ui_egui::presenter::{Command, DeltaCache, Host, Snapshot, View};
 use std::{
     cell::RefCell,
     collections::VecDeque,
@@ -9,7 +9,7 @@ use wasm_bindgen::{JsCast, closure::Closure};
 
 const MAX_MESSAGE: usize = 16 * 1024 * 1024;
 const MAX_COMMANDS: usize = 64;
-const PREFIX: &str = "#deckcraft-presenter=";
+const PREFIX: &str = "#lamina-presenter=";
 fn error(e: wasm_bindgen::JsValue) -> String {
     format!("{e:?}")
 }
@@ -262,7 +262,7 @@ impl Popup {
         });
         window.add_event_listener_with_callback("message", listener.as_ref().unchecked_ref()).map_err(error)?;
         if let Some(document) = window.document() {
-            document.set_title("Presenter View — DeckCraft");
+            document.set_title("Presenter View — Lámina");
         }
         let popup = Self { token, origin, opener, snapshot, last_received, listener, view: View::default() };
         send(&popup.opener, &popup.origin, serde_json::json!({"kind":"ready","token":popup.token}))?;

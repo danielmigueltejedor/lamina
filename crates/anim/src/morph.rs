@@ -2,8 +2,8 @@
 
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use deckcraft_model::resolve::{self, Ctx};
-use deckcraft_model::{ColorRef, Fill, Geom, Presentation, Rgba, Shape, ShapeId, ShapeKind, Slide, Xfrm, walk};
+use lamina_model::resolve::{self, Ctx};
+use lamina_model::{ColorRef, Fill, Geom, Presentation, Rgba, Shape, ShapeId, ShapeKind, Slide, Xfrm, walk};
 
 use crate::clampf;
 use crate::easing::smooth;

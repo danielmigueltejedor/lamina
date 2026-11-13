@@ -1,4 +1,4 @@
-//! `deckcraft-cli mcp` with the automation root flags, run as the real binary.
+//! `lamina-cli mcp` with the automation root flags, run as the real binary.
 
 use std::io::Write;
 use std::path::PathBuf;
@@ -7,7 +7,7 @@ use std::process::{Command, Output, Stdio};
 use serde_json::Value;
 
 fn bin() -> Command {
-    Command::new(env!("CARGO_BIN_EXE_deckcraft-cli"))
+    Command::new(env!("CARGO_BIN_EXE_lamina-cli"))
 }
 
 fn run(args: &[&str]) -> Output {
@@ -21,7 +21,7 @@ fn tmpdir(tag: &str) -> PathBuf {
     dir
 }
 
-/// Send `calls` (tool name, arguments) to `deckcraft-cli mcp <args>`; returns whether it exited
+/// Send `calls` (tool name, arguments) to `lamina-cli mcp <args>`; returns whether it exited
 /// cleanly, its stderr, and the stdout lines after `initialize`, one per call.
 fn mcp_session(args: &[&str], calls: &[(&str, Value)]) -> (bool, String, Vec<Value>) {
     let mut child = bin().arg("mcp").args(args).stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped()).spawn().unwrap();
@@ -59,8 +59,8 @@ fn mcp_automation_roots_confine_the_server() {
     let calls = [
         ("open_presentation", serde_json::json!({"path": work.join("in.txt").to_str().unwrap()})),
         ("open_presentation", serde_json::json!({"path": secret})),
-        ("save_presentation", serde_json::json!({"path": work.join("saved.deckcraft").to_str().unwrap()})),
-        ("save_presentation", serde_json::json!({"path": elsewhere.join("saved.deckcraft").to_str().unwrap()})),
+        ("save_presentation", serde_json::json!({"path": work.join("saved.lamina").to_str().unwrap()})),
+        ("save_presentation", serde_json::json!({"path": elsewhere.join("saved.lamina").to_str().unwrap()})),
     ];
     let (success, stderr, replies) = mcp_session(&[&read_flag, "--automation-write-root", work_s], &calls);
     assert!(success, "{stderr}");
@@ -69,10 +69,10 @@ fn mcp_automation_roots_confine_the_server() {
     assert_eq!(replies[1]["result"]["isError"], true);
     assert!(text(&replies[1]).contains("outside the read root"), "{}", text(&replies[1]));
     assert_eq!(replies[2]["result"]["isError"], false, "{}", replies[2]);
-    assert!(work.join("saved.deckcraft").exists());
+    assert!(work.join("saved.lamina").exists());
     assert_eq!(replies[3]["result"]["isError"], true);
     assert!(text(&replies[3]).contains("outside the write root"), "{}", text(&replies[3]));
-    assert!(!elsewhere.join("saved.deckcraft").exists());
+    assert!(!elsewhere.join("saved.lamina").exists());
 
     // A root left out grants none of its access.
     let save = [("new_presentation", serde_json::json!({})), calls[2].clone()];
@@ -100,7 +100,7 @@ fn mcp_accepts_multiple_read_and_write_roots() {
     let (input1, input2) = (read1.join("one.txt"), read2.join("two.txt"));
     std::fs::write(&input1, "one").unwrap();
     std::fs::write(&input2, "two").unwrap();
-    let (output1, output2) = (write1.join("one.deckcraft"), write2.join("two.deckcraft"));
+    let (output1, output2) = (write1.join("one.lamina"), write2.join("two.lamina"));
     let args = [
         "--automation-read-root".to_owned(),
         read1.to_string_lossy().into_owned(),

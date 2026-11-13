@@ -1,14 +1,14 @@
-//! DeckCraft desktop app.
+//! Lámina desktop app.
 //!
-//! Usage: `deckcraft [--control <port>] [--sample] [--show] [files…]`
+//! Usage: `lamina [--control <port>] [--sample] [--show] [files…]`
 //! A PowerPoint Show (`.ppsx`) given last starts its slide show, as a double-click does in PowerPoint.
-//! `deckcraft --help` prints the flags and exits. `deckcraft --version` prints the version and exits.
+//! `lamina --help` prints the flags and exits. `lamina --version` prints the version and exits.
 //!
-//! `--control <port>` (or `DECKCRAFT_CONTROL_PORT`) starts a localhost JSON-lines control server:
+//! `--control <port>` (or `LAMINA_CONTROL_PORT`) starts a localhost JSON-lines control server:
 //! `{"id":1,"method":"ui.inspect","params":{}}` → `{"id":1,"ok":true,"result":…}`.
-//! See `deckcraft_ui_egui::control` for the methods.
+//! See `lamina_ui_egui::control` for the methods.
 //!
-//! `log` records go to standard error and `<settings dir>/logs/deckcraft.log` (`RUST_LOG` sets the
+//! `log` records go to standard error and `<settings dir>/logs/lamina.log` (`RUST_LOG` sets the
 //! levels); see [`logging`].
 #![cfg_attr(all(target_os = "windows", not(debug_assertions)), windows_subsystem = "windows")]
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
@@ -26,8 +26,8 @@ mod logging;
 #[cfg(not(target_arch = "wasm32"))]
 mod pasteboard;
 
-use deckcraft_engine::Session;
-use deckcraft_ui_egui::{Services, SlideApp};
+use lamina_engine::Session;
+use lamina_ui_egui::{Services, SlideApp};
 
 struct App(
     SlideApp,
@@ -69,23 +69,23 @@ impl eframe::App for App {
 /// The per-user settings directory: `ui.json`, `prefs.json` and `logs/` live here.
 fn config_dir() -> Option<std::path::PathBuf> {
     if cfg!(target_os = "macos") {
-        std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join("Library/Application Support/DeckCraft"))
+        std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join("Library/Application Support/Lámina"))
     } else if cfg!(windows) {
-        std::env::var_os("APPDATA").map(|a| std::path::PathBuf::from(a).join("DeckCraft"))
+        std::env::var_os("APPDATA").map(|a| std::path::PathBuf::from(a).join("Lámina"))
     } else {
         std::env::var_os("XDG_CONFIG_HOME")
             .map(std::path::PathBuf::from)
             .or_else(|| std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join(".config")))
-            .map(|c| c.join("deckcraft"))
+            .map(|c| c.join("lamina"))
     }
 }
 
 fn load_prefs(app: &mut SlideApp) {
-    if std::env::var_os("DECKCRAFT_NO_PREFS").is_some() {
+    if std::env::var_os("LAMINA_NO_PREFS").is_some() {
         return;
     }
     let Some(dir) = config_dir() else { return };
-    let (ui, prefs) = deckcraft_ui_egui::settings::load(&dir);
+    let (ui, prefs) = lamina_ui_egui::settings::load(&dir);
     if let Some(ui) = ui {
         app.ui = ui;
     }
@@ -95,11 +95,11 @@ fn load_prefs(app: &mut SlideApp) {
 }
 
 fn save_prefs(app: &SlideApp) {
-    if std::env::var_os("DECKCRAFT_NO_PREFS").is_some() {
+    if std::env::var_os("LAMINA_NO_PREFS").is_some() {
         return;
     }
     if let Some(dir) = config_dir() {
-        deckcraft_ui_egui::settings::save(&dir, &app.ui, &app.session.prefs);
+        lamina_ui_egui::settings::save(&dir, &app.ui, &app.session.prefs);
     }
 }
 
@@ -122,8 +122,8 @@ fn services(native_wayland: bool) -> Services {
                 "video" => d.add_filter("Video", &["mp4", "m4v", "mov", "webm", "mkv", "wmv"]),
                 "theme" => d.add_filter("Themes and presentations", &["thmx", "pptx", "potx", "ppsx"]).add_filter("Office Theme", &["thmx"]),
                 _ => d
-                    .add_filter("Presentations", &["deckcraft", "pptx", "potx", "ppsx"])
-                    .add_filter("DeckCraft", &["deckcraft"])
+                    .add_filter("Presentations", &["pptx", "potx", "ppsx", "lamina", "deckcraft"]) // rebrand: keep
+                    .add_filter("Lámina", &["lamina", "deckcraft"]) // rebrand: keep
                     .add_filter("PowerPoint", &["pptx", "potx", "ppsx"])
                     .add_filter("Outline", &["txt", "md"]),
             };
@@ -135,10 +135,8 @@ fn services(native_wayland: bool) -> Services {
         clipboard_image: pasteboard.then(|| Box::new(pasteboard::image_png) as Box<dyn FnMut() -> Option<Vec<u8>>>),
         clipboard_html: pasteboard.then(|| Box::new(pasteboard::html) as Box<dyn FnMut() -> Option<String>>),
         clipboard_set_html: pasteboard.then(|| Box::new(pasteboard::set_html) as Box<dyn FnMut(&str, &str) -> bool>),
-        // Media is mixed and clocked by the output device; `DECKCRAFT_NO_AUDIO` plays silently.
-        audio_out: std::env::var_os("DECKCRAFT_NO_AUDIO")
-            .is_none()
-            .then(|| Box::new(audio::CpalOut::default()) as Box<dyn deckcraft_media::AudioOut>),
+        // Media is mixed and clocked by the output device; `LAMINA_NO_AUDIO` plays silently.
+        audio_out: std::env::var_os("LAMINA_NO_AUDIO").is_none().then(|| Box::new(audio::CpalOut::default()) as Box<dyn lamina_media::AudioOut>),
         ..Default::default()
     }
 }
@@ -151,10 +149,10 @@ fn display_count(window: &winit::window::Window) -> Option<usize> {
     (n > 0).then_some(n)
 }
 
-const APP_ID: &str = "ai.storyteller.deckcraft";
+const APP_ID: &str = "dev.danielmiguelt.Lamina";
 
 const USAGE: &str = "\
-Usage: deckcraft [--control PORT] [--sample] [--show] [FILE...]
+Usage: lamina [--control PORT] [--sample] [--show] [FILE...]
 
   --control PORT  JSON control server on 127.0.0.1:PORT
   --sample        open the sample presentation
@@ -193,7 +191,7 @@ fn startup(mut control_port: Option<u16>, args: impl IntoIterator<Item = String>
 }
 
 fn app_icon() -> Option<egui::IconData> {
-    let png: &[u8] = include_bytes!("../../../assets/app-icon/hicolor/256x256/apps/ai.storyteller.deckcraft.png");
+    let png: &[u8] = include_bytes!("../../../assets/app-icon/hicolor/256x256/apps/dev.danielmiguelt.Lamina.png");
     eframe::icon_data::from_png_bytes(png).map_err(|e| log::warn!("app icon: {e}")).ok()
 }
 
@@ -204,18 +202,18 @@ fn main() -> eframe::Result {
     // Session) is captured; see `logging`.
     let logger = logging::install();
     let (control_port, files, sample, show) =
-        match startup(std::env::var("DECKCRAFT_CONTROL_PORT").ok().and_then(|p| p.parse().ok()), std::env::args().skip(1)) {
+        match startup(std::env::var("LAMINA_CONTROL_PORT").ok().and_then(|p| p.parse().ok()), std::env::args().skip(1)) {
             Startup::Help => {
                 print!("{USAGE}");
                 return Ok(());
             }
             Startup::Version => {
-                println!("deckcraft {}", env!("CARGO_PKG_VERSION"));
+                println!("lamina {}", env!("CARGO_PKG_VERSION"));
                 return Ok(());
             }
             Startup::Run { control_port, files, sample, show } => (control_port, files, sample, show),
         };
-    log::info!("DeckCraft {} ({} {})", env!("CARGO_PKG_VERSION"), std::env::consts::OS, std::env::consts::ARCH);
+    log::info!("Lámina {} ({} {})", env!("CARGO_PKG_VERSION"), std::env::consts::OS, std::env::consts::ARCH);
     // The log file lives under the settings directory; opened after the arguments, so `--help` and
     // `--version` leave no file behind. Records logged until now are written to it first.
     if let Some(logger) = logger {
@@ -230,7 +228,7 @@ fn main() -> eframe::Result {
     }
     let mut options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_title("DeckCraft")
+            .with_title("Lámina")
             .with_inner_size([1440.0, 900.0])
             .with_min_inner_size([900.0, 560.0])
             .with_drag_and_drop(true)
@@ -248,9 +246,9 @@ fn main() -> eframe::Result {
         display::Choice::X11 => true,
         display::Choice::Default => false,
         display::Choice::None => {
-            // winit's own error says little to someone who started DeckCraft from a console.
+            // winit's own error says little to someone who started Lámina from a console.
             log::error!("no display: DISPLAY and WAYLAND_DISPLAY are not set");
-            eprintln!("DeckCraft needs a graphical session: neither DISPLAY nor WAYLAND_DISPLAY is set.");
+            eprintln!("Lámina needs a graphical session: neither DISPLAY nor WAYLAND_DISPLAY is set.");
             false
         }
     };
@@ -276,10 +274,10 @@ fn main() -> eframe::Result {
     #[cfg(target_os = "macos")]
     let apple_events = &apple_events;
     eframe::run_native(
-        "DeckCraft",
+        "Lámina",
         options,
         Box::new(move |cc| {
-            deckcraft_ui_egui::install_ime_pass_hooks(&cc.egui_ctx);
+            lamina_ui_egui::install_ime_pass_hooks(&cc.egui_ctx);
             let mut app = SlideApp::new(Session::new(), services(native_wayland));
             // Presenter View asks winit how many displays there are when a show starts.
             #[cfg(all(unix, not(target_os = "macos")))]
@@ -289,8 +287,8 @@ fn main() -> eframe::Result {
             load_prefs(&mut app);
             app.enable_update_checks();
             // AutoRecover: reopen what a previous run left unsaved, then keep it current.
-            if std::env::var_os("DECKCRAFT_NO_RECOVERY").is_none() {
-                app.session.recovery_dir = deckcraft_engine::recovery::default_dir();
+            if std::env::var_os("LAMINA_NO_RECOVERY").is_none() {
+                app.session.recovery_dir = lamina_engine::recovery::default_dir();
                 if let Ok(v) = app.session.execute("file.recovery.open", &serde_json::json!({}))
                     && let Some(n) = v.get("opened").and_then(|o| o.as_array()).map(Vec::len).filter(|n| *n > 0)
                 {
@@ -302,7 +300,7 @@ fn main() -> eframe::Result {
                 let rx = control_server::start(port, cc.egui_ctx.clone());
                 app = app.with_control(rx);
             }
-            if sample && let Err(e) = deckcraft_engine::sample::open_sample(&mut app.session) {
+            if sample && let Err(e) = lamina_engine::sample::open_sample(&mut app.session) {
                 log::error!("sample: {e}");
             }
             // A .ppsx opened last starts its slide show (#862).
@@ -329,7 +327,7 @@ mod tests {
     /// The check runs in a child (this test binary again), since on macOS it ends the process.
     #[test]
     fn on_exit_ends_the_process_on_macos() {
-        if std::env::var_os("DECKCRAFT_TEST_ON_EXIT").is_some() {
+        if std::env::var_os("LAMINA_TEST_ON_EXIT").is_some() {
             let mut app = App(
                 SlideApp::new(Session::new(), Services::default()),
                 #[cfg(target_os = "macos")]
@@ -342,8 +340,8 @@ mod tests {
         }
         let out = std::process::Command::new(std::env::current_exe().unwrap())
             .args(["--exact", "tests::on_exit_ends_the_process_on_macos", "--nocapture"])
-            .env("DECKCRAFT_TEST_ON_EXIT", "1")
-            .env("DECKCRAFT_NO_PREFS", "1")
+            .env("LAMINA_TEST_ON_EXIT", "1")
+            .env("LAMINA_NO_PREFS", "1")
             .output()
             .unwrap();
         let stdout = String::from_utf8_lossy(&out.stdout);
@@ -422,21 +420,21 @@ mod tests {
     }
 
     /// Every desktop offers the same file types: macOS (`CFBundleTypeExtensions` and the native
-    /// type's extension in `Info.plist.in`), Windows (`SupportedTypes` in `deckcraft.wxs`) and
+    /// type's extension in `Info.plist.in`), Windows (`SupportedTypes` in `lamina.wxs`) and
     /// Linux (`MimeType` in the desktop file). A format added to one installer must reach the
-    /// others, and each must be one Finder, Explorer or the file manager can hand to DeckCraft.
+    /// others, and each must be one Finder, Explorer or the file manager can hand to Lámina.
     #[test]
     fn every_desktop_offers_the_same_file_types() {
         let plist = include_str!("../../../packaging/macos/Info.plist.in");
-        let wxs = include_str!("../../../packaging/windows/deckcraft.wxs");
-        let desktop = include_str!("../../../packaging/linux/ai.storyteller.deckcraft.desktop");
+        let wxs = include_str!("../../../packaging/windows/lamina.wxs");
+        let desktop = include_str!("../../../packaging/linux/dev.danielmiguelt.Lamina.desktop");
 
         let mut mac = plist_strings(plist, "CFBundleTypeExtensions");
         // The native type is declared by its UTI; its extension is in the exported type.
-        mac.extend(plist_strings(plist, "public.filename-extension").into_iter().filter(|e| e == "deckcraft"));
+        mac.extend(plist_strings(plist, "public.filename-extension").into_iter().filter(|e| e == "lamina"));
         mac.sort();
         mac.dedup();
-        assert!(mac.iter().any(|e| e == "pptx") && mac.iter().any(|e| e == "deckcraft"), "Info.plist.in: {mac:?}");
+        assert!(mac.iter().any(|e| e == "pptx") && mac.iter().any(|e| e == "lamina"), "Info.plist.in: {mac:?}");
         // Every document type names a content type too, so "Change All" in Finder's Get Info works.
         let names = plist.matches("<key>CFBundleTypeName</key>").count();
         let content_types = plist.matches("<key>LSItemContentTypes</key>").count();
@@ -450,7 +448,7 @@ mod tests {
         win.sort();
 
         let mime_ext = |m: &str| match m {
-            "application/x-deckcraft" => Some("deckcraft"),
+            "application/x-lamina" => Some("lamina"),
             "application/vnd.openxmlformats-officedocument.presentationml.presentation" => Some("pptx"),
             "application/vnd.openxmlformats-officedocument.presentationml.template" => Some("potx"),
             "application/vnd.openxmlformats-officedocument.presentationml.slideshow" => Some("ppsx"),
@@ -472,12 +470,12 @@ mod tests {
 
     /// #1114: a shortcut that names an MSI `<Icon>` shows a blank icon once an update deletes the
     /// cached copy of it, and a taskbar pin (a copy of the shortcut) is never repaired. Shortcuts
-    /// take the icon embedded in `deckcraft.exe`; only `ARPPRODUCTICON` uses the MSI `<Icon>`.
+    /// take the icon embedded in `lamina.exe`; only `ARPPRODUCTICON` uses the MSI `<Icon>`.
     #[test]
     fn windows_shortcuts_use_the_icon_embedded_in_the_exe() {
-        let wxs = include_str!("../../../packaging/windows/deckcraft.wxs");
+        let wxs = include_str!("../../../packaging/windows/lamina.wxs");
         let shortcuts: Vec<&str> = wxs.split("<Shortcut").skip(1).filter_map(|s| s.split("/>").next()).collect();
-        assert!(!shortcuts.is_empty(), "deckcraft.wxs has no shortcut");
+        assert!(!shortcuts.is_empty(), "lamina.wxs has no shortcut");
         for shortcut in shortcuts {
             assert!(!shortcut.contains("Icon="), "a shortcut names an MSI <Icon>:{shortcut}");
         }
@@ -485,7 +483,7 @@ mod tests {
     }
 
     /// The shortcuts take the exe's own icon, and `package.ps1 -SkipBuild` packages an existing
-    /// exe without `DECKCRAFT_REQUIRE_WINRES`, so the script has to refuse one with no icon.
+    /// exe without `LAMINA_REQUIRE_WINRES`, so the script has to refuse one with no icon.
     #[test]
     fn the_windows_package_script_rejects_an_exe_without_an_icon() {
         let script = include_str!("../../../packaging/windows/package.ps1");

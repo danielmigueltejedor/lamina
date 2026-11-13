@@ -1,6 +1,6 @@
 //! Which windowing system to start on, on Linux and the BSDs.
 //!
-//! DeckCraft prefers X11 when `DISPLAY` is set (see `main`). A stale `DISPLAY` (left over from
+//! Lámina prefers X11 when `DISPLAY` is set (see `main`). A stale `DISPLAY` (left over from
 //! an ended `ssh -X` session or a desktop with Xwayland turned off) used to make start-up fail
 //! with winit's "failed to open display" even though a Wayland compositor was running. When a
 //! local `DISPLAY` names an X server whose socket isn't there and Wayland is available, start on
@@ -48,7 +48,7 @@ pub fn choose(display: Option<&str>, wayland: Option<&str>, force_wayland: bool,
 pub fn choose_from_env() -> Choice {
     let display = std::env::var("DISPLAY").ok();
     let wayland = std::env::var("WAYLAND_DISPLAY").ok();
-    choose(display.as_deref(), wayland.as_deref(), std::env::var_os("DECKCRAFT_WAYLAND").is_some(), |p| p.exists())
+    choose(display.as_deref(), wayland.as_deref(), std::env::var_os("LAMINA_WAYLAND").is_some(), |p| p.exists())
 }
 
 #[cfg(test)]

@@ -51,18 +51,18 @@ revision history.
 ### Soak testing has no memory or timing budgets
 - **Evidence:** `crates/engine/src/soak_tests.rs` runs seeded random command sequences over a
   ~100-slide deck (validity, selection, undo/redo exactness, bounded undo, save/reopen in both
-  formats every 100 steps); `DECKCRAFT_SOAK_STEPS` runs it long. It found a chart `clamp` panic
+  formats every 100 steps); `LAMINA_SOAK_STEPS` runs it long. It found a chart `clamp` panic
   that blanked whole slides. `crates/ui-egui/src/ui_soak_tests.rs` drives the whole window with
   seeded random clicks, drags, keys (plain, Ctrl, Shift), typing and scrolling over the sample
   deck, checking document validity, bounded undo/journal/thumbnail/texture caches, zero caught
-  command and render panics (`Session::panics_caught`, `deckcraft_render::panics_caught`) and a
+  command and render panics (`Session::panics_caught`, `lamina_render::panics_caught`) and a
   mean frame under 250 ms; 4 × 3000-action runs are clean.
 - **Impact:** long-session crash rate is sampled in CI; RSS is not measured directly.
 - **Estimate:** 1–2 h (RSS sampling per platform).
 
 ### A control-server timing test may fail under load
 - **Evidence:** `silent_refused_peers_do_not_delay_the_next_refusal` in
-  `apps/deckcraft/src/control_server.rs` asserts that a refusal arrives in under 1 s, so it can
+  `apps/lamina/src/control_server.rs` asserts that a refusal arrives in under 1 s, so it can
   fail on a busy machine although the server behaves correctly.
 - **Estimate:** under 1 h (a looser bound or a logical clock).
 
@@ -104,7 +104,7 @@ Detail in [file-format-parity.md](file-format-parity.md).
 
 ### SVG pictures don't render
 - **Evidence:** `crates/render/src/images.rs` decodes through `image` 0.25 (PNG, JPEG, WebP, GIF,
-  TIFF, BMP), and EMF/WMF through `deckcraft-metafile` (ported from Letra: paths, fills, pens,
+  TIFF, BMP), and EMF/WMF through `lamina-metafile` (ported from Letra: paths, fills, pens,
   pattern and hatch brushes, bitmaps and text; rectangle clip regions are applied, EMF+ only
   pictures play their EMF+ records).
   Nothing reads SVG; PowerPoint's Insert Icons stores SVG with a PNG fallback.
@@ -183,7 +183,7 @@ Detail in [file-format-parity.md](file-format-parity.md).
   `Series.secondary_axis`) and is not written back when the chart is rebuilt.
   An unchanged chart's embedded workbook now survives save (#335); editing the chart still
   drops it rather than writing a stale spreadsheet. The workbook and other retained chart parts
-  also survive `.deckcraft` save/reopen (`crates/engine/tests/it/chart_native.rs`), with binary
+  also survive `.lamina` save/reopen (`crates/engine/tests/it/chart_native.rs`), with binary
   payloads in bounded ZIP entries sharing the media load budget (`crates/format` tests).
 - **Impact:** most business decks have charts; editing their data is routine.
 - **Estimate:** 12–20 h. Data and elements are **beta blockers** (6–10 h).
@@ -344,7 +344,7 @@ Detail in [localization-parity.md](localization-parity.md).
 
 ## Performance
 
-- **Baseline measured, not compared.** `cargo xtask bench` (and `deckcraft-cli bench FILE`) times
+- **Baseline measured, not compared.** `cargo xtask bench` (and `lamina-cli bench FILE`) times
   open, per-slide render, save, PPTX round trip and PDF export, and peak memory, against a saved
   baseline; show frame rate isn't measured and there are no PowerPoint numbers to set beside it.
   2–4 h.
@@ -397,7 +397,7 @@ Detail in [localization-parity.md](localization-parity.md).
 | 2026-10-13 | minor | Owned PPTX corpus round-trip (parts and text). Notes-master header and footer text is kept; the corpus gap is now a larger set and PowerPoint reference renders |
 | 2026-10-13 | minor | Owned PPTX corpus for comments, links and actions, custom shows, rotated groups and inherited placeholders. Paragraph `defRPr` and action sounds kept. Embedded fonts and #70/#74/#77 stay open |
 | 2026-10-13 | minor | Owned PPTX corpus for text effects, body layout, theme effects, fills, bevels and connectors. A run's inner shadow, reflection and soft edge, and a bevel preset with no kept 3-D XML, are kept. #70, #74, #77 and embedded fonts stay open |
-| 2026-10-13 | minor | Benchmark suite (`cargo xtask bench`, `deckcraft-cli bench`): the performance gap is now frame rate and a PowerPoint comparison |
+| 2026-10-13 | minor | Benchmark suite (`cargo xtask bench`, `lamina-cli bench`): the performance gap is now frame rate and a PowerPoint comparison |
 | 2026-10-14 | minor | Owned corpus `corpus_media.rs`: 3-D model parts and animation bounce end now round-trip. The real-deck corpus and #70/#74/#77 stay open |
 | 2026-10-14 | trivial | Corpus slice: themes, masters, effects and links; text Mouse Over actions round-trip |
 | 2026-10-14 | trivial | A moving average trendline is drawn without an equation or an R² label |

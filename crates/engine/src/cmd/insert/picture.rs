@@ -81,7 +81,7 @@ fn fitted(s: &Session, bytes: &[u8]) -> (f64, f64) {
         .and_then(|r| r.into_dimensions().ok())
         .map(|(w, h)| (w as f64 * 0.75, h as f64 * 0.75))
         .unwrap_or((288.0, 216.0));
-    let size = s.active().map(|d| d.doc.slide_size).unwrap_or(deckcraft_model::defaults::WIDE);
+    let size = s.active().map(|d| d.doc.slide_size).unwrap_or(lamina_model::defaults::WIDE);
     let k = (size.width * 0.9 / w.max(1.0)).min(size.height * 0.9 / h.max(1.0)).min(1.0);
     (w * k, h * k)
 }
@@ -92,7 +92,7 @@ pub(super) fn picture(s: &mut Session, p: &Value) -> Result<Value> {
     if !ct.starts_with("image/") {
         return Err(bad("insert.picture", format!("{name} is not a picture")));
     }
-    if ct != "image/svg+xml" && deckcraft_render::decode_image(&bytes).is_none() {
+    if ct != "image/svg+xml" && lamina_render::decode_image(&bytes).is_none() {
         return Err(EngineError::Other(format!("{name}: the picture can't be read")));
     }
     let (w, h) = fitted(s, &bytes);
@@ -101,8 +101,7 @@ pub(super) fn picture(s: &mut Session, p: &Value) -> Result<Value> {
         d.selected_shapes()
             .into_iter()
             .find(|x| {
-                x.ph_type()
-                    .is_some_and(|k| matches!(k, deckcraft_model::PhType::Picture | deckcraft_model::PhType::Obj | deckcraft_model::PhType::Body))
+                x.ph_type().is_some_and(|k| matches!(k, lamina_model::PhType::Picture | lamina_model::PhType::Obj | lamina_model::PhType::Body))
                     && x.text.as_ref().is_none_or(|t| t.is_empty())
             })
             .map(|x| (x.id, xfrm_of(&d.doc, &d.selection, x)))
@@ -143,7 +142,7 @@ pub(super) fn picture(s: &mut Session, p: &Value) -> Result<Value> {
                 sh.kind = shape.kind.clone();
                 sh.xfrm = Some(rect);
                 sh.ph = phv.map(|mut p| {
-                    p.kind = deckcraft_model::PhType::Picture;
+                    p.kind = lamina_model::PhType::Picture;
                     p
                 });
                 sh.text = None;
@@ -163,7 +162,7 @@ fn media(s: &mut Session, p: &Value, video: bool) -> Result<Value> {
     let (name, bytes) = media_bytes(p, cmd)?;
     let ct = content_type(&name, &bytes);
     let bytes = std::sync::Arc::new(bytes);
-    let info = deckcraft_media::probe(&bytes);
+    let info = lamina_media::probe(&bytes);
     let has_video = info.as_ref().is_ok_and(|i| i.video.is_some());
     let has_audio = info.as_ref().is_ok_and(|i| i.audio.is_some());
     match &info {

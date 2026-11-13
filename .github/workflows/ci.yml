@@ -19,11 +19,11 @@ concurrency:
 jobs:
   # Keep the early manifest preflight separate from the reusable workflow. The shared gate
   # sets CRAFT_FONTS_REQUIRED=1 once the fonts are checked out, so the build script enforces actual required faces.
-  # Keep this pin identical to gate, freebsd.yml and release.yml.
+  # Keep this pin identical to gate, freebsd.yml and the release-*.yml workflows.
   font-pin:
     runs-on: ubuntu-latest
     env:
-      # Same craft-fonts commit as release.yml.
+      # Same craft-fonts commit as the release-*.yml workflows.
       CRAFT_FONTS_REF: 37827adc41fd165f9a9234ac40f94dbad353aa69
     steps:
       - name: Check out craft-fonts
@@ -42,7 +42,7 @@ jobs:
           if [ -f "$manifest" ]; then
             echo "craft-fonts pin carries the reviewed simplified-Chinese manifest."
           elif [ "$CRAFT_FONTS_REF" = "$PENDING_CRAFT_FONTS_PIN" ]; then
-            echo "::warning title=craft-fonts pin pending::The pinned craft-fonts commit has no fonts/simplified-chinese-manifest.txt, so CJK checks may skip. Advance ci.yml, freebsd.yml and release.yml together to the reviewed immutable SHA before claiming shipped Chinese fonts."
+            echo "::warning title=craft-fonts pin pending::The pinned craft-fonts commit has no fonts/simplified-chinese-manifest.txt, so CJK checks may skip. Advance ci.yml, freebsd.yml and the release-*.yml workflows together to the reviewed immutable SHA before claiming shipped Chinese fonts."
           else
             echo "::error title=craft-fonts pin missing Chinese manifest::CRAFT_FONTS_REF advanced past the known pending pin ($PENDING_CRAFT_FONTS_PIN) but still has no fonts/simplified-chinese-manifest.txt. Update the pin to the reviewed commit that carries it."
             exit 1
@@ -52,7 +52,7 @@ jobs:
     needs: font-pin
     uses: getnodalia/foundation/.github/workflows/rust-gate.yml@976581262c95c0d95c0184149c0e1ba55485ccb3 # foundation main
     with:
-      # Same craft-fonts commit as release.yml.
+      # Same craft-fonts commit as the release-*.yml workflows.
       fonts-repository: getnodalia/foundation
       fonts-ref: 37827adc41fd165f9a9234ac40f94dbad353aa69
       packages: >-
@@ -64,3 +64,13 @@ jobs:
     name: git-sources
     uses: getnodalia/foundation/.github/workflows/git-sources.yml@976581262c95c0d95c0184149c0e1ba55485ccb3 # foundation main
 
+
+  # Lámina's own names everywhere; upstream's arrive renamed by the weekly sync.
+  names:
+    name: No upstream names
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: python3 scripts/rebrand.py check

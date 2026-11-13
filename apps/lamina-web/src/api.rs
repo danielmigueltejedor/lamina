@@ -1,8 +1,8 @@
-//! `window.deckcraft`: the page command API (`craft-web-api`, storytold/craft-libs#413) over the
+//! `window.lamina`: the page command API (`craft-web-api`, storytold/craft-libs#413) over the
 //! app's own control channel, the one the desktop control server drives (`docs/control-protocol.md`).
 //!
 //! The crate owns the JavaScript side (`request`, `execute`, `commands`, `docInspect`, `uiInspect`,
-//! `screenshot`, as promises with a timeout). This module is DeckCraft's part: a [`Request`] that
+//! `screenshot`, as promises with a timeout). This module is Lámina's part: a [`Request`] that
 //! queues a [`ControlRequest`] for the app, which answers it on its next frame, and waits for the
 //! reply. A call the page gave up on is released ([`Pending`]), so the app skips it if it has not started it, instead of
 //! applying a command the page was told had failed.
@@ -11,7 +11,7 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicU8;
 use std::sync::mpsc::{Receiver, TryRecvError};
 
-use deckcraft_ui_egui::ControlRequest;
+use lamina_ui_egui::ControlRequest;
 use serde_json::{Value, json};
 
 /// How often a waiting call looks for the app's reply, in milliseconds (about a frame).
@@ -61,17 +61,17 @@ mod web {
 
     use craft_web_api::methods::Methods;
     use craft_web_api::page::{PageApi, Request};
-    use deckcraft_ui_egui::{ControlRequest, SlideApp};
+    use lamina_ui_egui::{ControlRequest, SlideApp};
     use serde_json::json;
     use wasm_bindgen_futures::JsFuture;
 
     use super::{POLL_MS, Pending};
 
     /// The app id in `window.<app>`.
-    const APP: &str = "deckcraft";
+    const APP: &str = "lamina";
 
-    /// Give the app its control queue and put `window.deckcraft` on the page. An existing
-    /// `window.deckcraft` keeps the functions it already has.
+    /// Give the app its control queue and put `window.lamina` on the page. An existing
+    /// `window.lamina` keeps the functions it already has.
     pub fn install(app: &mut SlideApp, ctx: egui::Context) {
         let (queue, requests) = channel::<ControlRequest>();
         app.control_rx = Some(requests);
@@ -113,7 +113,7 @@ mod tests {
 
     use super::*;
 
-    /// `ControlRequest`'s `state` values (`deckcraft_ui_egui::control`): the app has started it, or its
+    /// `ControlRequest`'s `state` values (`lamina_ui_egui::control`): the app has started it, or its
     /// sender gave up.
     const TAKEN: u8 = 1;
     const ABANDONED: u8 = 2;

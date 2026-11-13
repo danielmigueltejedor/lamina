@@ -247,11 +247,11 @@ Carried from the 2026-10-07 ROADMAP status and updated with what has landed sinc
 - **Media:** MP3, AAC/M4A, ALAC, WAV, AIFF, CAF, FLAC, Ogg Vorbis and Opus audio; H.264, HEVC,
   VP9 and AV1 video in MP4/MOV/WebM/MKV with pure-Rust decoders; poster frames, trim, fades,
   volume, loop, play across slides.
-- **Files:** `.deckcraft` (zip + JSON), PPTX import/export (also opens `.potx`/`.ppsx`), PDF
+- **Files:** `.lamina` (zip + JSON), PPTX import/export (also opens `.potx`/`.ppsx`), PDF
   export (slides, notes, handouts 1–9 per page, text layer, links, bookmarks), PNG/JPEG, outline
   text, AutoRecover.
 - **Automation:** 328 engine commands (`cmd!` registrations in `crates/engine/src/cmd/*`), every
-  one reachable from `deckcraft-cli`, the JSON control channel and MCP. The menu-bar measurement
+  one reachable from `lamina-cli`, the JSON control channel and MCP. The menu-bar measurement
   and the d556ff9 snapshot still count 226.
 - **Platforms:** signed releases for macOS (universal), Windows x64/x86/arm64, Linux
   (AppImage/deb/rpm/tar.gz/Flatpak, x86_64 and aarch64), FreeBSD and the web (v0.4.0, 2026-10-09).

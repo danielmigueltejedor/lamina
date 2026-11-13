@@ -1,4 +1,4 @@
-//! Headless DeckCraft. `deckcraft-cli help` explains each subcommand (`help.rs`).
+//! Headless Lámina. `lamina-cli help` explains each subcommand (`help.rs`).
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 #![forbid(unsafe_code)]
 
@@ -9,7 +9,7 @@ mod help;
 use std::process::ExitCode;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use deckcraft_engine::Session;
+use lamina_engine::Session;
 use serde_json::{Value, json};
 
 static STDOUT_CLOSED: AtomicBool = AtomicBool::new(false);
@@ -20,7 +20,7 @@ macro_rules! outln {
             if e.kind() == std::io::ErrorKind::BrokenPipe {
                 STDOUT_CLOSED.store(true, Ordering::Relaxed);
             } else {
-                eprintln!("deckcraft-cli: can't write to stdout: {e}");
+                eprintln!("lamina-cli: can't write to stdout: {e}");
                 std::process::exit(1);
             }
         }
@@ -62,7 +62,7 @@ fn main() -> ExitCode {
             },
         },
         Some("--version" | "-V" | "version") => {
-            outln!("deckcraft-cli {}", env!("CARGO_PKG_VERSION"));
+            outln!("lamina-cli {}", env!("CARGO_PKG_VERSION"));
             ExitCode::SUCCESS
         }
         Some("info") => report(info(rest)),
@@ -73,7 +73,7 @@ fn main() -> ExitCode {
         Some("run") => report(run(rest)),
         Some("commands") => {
             let f = rest.first().map(|x| x.to_lowercase());
-            for c in deckcraft_engine::command_specs()
+            for c in lamina_engine::command_specs()
                 .iter()
                 .filter(|c| f.as_ref().is_none_or(|f| c.id.to_lowercase().contains(f.as_str()) || c.label.to_lowercase().contains(f.as_str())))
             {
@@ -88,8 +88,8 @@ fn main() -> ExitCode {
         Some("app") => report(app(rest)),
         Some("mcp") => report(mcp(rest)),
         Some("links") => {
-            use deckcraft_engine::links::{APP_PAGE, DISCORD, GITHUB, WEBSITE};
-            outln!("Discord   {DISCORD}\nWebsite   {WEBSITE}\nApp page  {APP_PAGE}\nGitHub    {GITHUB}");
+            use lamina_engine::links::{APP_PAGE, DISCORD, GITHUB, WEBSITE};
+            outln!("Issues    {DISCORD}\nWebsite   {WEBSITE}\nApp page  {APP_PAGE}\nGitHub    {GITHUB}");
             ExitCode::SUCCESS
         }
         Some(other) => unknown(other),
@@ -107,13 +107,13 @@ fn help_page(name: &str) -> String {
 }
 
 fn unknown(sub: &str) -> ExitCode {
-    eprintln!("deckcraft-cli: unknown subcommand `{sub}`\n");
+    eprintln!("lamina-cli: unknown subcommand `{sub}`\n");
     usage()
 }
 
 fn usage() -> ExitCode {
     eprintln!("{}", help::overview());
-    eprintln!("\nCommunity: {}  ·  {}", deckcraft_engine::links::DISCORD, deckcraft_engine::links::APP_PAGE);
+    eprintln!("\nCommunity: {}  ·  {}", lamina_engine::links::DISCORD, lamina_engine::links::APP_PAGE);
     ExitCode::FAILURE
 }
 
@@ -121,7 +121,7 @@ fn report(r: Result<(), String>) -> ExitCode {
     match r {
         Ok(()) => ExitCode::SUCCESS,
         Err(e) => {
-            eprintln!("deckcraft-cli: {e}");
+            eprintln!("lamina-cli: {e}");
             ExitCode::FAILURE
         }
     }
@@ -129,7 +129,7 @@ fn report(r: Result<(), String>) -> ExitCode {
 
 fn open(s: &mut Session, input: Option<&str>, sample: bool) -> Result<(), String> {
     if sample {
-        return deckcraft_engine::sample::open_sample(s).map_err(|e| e.to_string());
+        return lamina_engine::sample::open_sample(s).map_err(|e| e.to_string());
     }
     match input {
         Some(p) => {
@@ -146,10 +146,10 @@ fn warn_if_damaged(path: &str, opened: &serde_json::Value) {
     let count = |key: &str| opened.get(key).and_then(|v| v.as_array()).map_or(0, |a| a.len());
     let (slides, media) = (count("lostSlides"), count("damagedMedia"));
     if slides > 0 {
-        eprintln!("deckcraft-cli: warning: {path}: {slides} slide{} couldn't be read and left out", if slides == 1 { "" } else { "s" });
+        eprintln!("lamina-cli: warning: {path}: {slides} slide{} couldn't be read and left out", if slides == 1 { "" } else { "s" });
     }
     if media > 0 {
-        eprintln!("deckcraft-cli: warning: {path}: {media} picture or media file{} couldn't be read", if media == 1 { "" } else { "s" });
+        eprintln!("lamina-cli: warning: {path}: {media} picture or media file{} couldn't be read", if media == 1 { "" } else { "s" });
     }
 }
 
@@ -180,7 +180,7 @@ fn peak_rss_mib() -> Option<f64> {
 /// The performance baseline (docs/gaps.md "No baseline"): how long a deck takes to open, to
 /// render each slide, to save and to export, and the peak memory, as JSON or a table.
 fn bench(args: &[String]) -> Result<(), String> {
-    use deckcraft_engine::cmd::file::{open_presentation, save_bytes};
+    use lamina_engine::cmd::file::{open_presentation, save_bytes};
     let mut input = None;
     let mut sample = false;
     let mut runs = 5usize;
@@ -206,32 +206,32 @@ fn bench(args: &[String]) -> Result<(), String> {
         None => {
             open(&mut s, None, true)?;
             let doc = &s.doc().map_err(|e| e.to_string())?.doc;
-            ("sample.deckcraft".to_string(), save_bytes(doc, "deckcraft").map_err(|e| e.to_string())?)
+            ("sample.lamina".to_string(), save_bytes(doc, "lamina").map_err(|e| e.to_string())?)
         }
     };
-    let e = |x: deckcraft_engine::EngineError| x.to_string();
+    let e = |x: lamina_engine::EngineError| x.to_string();
     let doc = open_presentation(&name, &bytes).map_err(e)?;
     let slides = doc.slides.len();
     let open = time_ms(runs, || open_presentation(&name, &bytes).map(|_| ()).map_err(e))?;
-    let opts = deckcraft_engine::render::RenderOpts { scale: 1.0, ..Default::default() };
+    let opts = lamina_engine::render::RenderOpts { scale: 1.0, ..Default::default() };
     let mut per_slide = vec![];
     for i in 0..slides {
         per_slide.push(time_ms(runs, || {
-            deckcraft_engine::render::render_slide(&doc, i, &opts);
+            lamina_engine::render::render_slide(&doc, i, &opts);
             Ok(())
         })?);
     }
     let pptx = save_bytes(&doc, "pptx").map_err(e)?;
     let mut steps = vec![
         ("open", open),
-        ("save .deckcraft", time_ms(runs, || save_bytes(&doc, "deckcraft").map(|_| ()).map_err(e))?),
+        ("save .lamina", time_ms(runs, || save_bytes(&doc, "lamina").map(|_| ()).map_err(e))?),
         ("save .pptx", time_ms(runs, || save_bytes(&doc, "pptx").map(|_| ()).map_err(e))?),
         ("open .pptx", time_ms(runs, || open_presentation("bench.pptx", &pptx).map(|_| ()).map_err(e))?),
         ("export .pdf", time_ms(runs, || save_bytes(&doc, "pdf").map(|_| ()).map_err(e))?),
     ];
     let render_all = time_ms(runs, || {
         for i in 0..slides {
-            deckcraft_engine::render::render_slide(&doc, i, &opts);
+            lamina_engine::render::render_slide(&doc, i, &opts);
         }
         Ok(())
     })?;
@@ -322,7 +322,7 @@ fn render(args: &[String]) -> Result<(), String> {
         std::fs::create_dir_all(&out).map_err(|e| format!("{out}: {e}"))?;
     }
     for i in list {
-        let (png, w, h) = deckcraft_engine::cmd::file::render_png_with(&st.doc, i, scale, edit, transparent);
+        let (png, w, h) = lamina_engine::cmd::file::render_png_with(&st.doc, i, scale, edit, transparent);
         let path = if all { format!("{out}/slide-{:02}.png", i + 1) } else { out.clone() };
         std::fs::write(&path, png).map_err(|e| format!("{path}: {e}"))?;
         outln!("{path} ({w}×{h})");
@@ -359,7 +359,7 @@ fn missing_slide(i: usize, n: usize) -> String {
 /// Frames of slide N's transition (0-based N; from slide N-1, or black for the first slide) at
 /// the given progress values. With several values, OUT gets `-t<value>` before its extension.
 fn render_transition(args: &[String]) -> Result<(), String> {
-    use deckcraft_engine::render;
+    use lamina_engine::render;
     let mut input = None;
     let mut slide: Option<usize> = None;
     let mut ts: Vec<f64> = Vec::new();
@@ -466,7 +466,7 @@ fn convert(args: &[String]) -> Result<(), String> {
 /// The format `convert`, `run --save` and `run --export` write to `path`, or an error naming the
 /// supported extensions when `path`'s extension isn't one (rather than native bytes under that name).
 fn output_format(path: &str) -> Result<&'static str, String> {
-    use deckcraft_engine::cmd::file::{WRITABLE_EXTENSIONS, writable_format_for_path};
+    use lamina_engine::cmd::file::{WRITABLE_EXTENSIONS, writable_format_for_path};
     writable_format_for_path(path).ok_or_else(|| {
         let ext = std::path::Path::new(path).extension().map(|e| format!(".{}", e.to_string_lossy())).unwrap_or_else(|| "(none)".into());
         format!("{path}: unsupported output format {ext} (supported: .{})", WRITABLE_EXTENSIONS.join(", ."))
@@ -597,7 +597,7 @@ fn describe(id: Option<&str>) -> Result<(), String> {
         return Ok(());
     }
     let id = id.ok_or("describe needs a command id")?;
-    let c = deckcraft_engine::find_command(id).ok_or_else(|| deckcraft_engine::EngineError::UnknownCommand(id.into()).to_string())?;
+    let c = lamina_engine::find_command(id).ok_or_else(|| lamina_engine::EngineError::UnknownCommand(id.into()).to_string())?;
     let mut head = format!("{}: {}", c.id, c.label);
     if !c.menu.is_empty() {
         head.push_str(&format!(", in {}", c.menu.join(" ▸ ")));
@@ -607,7 +607,7 @@ fn describe(id: Option<&str>) -> Result<(), String> {
     }
     outln!("{head}.\n");
     let (args, answer) = c.params.split_once('→').unwrap_or((c.params, ""));
-    let parsed = deckcraft_engine::cmd::parse_params(c.params);
+    let parsed = lamina_engine::cmd::parse_params(c.params);
     match &parsed {
         Err(_) => outln!("Parameters: {}", args.trim()),
         Ok(params) if params.is_empty() => outln!("Takes no parameters."),
@@ -626,12 +626,12 @@ fn describe(id: Option<&str>) -> Result<(), String> {
     }
     let bare = params.is_empty() || params.iter().any(|p| params.iter().filter(|q| q.object == p.object).all(|q| q.optional));
     let call = if bare { c.id.to_string() } else { format!("'{}={{…}}'", c.id) };
-    outln!("\nRun it with: deckcraft-cli run --cmd {call}");
+    outln!("\nRun it with: lamina-cli run --cmd {call}");
     Ok(())
 }
 
-fn print_params(params: &[deckcraft_engine::cmd::Param]) {
-    let name = |p: &deckcraft_engine::cmd::Param| {
+fn print_params(params: &[lamina_engine::cmd::Param]) {
+    let name = |p: &lamina_engine::cmd::Param| {
         let or = if p.or { "or " } else { "" };
         let optional = if p.optional { ", optional" } else { "" };
         format!("{or}{}{optional}", p.name)
@@ -654,8 +654,8 @@ fn remark(args: &str) -> &str {
 }
 
 fn app(args: &[String]) -> Result<(), String> {
-    use deckcraft_mcp::{Backend, Remote, control_addr};
-    let mut port = deckcraft_mcp::DEFAULT_PORT.to_string();
+    use lamina_mcp::{Backend, Remote, control_addr};
+    let mut port = lamina_mcp::DEFAULT_PORT.to_string();
     let mut method: Option<String> = None;
     let mut rest = vec![];
     let mut it = args.iter();
@@ -670,8 +670,8 @@ fn app(args: &[String]) -> Result<(), String> {
             other => rest.push(other.to_string()),
         }
     }
-    let mut r = Remote::connect(&control_addr(&port))
-        .map_err(|e| format!("no DeckCraft app on port {port} ({e}); start it with `deckcraft --control {port}`"))?;
+    let mut r =
+        Remote::connect(&control_addr(&port)).map_err(|e| format!("no Lámina app on port {port} ({e}); start it with `lamina --control {port}`"))?;
     let parse = |s: Option<&String>| -> Result<Value, String> {
         s.map(|j| serde_json::from_str(j).map_err(|e| format!("bad JSON: {e}"))).transpose().map(|v| v.unwrap_or(json!({})))
     };
@@ -687,8 +687,8 @@ fn app(args: &[String]) -> Result<(), String> {
 }
 
 fn mcp(args: &[String]) -> Result<(), String> {
-    use deckcraft_engine::file_access::{self, AutomationRoots};
-    use deckcraft_mcp::{Backend, Headless, Remote, Server, control_addr};
+    use lamina_engine::file_access::{self, AutomationRoots};
+    use lamina_mcp::{Backend, Headless, Remote, Server, control_addr};
     let mut connect: Option<String> = None;
     let mut sample = false;
     let mut roots_args = automation_args::AutomationArgs::new(None, None);
@@ -719,14 +719,14 @@ so drop --connect (or use --connect without the roots)"
             let mut h = Headless::new();
             // `--sample` is the operator's own choice, made before the roots come into force.
             if sample {
-                deckcraft_engine::sample::open_sample(&mut h.session).map_err(|e| e.to_string())?;
+                lamina_engine::sample::open_sample(&mut h.session).map_err(|e| e.to_string())?;
             }
             if let Some(roots) = roots {
                 // Every thread of this process, not only the server's: nothing reaches past the roots.
                 file_access::confine_process(roots.clone());
                 let show = |roots: Vec<String>| if roots.is_empty() { "none".to_string() } else { roots.join(", ") };
                 eprintln!(
-                    "deckcraft-cli: files confined: read roots {}, write roots {}",
+                    "lamina-cli: files confined: read roots {}, write roots {}",
                     show(roots.read_roots().map(|r| r.display().to_string()).collect()),
                     show(roots.write_roots().map(|r| r.display().to_string()).collect())
                 );
@@ -785,7 +785,7 @@ mod tests {
 
     #[test]
     fn render_refuses_an_unknown_option_instead_of_writing_it_as_a_file() {
-        let out = std::env::temp_dir().join("deckcraft-cli-unknown-option.png");
+        let out = std::env::temp_dir().join("lamina-cli-unknown-option.png");
         let _ = std::fs::remove_file(&out);
         for flag in ["--bogus", "-x"] {
             let args: Vec<String> = ["--sample", flag, &out.to_string_lossy()].iter().map(|a| a.to_string()).collect();
@@ -798,9 +798,9 @@ mod tests {
     /// `render --transparent` leaves the slide background out (#784): the corner is transparent.
     #[test]
     fn render_transparent_leaves_the_background_out() {
-        let dir = std::env::temp_dir().join(format!("deckcraft-cli-transparent-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("lamina-cli-transparent-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
-        let alpha = |path: &std::path::Path| deckcraft_engine::render::decode_image(&std::fs::read(path).unwrap()).unwrap().get_pixel(1, 1).0[3];
+        let alpha = |path: &std::path::Path| lamina_engine::render::decode_image(&std::fs::read(path).unwrap()).unwrap().get_pixel(1, 1).0[3];
         let opaque = dir.join("opaque.png");
         render(&args(&["--sample", "--scale", "0.25", &opaque.to_string_lossy()])).unwrap();
         assert_eq!(alpha(&opaque), 255);
@@ -813,10 +813,10 @@ mod tests {
     /// `run --export OUT.gif --export-params JSON` and `convert IN OUT.gif` write animated GIFs.
     #[test]
     fn exports_an_animated_gif() {
-        let dir = std::env::temp_dir().join(format!("deckcraft-cli-gif-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("lamina-cli-gif-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let gif = dir.join("sample.gif").to_string_lossy().to_string();
-        let deck = dir.join("sample.deckcraft").to_string_lossy().to_string();
+        let deck = dir.join("sample.lamina").to_string_lossy().to_string();
         let params = r#"{"width": "small", "secondsPerSlide": 2, "loop": false, "slides": [0, 1]}"#;
         run(&args(&["--sample", "--save", &deck, "--export", &gif, "--export-params", params])).unwrap();
         let bytes = std::fs::read(&gif).unwrap();

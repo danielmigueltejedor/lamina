@@ -3,8 +3,8 @@
 
 use std::sync::Arc;
 
-use deckcraft_model::text::Action;
-use deckcraft_model::{AnimClass, AnimStart, Animation, Presentation, Shape, ShapeId, Slide, SlideId, Transition, Xfrm};
+use lamina_model::text::Action;
+use lamina_model::{AnimClass, AnimStart, Animation, Presentation, Shape, ShapeId, Slide, SlideId, Transition, Xfrm};
 
 use crate::{Click, HitShape, LinkJump, ShowAction, ShowState, Target, Timeline};
 

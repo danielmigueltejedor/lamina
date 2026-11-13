@@ -5,11 +5,11 @@ use std::path::PathBuf;
 use std::process::{Command, Output};
 
 fn cli(args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_deckcraft-cli")).args(args).output().unwrap()
+    Command::new(env!("CARGO_BIN_EXE_lamina-cli")).args(args).output().unwrap()
 }
 
 fn temp_dir(name: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("deckcraft-cli-{name}-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!("lamina-cli-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     dir

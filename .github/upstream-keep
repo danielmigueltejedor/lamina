@@ -11,3 +11,9 @@ SECURITY.md
 NODALIA_MIGRATION.md
 .github/workflows/**
 .github/pull_request_template.md
+.github/rebrand.toml
+.github/upstream-keep
+scripts/rebrand.py
+scripts/check-release-notes.sh
+docs/release-notes/**
+packaging/macos/dmg/**

@@ -77,7 +77,7 @@ mod tests {
 
     #[test]
     fn an_offered_release_opens_the_prompt_and_escape_closes_it() {
-        let mut app = SlideApp::new(deckcraft_engine::Session::new(), crate::Services::default());
+        let mut app = SlideApp::new(lamina_engine::Session::new(), crate::Services::default());
         app.updates_rt.updater = Updater::new(crate::UPDATE_APP).with_stamp(None);
         let ctx = egui::Context::default();
         assert!(!app.updates_rt.updater.is_open());

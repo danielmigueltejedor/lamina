@@ -1,6 +1,6 @@
 [package]
-name = "deckcraft-web"
-description = "DeckCraft in the browser (eframe web runner, WebGPU with WebGL2 fallback)"
+name = "lamina-web"
+description = "Lámina in the browser (eframe web runner, WebGPU with WebGL2 fallback)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,15 +10,15 @@ publish = false
 workspace = true
 
 [[bin]]
-name = "deckcraft-web"
+name = "lamina-web"
 path = "src/main.rs"
 
 [dependencies]
-deckcraft-engine = { workspace = true }
-deckcraft-ui-egui = { workspace = true }
-# The page command API (storytold/craft-libs#413): window.deckcraft over the control channel.
+lamina-engine = { workspace = true }
+lamina-ui-egui = { workspace = true }
+# The page command API (storytold/craft-libs#413): window.lamina over the control channel.
 craft-web-api = { git = "https://github.com/getnodalia/foundation", rev = "fd5e2feff6ea25bed371a99cc732b3968d621505", version = "0.1.0" }
-# The host messages (storytold/craft-libs): one contract and one bridge for the web builds.
+# The host messages (getnodalia/foundation (vendor/craft-libs)): one contract and one bridge for the web builds.
 craft-web-host = { git = "https://github.com/getnodalia/foundation", rev = "fd5e2feff6ea25bed371a99cc732b3968d621505", version = "0.1.0" }
 egui = { workspace = true }
 log = { workspace = true }

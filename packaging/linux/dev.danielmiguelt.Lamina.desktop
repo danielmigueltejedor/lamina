@@ -1,14 +1,14 @@
 [Desktop Entry]
 Type=Application
-Name=DeckCraft
+Name=Lámina
 GenericName=Presentation
 Comment=Create and present slide decks
-Exec=deckcraft %F
-TryExec=deckcraft
+Exec=lamina %F
+TryExec=lamina
 Icon=dev.danielmiguelt.Lamina
 Terminal=false
 StartupNotify=true
-StartupWMClass=ai.storyteller.deckcraft
+StartupWMClass=dev.danielmiguelt.Lamina
 Categories=Office;Presentation;
-MimeType=application/x-deckcraft;application/vnd.openxmlformats-officedocument.presentationml.presentation;application/vnd.openxmlformats-officedocument.presentationml.template;application/vnd.openxmlformats-officedocument.presentationml.slideshow;
+MimeType=application/x-lamina;application/vnd.openxmlformats-officedocument.presentationml.presentation;application/vnd.openxmlformats-officedocument.presentationml.template;application/vnd.openxmlformats-officedocument.presentationml.slideshow;
 Keywords=presentation;slides;slide show;deck;pptx;keynote;powerpoint;

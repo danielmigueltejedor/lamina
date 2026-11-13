@@ -268,12 +268,12 @@ fn timed_out_request_does_not_run_when_the_window_resumes() {
     let t = reply(&mut r).unwrap();
     assert_eq!(t["error"], "timeout");
     // The window resumes and drains the queue, exactly as `SlideApp::drain_control` does.
-    let mut app = deckcraft_ui_egui::SlideApp::new(deckcraft_engine::Session::with_new(), deckcraft_ui_egui::Services::default());
+    let mut app = lamina_ui_egui::SlideApp::new(lamina_engine::Session::with_new(), lamina_ui_egui::Services::default());
     let ctx = egui::Context::default();
     let before = app.session.active().unwrap().doc.slides.len();
     let req = rx.try_recv().expect("the timed-out request is still queued");
     if req.take() {
-        let _ = deckcraft_ui_egui::control::handle(&mut app, &ctx, &req);
+        let _ = lamina_ui_egui::control::handle(&mut app, &ctx, &req);
     }
     assert_eq!(app.session.active().unwrap().doc.slides.len(), before, "a request that timed out must not run when the window resumes");
     drop(rx);

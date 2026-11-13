@@ -1,15 +1,15 @@
 //! The browser shell: web `Services`, drag-and-drop, and the eframe web runner.
 
-use deckcraft_engine::Session;
-use deckcraft_ui_egui::{Inbox, InboxEvent, InboxFile, Services, SlideApp};
+use lamina_engine::Session;
+use lamina_ui_egui::{Inbox, InboxEvent, InboxFile, Services, SlideApp};
 use wasm_bindgen::JsCast as _;
 
-const PRESENTATION_EXTS: &[&str] = &["deckcraft", "pptx", "potx", "ppsx", "txt", "md"];
+const PRESENTATION_EXTS: &[&str] = &["lamina", "pptx", "potx", "ppsx", "txt", "md"];
 const PICTURE_EXTS: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff"];
 const AUDIO_EXTS: &[&str] = &["wav", "mp3", "m4a", "aac", "flac", "ogg", "opus", "aif", "aiff"];
 const VIDEO_EXTS: &[&str] = &["mp4", "m4v", "mov", "webm"];
-const CANVAS_ID: &str = "deckcraft_canvas";
-const LOADING_ID: &str = "deckcraft_loading";
+const CANVAS_ID: &str = "lamina_canvas";
+const LOADING_ID: &str = "lamina_loading";
 
 /// Start the browser shell: install logging, locate the canvas, launch the eframe runner,
 /// build the sample or blank deck, and replace the loading element when launch finishes.
@@ -24,9 +24,9 @@ pub fn start() {
             log::error!("missing <canvas id=\"{CANVAS_ID}\">");
             return;
         };
-        // Host modes (`craft-web-host`): `?host=parent`, a same-origin page framing DeckCraft,
+        // Host modes (`craft-web-host`): `?host=parent`, a same-origin page framing Lámina,
         // opens presentations in it and stores what it saves (`host`); `data-host="page"` on the
-        // canvas opts a page in that runs DeckCraft in its own document. The presenter popup is
+        // canvas opts a page in that runs Lámina in its own document. The presenter popup is
         // never the framed page.
         let hosted = crate::presenter::token().is_none();
         let bridge = if hosted { crate::host::Bridge::detect(&canvas) } else { None };
@@ -46,9 +46,9 @@ pub fn start() {
                 options,
                 Box::new(move |cc| {
                     if let Some(rs) = &cc.wgpu_render_state {
-                        log::info!("deckcraft-web {}: wgpu backend {:?}", env!("CARGO_PKG_VERSION"), rs.adapter.get_info().backend);
+                        log::info!("lamina-web {}: wgpu backend {:?}", env!("CARGO_PKG_VERSION"), rs.adapter.get_info().backend);
                     }
-                    deckcraft_ui_egui::install_ime_pass_hooks(&cc.egui_ctx);
+                    lamina_ui_egui::install_ime_pass_hooks(&cc.egui_ctx);
                     if let Some(token) = crate::presenter::token() {
                         let presenter = crate::presenter::Popup::new(token, cc.egui_ctx.clone()).map_err(std::io::Error::other)?;
                         return Ok(Box::new(presenter) as Box<dyn eframe::App>);
@@ -65,7 +65,7 @@ pub fn start() {
                             log::error!("new presentation: {e}");
                         }
                     } else if !query_has("blank") {
-                        if let Err(e) = deckcraft_engine::sample::open_sample(&mut app.session) {
+                        if let Err(e) = lamina_engine::sample::open_sample(&mut app.session) {
                             log::error!("sample deck: {e}");
                         }
                     } else if let Err(e) = app.run("file.new", serde_json::json!({})) {
@@ -94,7 +94,7 @@ pub fn start() {
         if let Some(el) = document.get_element_by_id(LOADING_ID) {
             match result {
                 Ok(()) => el.remove(),
-                Err(e) => el.set_inner_html(&format!("<p>DeckCraft failed to start: {e:?}</p><p>A browser with WebGPU or WebGL2 is required.</p>")),
+                Err(e) => el.set_inner_html(&format!("<p>Lámina failed to start: {e:?}</p><p>A browser with WebGPU or WebGL2 is required.</p>")),
             }
         }
     });
@@ -178,7 +178,7 @@ impl eframe::App for WebShell {
 fn services(inbox: Inbox, ctx: egui::Context) -> Services {
     let open_inbox = inbox.clone();
     let presenter = match crate::presenter::BrowserHost::new(ctx.clone()) {
-        Ok(host) => Some(Box::new(host) as Box<dyn deckcraft_ui_egui::presenter::Host>),
+        Ok(host) => Some(Box::new(host) as Box<dyn lamina_ui_egui::presenter::Host>),
         Err(error) => {
             log::error!("Presenter window: {error}");
             None
@@ -224,7 +224,7 @@ fn push_inbox(inbox: &Inbox, event: InboxEvent) {
 /// Trigger a browser download of `bytes` named after the last component of `path`.
 fn download(path: &str, bytes: &[u8]) -> Result<(), String> {
     let js = |e: wasm_bindgen::JsValue| format!("{e:?}");
-    let name = std::path::Path::new(path).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "deckcraft".into());
+    let name = std::path::Path::new(path).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "lamina".into());
     let window = web_sys::window().ok_or("no window")?;
     let document = window.document().ok_or("no document")?;
     let parts = js_sys::Array::of1(&js_sys::Uint8Array::from(bytes));
@@ -256,7 +256,7 @@ fn mime_for(name: &str) -> &'static str {
         Some("gif") => "image/gif",
         Some("txt") => "text/plain",
         Some("pptx") => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        Some("deckcraft") => "application/zip",
+        Some("lamina") => "application/zip",
         _ => "application/octet-stream",
     }
 }

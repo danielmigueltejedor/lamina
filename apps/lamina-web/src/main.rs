@@ -1,6 +1,6 @@
-//! DeckCraft in the browser.
+//! Lámina in the browser.
 //!
-//! Runs the same [`deckcraft_ui_egui::SlideApp`] as the desktop app through eframe's web
+//! Runs the same [`lamina_ui_egui::SlideApp`] as the desktop app through eframe's web
 //! runner (wgpu: WebGPU where available, WebGL2 otherwise). Build with `trunk build --release`
 //! from this directory (output in `dist/web`).
 //!
@@ -16,7 +16,7 @@
 //! URL query flags: `?webgl` forces the WebGL2 backend instead of WebGPU; `?blank` starts with an
 //! empty presentation instead of the sample deck; `?show` starts the slide show.
 //! `?host=parent` (inside an `<iframe>`) talks to a same-origin parent page instead: it sends the
-//! presentation to open and stores what DeckCraft saves (`host`), and `&author=` names the user
+//! presentation to open and stores what Lámina saves (`host`), and `&author=` names the user
 //! for comments.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 #![forbid(unsafe_code)]
@@ -37,5 +37,5 @@ fn main() {
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
-    eprintln!("deckcraft-web only runs in the browser: build it with `trunk build --release` in apps/deckcraft-web");
+    eprintln!("lamina-web only runs in the browser: build it with `trunk build --release` in apps/lamina-web");
 }

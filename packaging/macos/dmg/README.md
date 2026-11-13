@@ -17,7 +17,7 @@ Finder scripting on CI, nothing extra installed in the signing job).
 The mounted volume is called `Lámina`, not `Lámina <version>`. The layout points at the background
 through an alias that includes the volume name, and Finder resolves it by that name: with a
 versioned name the window keeps its size and icon positions but shows no background (tested).
-The DMG file name (`deckcraft-<version>-macos-<arch>.dmg`) still carries the version.
+The DMG file name (`lamina-<version>-macos-<arch>.dmg`) still carries the version.
 
 ## Rules
 

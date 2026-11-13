@@ -41,7 +41,7 @@ pub fn run(root: &Path) -> Result<(), String> {
                 "--edges",
                 "normal,build",
                 "--package",
-                "deckcraft-pdf",
+                "lamina-pdf",
                 "--depth",
                 "2",
                 "--no-dedupe",
@@ -93,7 +93,7 @@ fn validate(metadata: &Value) -> Result<(), String> {
     // Metadata includes development dependencies. Follow only normal/build edges from
     // the production exporter so a parser accidentally promoted into it cannot hide there.
     let by_id: HashMap<_, _> = packages.iter().filter_map(|p| p.get("id").and_then(Value::as_str).map(|id| (id, p))).collect();
-    let root = one_package("deckcraft-pdf")?.get("id").and_then(Value::as_str).ok_or("deckcraft-pdf has no id")?;
+    let root = one_package("lamina-pdf")?.get("id").and_then(Value::as_str).ok_or("lamina-pdf has no id")?;
     let mut pending = vec![root];
     let mut seen = BTreeSet::new();
     while let Some(id) = pending.pop() {
@@ -147,7 +147,7 @@ mod tests {
         let source = format!("git+{SHARED_REPO}?rev={SHARED_REV}#{SHARED_REV}");
         json!({
             "packages": [
-                {"id":"app", "name":"deckcraft-pdf"},
+                {"id":"app", "name":"lamina-pdf"},
                 {"id":"writer", "name":"craft-pdf", "version":"0.1.0", "source":source},
                 {"id":"backend", "name":"krilla", "version":"0.8.2", "source":source},
                 {"id":"parser", "name":"hayro-syntax", "version":"0.7.2", "source":REGISTRY}

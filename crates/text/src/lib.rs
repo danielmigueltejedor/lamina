@@ -25,13 +25,13 @@ pub mod datetime;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use deckcraft_color::Rgba;
-use deckcraft_fonts::script::{self, joins_following, joins_preceding};
-use deckcraft_fonts::{FontDb, FontFace, FontSlot, ScriptTag, ShapeParams};
-use deckcraft_geom::{Point, Rect};
-use deckcraft_model::resolve::{self, Ctx};
-use deckcraft_model::text::{Align, Anchor, AutoFit, BodyProps, Bullet, Caps, ParaProps, RunKind, RunProps, Spacing, Strike, TextBody, TextDir};
-use deckcraft_model::{Fill, Shape};
+use lamina_color::Rgba;
+use lamina_fonts::script::{self, joins_following, joins_preceding};
+use lamina_fonts::{FontDb, FontFace, FontSlot, ScriptTag, ShapeParams};
+use lamina_geom::{Point, Rect};
+use lamina_model::resolve::{self, Ctx};
+use lamina_model::text::{Align, Anchor, AutoFit, BodyProps, Bullet, Caps, ParaProps, RunKind, RunProps, Spacing, Strike, TextBody, TextDir};
+use lamina_model::{Fill, Shape};
 use unicode_segmentation::UnicodeSegmentation;
 
 mod autonum;

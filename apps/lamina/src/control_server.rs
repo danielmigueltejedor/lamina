@@ -1,5 +1,5 @@
 //! Loopback JSON-lines control server: one request per line, one reply per line.
-//! This is the transport the MCP server (`deckcraft-cli mcp --connect`) wraps.
+//! This is the transport the MCP server (`lamina-cli mcp --connect`) wraps.
 //!
 //! The server only reads requests: a line that is not a JSON object with a string `method` (an
 //! HTTP request line, a stray `nc`, binary data) gets one error reply and the connection is
@@ -14,7 +14,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{Receiver, SyncSender, TrySendError, sync_channel};
 use std::time::{Duration, Instant};
 
-use deckcraft_ui_egui::ControlRequest;
+use lamina_ui_egui::ControlRequest;
 use serde_json::{Value, json};
 
 /// Resource bounds for the control server.

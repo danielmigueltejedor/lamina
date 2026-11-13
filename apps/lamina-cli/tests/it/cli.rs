@@ -1,7 +1,7 @@
 use std::process::{Command, Output};
 
 fn cli(args: &[&str]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_deckcraft-cli")).args(args).output().unwrap()
+    Command::new(env!("CARGO_BIN_EXE_lamina-cli")).args(args).output().unwrap()
 }
 
 fn stdout(o: &Output) -> String {
@@ -21,7 +21,7 @@ fn words(s: &str) -> String {
 }
 
 fn command_file_dir(name: &str) -> std::path::PathBuf {
-    let dir = std::env::temp_dir().join(format!("deckcraft-cli-command-file-{name}-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!("lamina-cli-command-file-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     dir
@@ -58,7 +58,7 @@ fn command_files_and_inline_commands_keep_argument_order() {
     let dir = command_file_dir("mixed");
     let first = dir.join("first.txt");
     let second = dir.join("second.txt");
-    let saved = dir.join("result.deckcraft");
+    let saved = dir.join("result.lamina");
     std::fs::write(&first, "slide.new={\"title\":\"First file\"}\n").unwrap();
     std::fs::write(&second, "slide.new={\"title\":\"Second file\"}\n").unwrap();
     let o = cli(&[
@@ -90,9 +90,9 @@ fn command_files_and_inline_commands_keep_argument_order() {
 fn a_failed_file_command_stops_later_commands_and_final_outputs() {
     let dir = command_file_dir("failure");
     let file = dir.join("commands.txt");
-    let later = dir.join("later-in-file.deckcraft");
-    let inline = dir.join("later-inline.deckcraft");
-    let save = dir.join("saved.deckcraft");
+    let later = dir.join("later-in-file.lamina");
+    let inline = dir.join("later-inline.lamina");
+    let save = dir.join("saved.lamina");
     let export = dir.join("exported.png");
     let inline_command = format!("file.saveAs={}", serde_json::json!({"path": inline.to_string_lossy()}));
     for (command, message) in [("slide.new={", "bad JSON"), ("no.such.command", "unknown command"), ("slide.go={\"index\":999}", "slide")] {
@@ -127,7 +127,7 @@ fn command_file_read_errors_name_the_path_and_utf8_line() {
     let dir = command_file_dir("read-errors");
     let missing = dir.join("missing.txt");
     let invalid = dir.join("invalid.txt");
-    let save = dir.join("out.deckcraft");
+    let save = dir.join("out.lamina");
     std::fs::write(&invalid, b"slide.new\n\xff\n").unwrap();
     for file in [&missing, &dir, &invalid] {
         let o = cli(&["run", "--cmd-file", &file.to_string_lossy(), "--save", &save.to_string_lossy()]);
@@ -163,7 +163,7 @@ fn inline_commands_keep_their_existing_syntax_and_errors() {
     let titles = inspected_titles(&out);
     assert_eq!(titles.len(), 3);
     assert_eq!(titles[2], "Inline = #");
-    assert!(stderr(&cli(&["run", "--cmd", "slide.new={"])).starts_with("deckcraft-cli: slide.new: bad JSON:"));
+    assert!(stderr(&cli(&["run", "--cmd", "slide.new={"])).starts_with("lamina-cli: slide.new: bad JSON:"));
     assert!(stderr(&cli(&["run", "--cmd", "no.such.command"])).contains("unknown command `no.such.command`"));
 }
 
@@ -171,13 +171,13 @@ fn inline_commands_keep_their_existing_syntax_and_errors() {
 fn an_unknown_subcommand_is_named_before_the_overview() {
     for args in [vec!["frobnicate"], vec!["help", "frobnicate"], vec!["--info", "--help"]] {
         let err = stderr(&cli(&args));
-        assert!(err.contains("unknown subcommand `") && err.contains("\n\ndeckcraft-cli works on"), "{args:?}: {err}");
+        assert!(err.contains("unknown subcommand `") && err.contains("\n\nlamina-cli works on"), "{args:?}: {err}");
     }
 }
 
 #[test]
 fn no_subcommand_shows_the_overview_and_fails() {
-    assert!(stderr(&cli(&[])).starts_with("deckcraft-cli works on"));
+    assert!(stderr(&cli(&[])).starts_with("lamina-cli works on"));
 }
 
 #[test]
@@ -187,7 +187,7 @@ fn help_lists_every_subcommand_with_a_run_example() {
         for sub in SUBCOMMANDS {
             assert!(out.contains(&format!("\n  {sub} ")), "{flag} lacks {sub}: {out}");
         }
-        assert!(out.contains("deckcraft-cli run --cmd 'slide.new={\"title\":\"Q3 results\"}' --save q3.deckcraft"), "{out}");
+        assert!(out.contains("lamina-cli run --cmd 'slide.new={\"title\":\"Q3 results\"}' --save q3.lamina"), "{out}");
     }
 }
 
@@ -197,17 +197,17 @@ fn every_subcommand_answers_help_and_does_nothing_else() {
     std::fs::create_dir_all(&dir).unwrap();
     for sub in SUBCOMMANDS {
         for args in [vec![sub, "--help"], vec![sub, "-h", "out.png"], vec!["help", sub]] {
-            let o = Command::new(env!("CARGO_BIN_EXE_deckcraft-cli")).current_dir(&dir).args(&args).output().unwrap();
-            assert!(stdout(&o).starts_with(&format!("usage: deckcraft-cli {sub}")), "{args:?}");
+            let o = Command::new(env!("CARGO_BIN_EXE_lamina-cli")).current_dir(&dir).args(&args).output().unwrap();
+            assert!(stdout(&o).starts_with(&format!("usage: lamina-cli {sub}")), "{args:?}");
         }
     }
     assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 0, "help wrote nothing");
     std::fs::remove_dir_all(&dir).unwrap();
     for args in [["help", "version"], ["--version", "--help"]] {
-        assert!(stdout(&cli(&args)).starts_with("usage: deckcraft-cli --version"), "{args:?}");
+        assert!(stdout(&cli(&args)).starts_with("usage: lamina-cli --version"), "{args:?}");
     }
     for args in [["help", "help"], ["help", "--help"]] {
-        assert!(stdout(&cli(&args)).starts_with("deckcraft-cli works on"), "{args:?}");
+        assert!(stdout(&cli(&args)).starts_with("lamina-cli works on"), "{args:?}");
     }
 }
 
@@ -240,7 +240,7 @@ Parameters:
   rect            [x,y,w,h] pt
   text, optional  string
 
-Run it with: deckcraft-cli run --cmd 'shape.insert={…}'
+Run it with: lamina-cli run --cmd 'shape.insert={…}'
 "
     );
     assert_eq!(
@@ -251,14 +251,14 @@ Parameters:
   size  pt
 Acts on the selected text or shapes.
 
-Run it with: deckcraft-cli run --cmd 'format.size={…}'
+Run it with: lamina-cli run --cmd 'format.size={…}'
 "
     );
-    assert!(stdout(&cli(&["describe", "edit.copy"])).contains("Answers with {text, html?}.\n\nRun it with: deckcraft-cli run --cmd edit.copy\n"));
+    assert!(stdout(&cli(&["describe", "edit.copy"])).contains("Answers with {text, html?}.\n\nRun it with: lamina-cli run --cmd edit.copy\n"));
     assert!(stdout(&cli(&["describe", "text.set"])).contains("Note: replaces the whole text, keeping the first run's formatting\n"));
     assert_eq!(
         stdout(&cli(&["describe", "shape.setDefault"])),
-        "shape.setDefault: Set as Default Shape.\n\nTakes no parameters.\nActs on the selected shapes.\n\nRun it with: deckcraft-cli run --cmd shape.setDefault\n"
+        "shape.setDefault: Set as Default Shape.\n\nTakes no parameters.\nActs on the selected shapes.\n\nRun it with: lamina-cli run --cmd shape.setDefault\n"
     );
 }
 
@@ -267,7 +267,7 @@ fn describe_shows_alternative_sets_of_parameters() {
     assert!(stdout(&cli(&["describe", "slide.go"])).contains("Parameters:\n  either:\n    index\n  or:\n    id\n"));
     let remove = stdout(&cli(&["describe", "animation.remove"]));
     assert!(remove.contains("  or:\n    ids, optional  (all of the shapes' animations)\n"), "{remove}");
-    assert!(remove.ends_with("Run it with: deckcraft-cli run --cmd animation.remove\n") && !remove.contains("Note:"), "{remove}");
+    assert!(remove.ends_with("Run it with: lamina-cli run --cmd animation.remove\n") && !remove.contains("Note:"), "{remove}");
     assert!(stdout(&cli(&["describe", "shape.move"])).contains(
         "  either:
     dx, optional   pt (relative)

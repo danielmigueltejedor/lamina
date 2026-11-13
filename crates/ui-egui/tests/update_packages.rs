@@ -4,7 +4,7 @@
 #![cfg(not(target_arch = "wasm32"))]
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
-use deckcraft_ui_egui::UPDATE_APP;
+use lamina_ui_egui::UPDATE_APP;
 
 fn packaging(path: &str) -> String {
     let file = format!("{}/../../packaging/{path}", env!("CARGO_MANIFEST_DIR"));
@@ -14,26 +14,26 @@ fn packaging(path: &str) -> String {
 #[test]
 fn the_release_scripts_make_the_packages_the_updater_installs() {
     let macos = packaging("macos/package.sh");
-    assert!(macos.contains(r#"APP="$WORK/DeckCraft.app""#), "the bundle the updater swaps");
-    assert!(macos.contains(r#"DMG="$DIST/deckcraft-$VERSION-macos-$ARCH.dmg""#));
+    assert!(macos.contains(r#"APP="$WORK/Lamina.app""#), "the bundle the updater swaps");
+    assert!(macos.contains(r#"DMG="$DIST/lamina-$VERSION-macos-$ARCH.dmg""#));
     assert!(macos.contains("ARCH=universal"));
     let linux = packaging("linux/package.sh");
-    assert!(linux.contains(r#"BASENAME="deckcraft-$VERSION-linux-$ARCH""#));
+    assert!(linux.contains(r#"BASENAME="lamina-$VERSION-linux-$ARCH""#));
     assert!(linux.contains("$BASENAME.AppImage"));
-    assert!(packaging("windows/package.ps1").contains(r#""deckcraft-$Version-windows-$Arch.msi""#));
-    assert!(packaging("windows/deckcraft.wxs").contains(r#"Key="Software\DeckCraft" Name="InstallDir" Value="[INSTALLFOLDER]""#));
-    assert_eq!(UPDATE_APP.bundle, "DeckCraft.app");
+    assert!(packaging("windows/package.ps1").contains(r#""lamina-$Version-windows-$Arch.msi""#));
+    assert!(packaging("windows/lamina.wxs").contains(r#"Key="Software\Lamina" Name="InstallDir" Value="[INSTALLFOLDER]""#));
+    assert_eq!(UPDATE_APP.bundle, "Lamina.app");
     assert_eq!(UPDATE_APP.repo, "getnodalia/lamina");
 }
 
 #[test]
 fn every_published_package_reaches_the_systems_it_is_for() {
     for (package, systems) in [
-        ("deckcraft-1.0.0-macos-universal.dmg", &[("macos", "aarch64"), ("macos", "x86_64")][..]),
-        ("deckcraft-1.0.0-linux-x86_64.AppImage", &[("linux", "x86_64")]),
-        ("deckcraft-1.0.0-linux-aarch64.AppImage", &[("linux", "aarch64")]),
-        ("deckcraft-1.0.0-windows-x64.msi", &[("windows", "x86_64")]),
-        ("deckcraft-1.0.0-windows-arm64.msi", &[("windows", "aarch64")]),
+        ("lamina-1.0.0-macos-universal.dmg", &[("macos", "aarch64"), ("macos", "x86_64")][..]),
+        ("lamina-1.0.0-linux-x86_64.AppImage", &[("linux", "x86_64")]),
+        ("lamina-1.0.0-linux-aarch64.AppImage", &[("linux", "aarch64")]),
+        ("lamina-1.0.0-windows-x64.msi", &[("windows", "x86_64")]),
+        ("lamina-1.0.0-windows-arm64.msi", &[("windows", "aarch64")]),
     ] {
         let found = nodalia_update::systems_for_package(package);
         for system in systems {

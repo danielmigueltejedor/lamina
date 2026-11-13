@@ -1,11 +1,11 @@
 //! cpal audio output for media playback: the device pulls mixed samples from the
-//! `deckcraft_media::Player`, which makes it the playback clock video frames follow.
+//! `lamina_media::Player`, which makes it the playback clock video frames follow.
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, PoisonError};
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use deckcraft_media::AudioOut;
+use lamina_media::AudioOut;
 
 /// The first stream error since it was last reported. cpal calls the error callback on its
 /// realtime audio thread (on ALSA in a loop while the device stays broken), which must not log:

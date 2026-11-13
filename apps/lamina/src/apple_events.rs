@@ -1,6 +1,6 @@
 //! macOS open-documents and quit Apple events.
 //!
-//! Finder double-clicks, Open With, drops on the Dock icon and `open -a DeckCraft deck.pptx` don't
+//! Finder double-clicks, Open With, drops on the Dock icon and `open -a Lámina deck.pptx` don't
 //! pass paths on the command line: LaunchServices sends the running (or just-launched) app a
 //! `kAEOpenDocuments` ('odoc') Apple event. winit 0.30 doesn't handle it and owns the
 //! `NSApplicationDelegate`. Handling it ourselves needs Objective-C class declarations, i.e.
@@ -9,8 +9,8 @@
 //! registered before Finder's launch event that leaves winit's delegate alone, behind a safe
 //! main-thread API.
 
-use deckcraft_ui_egui::SlideApp;
 use fmv_macos_events::{Event, Inbox, Registration};
+use lamina_ui_egui::SlideApp;
 
 /// Keeps the Apple-event handlers registered; hold it until the event loop returns.
 pub struct AppleEvents {

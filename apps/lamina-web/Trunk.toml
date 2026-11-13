@@ -1,4 +1,4 @@
-# Build with: trunk build --release   (from apps/deckcraft-web)
+# Build with: trunk build --release   (from apps/lamina-web)
 [build]
 target = "index.html"
 dist = "../../dist/web"

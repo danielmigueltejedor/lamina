@@ -296,6 +296,11 @@ impl SlideApp {
         }
         let t0 = now_ms();
         let t = theme::Tokens::get(&ctx);
+        // The window colour shows between the islands (Nodalia Design). Panels with outer margins
+        // (the File view's islands, the slide area) leave their gaps unpainted, and eframe's clear
+        // colour is a translucent near-black, so paint the whole window first.
+        let whole = ctx.content_rect();
+        ui.painter().with_clip_rect(whole).rect_filled(whole, 0.0, t.chrome);
         self.note_ui_text(&ctx);
         self.media.sync_video_textures(&ctx);
         canvas::trackpad_twist(self, &ctx);

@@ -108,6 +108,9 @@ pub struct UiState {
     pub qat: Vec<qat::QatItem>,
     /// Linux and the BSDs: Nodalia's window controls or the desktop's (Preferences).
     pub window_controls: WindowControls,
+    /// Preferences › General: open on File › Home when Lámina starts with nothing to open, as every
+    /// Nodalia office app does; off starts on a blank presentation.
+    pub start_screen: bool,
 }
 
 impl Default for UiState {
@@ -142,6 +145,7 @@ impl Default for UiState {
             comment_focus: None,
             qat: qat::defaults(),
             window_controls: WindowControls::Nodalia,
+            start_screen: true,
         }
     }
 }

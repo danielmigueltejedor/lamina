@@ -1,4 +1,4 @@
-use super::about::{about, credits_block};
+use super::about::about;
 use super::alt_text::alt_text_starts_decorative;
 use super::columns::columns_dialog;
 use super::date_time::{date_rows, date_time_dialog};
@@ -1269,24 +1269,9 @@ fn dlg_smartart(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
     ok || cancel
 }
 
-fn dlg_about(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
-    let tab = d.get("tab", "about");
-    ui.horizontal(|ui| {
-        for (k, l) in [("about", "About"), ("contributors", "Contributors"), ("models", "Models")] {
-            if ui.selectable_label(tab == k, l).clicked() {
-                d.fields.insert("tab".into(), k.into());
-            }
-        }
-    });
-    ui.separator();
-    match tab.as_str() {
-        "contributors" | "models" => {
-            credits_block(ui, tab == "models");
-        }
-        _ => about(app, ui),
-    }
-    let (ok, cancel) = buttons(ui, "Close");
-    ok || cancel
+fn dlg_about(app: &mut SlideApp, ui: &mut Ui, _d: &mut Dialog) -> bool {
+    about(app, ui);
+    false
 }
 
 fn dlg_autocorrect(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
@@ -1362,6 +1347,7 @@ fn dlg_preferences(app: &mut SlideApp, ui: &mut Ui, d: &mut Dialog) -> bool {
             ui.radio_value(wc, crate::WindowControls::System, "Use the desktop's");
         });
     }
+    ui.checkbox(&mut app.ui.start_screen, "Show the Start screen when Lámina starts");
     // While the pointer holds the slider its value only waits in the dialog: applying it
     // would rescale the slider under the pointer and run it to an end (#767). It applies
     // on release, and at once from the keyboard.

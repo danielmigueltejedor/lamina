@@ -202,7 +202,7 @@ pub(super) fn save_as(app: &mut SlideApp, ui: &mut Ui, bs: &mut Backstage, out: 
     }
 }
 
-/// Product information, project links, credits and appearance preferences.
+/// Product information and project links.
 pub(super) fn about(app: &mut SlideApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     // Side by side needs 480 + 40 + 340 points; stack the columns when the page is narrower.
@@ -217,9 +217,9 @@ pub(super) fn about(app: &mut SlideApp, ui: &mut Ui) {
                 ui.label(RichText::new("Lámina").font(theme::bold(24.0)).color(t.text));
             });
             dim(ui, &crate::dialogs::version_line());
-            dim(ui, "Open source under MIT OR Apache-2.0. Not affiliated with Microsoft.");
+            dim(ui, "Part of Nodalia. Open source under MIT OR Apache-2.0.");
             ui.add_space(14.0);
-            if task(ui, Icon::Help, "Credits", "Credits", "The people and models who built Lámina.", true) {
+            if task(ui, Icon::Help, "About Lámina", "About Lámina", "Version, links and licence.", true) {
                 let _ = app.run("app.about", json!({}));
             }
             ui.hyperlink_to("Report a problem or suggest an idea", lamina_engine::links::DISCORD);

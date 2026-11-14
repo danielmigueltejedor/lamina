@@ -328,7 +328,9 @@ impl SlideApp {
         // Below the ribbon the window is a row of Nodalia islands: slides, the canvas (with the
         // notes under it) and the task pane, each rounded, with the window showing between them.
         let gap = theme::ISLAND_GAP as i8;
-        let outer = egui::Frame::NONE.fill(t.chrome).inner_margin(egui::Margin { left: gap, right: gap, top: gap, bottom: gap });
+        // The File tab's shared office view keeps its own gaps at the sides and bottom.
+        let side = if self.backstage.is_some() { 0 } else { gap };
+        let outer = egui::Frame::NONE.fill(t.chrome).inner_margin(egui::Margin { left: side, right: side, top: gap, bottom: side });
         egui::CentralPanel::default().frame(outer).show(ui, |ui| {
             if self.backstage.is_some() {
                 // File tab: the Backstage view replaces everything below the title bar.

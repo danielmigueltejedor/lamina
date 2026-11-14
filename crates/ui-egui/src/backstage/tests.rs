@@ -55,9 +55,10 @@ fn saving_into(dir: &std::path::Path) -> (Services, Rc<RefCell<Vec<String>>>) {
     (services, asked)
 }
 
-/// Is `r` in the side menu (the harness insets the window by its default margin)?
+/// Is `r` in the side menu (the harness insets the window by its default margin, and the menu is
+/// an island inset by the window gap)?
 fn in_nav(r: egui::Rect) -> bool {
-    r.left() < 20.0 && r.right() <= NAV_W + 20.0
+    r.left() < 40.0 && r.right() <= NAV_W + 20.0
 }
 
 /// Clicks the button called `label` on the page (not the side menu's entry of the same name).
@@ -168,7 +169,7 @@ fn every_page_renders() {
         (Page::SaveAs, "Not saved yet"),
         (Page::Print, "Print Hidden Slides"),
         (Page::Export, "Create PDF Document"),
-        (Page::About, "Credits"),
+        (Page::About, "Product Information"),
     ];
     for (p, marker) in checks {
         h.state_mut().run("app.backstage", json!({"page": p.id()})).unwrap();
@@ -205,6 +206,9 @@ fn new_tiles_keep_the_right_margin_in_a_narrow_window() {
 fn new_template_opens_a_starter_deck() {
     let mut h = harness(new_app());
     h.state_mut().run("app.backstage", json!({"page": "new"})).unwrap();
+    h.run_steps(3);
+    // The templates sit below the themes, past the bottom of the page island.
+    h.get_by_label("Briefing").scroll_to_me();
     h.run_steps(3);
     h.get_by_label("Briefing").click();
     h.run_steps(3);
@@ -765,9 +769,9 @@ fn options_in_backstage_opens_preferences_and_cancel_closes_it() {
     assert!(h.state().backstage_open(), "Backstage remains open");
 }
 
-/// About replaces the account entry and still opens the credits dialog.
+/// About replaces the account entry and opens the About dialog.
 #[test]
-fn about_has_product_links_and_credits_without_account_controls() {
+fn about_has_product_links_without_account_controls() {
     let mut h = harness(new_app());
     h.get_by_label("File").click();
     h.run_steps(3);
@@ -780,9 +784,9 @@ fn about_has_product_links_and_credits_without_account_controls() {
     assert!(h.query_by_label("Report a problem or suggest an idea").is_some());
     // The theme is chosen in Preferences only, as in every Nodalia app.
     assert!(h.query_all_by_label("Appearance").next().is_none());
-    click_on_page(&h, "Credits");
+    click_on_page(&h, "About Lámina");
     h.run_steps(3);
     assert!(h.state().dialog.is_some());
-    assert!(h.query_by_label("Contributors").is_some());
-    assert!(h.query_by_label("Models").is_some());
+    assert!(h.query_by_label("Part of Nodalia").is_some());
+    assert!(h.query_by_label("Models").is_none(), "no upstream credits tabs");
 }

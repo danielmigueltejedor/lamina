@@ -95,30 +95,61 @@ pub fn title_bar(app: &mut SlideApp, ui: &mut Ui) {
     });
 }
 
-/// The app menu (the "hamburger"): Preferences, Keyboard Shortcuts and About, as in every Nodalia
-/// app. Everything else lives in the ribbon.
+/// The app menu (the "hamburger"), the same in every Nodalia office app: Preferences, Keyboard
+/// shortcuts, Check for updates, About and Quit. Everything else lives in the ribbon.
 fn app_menu(app: &mut SlideApp, ui: &mut Ui, size: f32) {
     let open = egui::Popup::is_id_open(ui.ctx(), ui.make_persistent_id("app_menu_popup"));
     let r = ndl_icon_button(ui, "menu", "Main menu", size, open);
     let mut run = None;
-    egui::Popup::menu(&r).id(ui.make_persistent_id("app_menu_popup")).width(220.0).show(|ui| {
-        for (label, cmd) in APP_MENU {
+    egui::Popup::menu(&r).id(ui.make_persistent_id("app_menu_popup")).width(APP_MENU_WIDTH).show(|ui| {
+        for (label, icon, cmd) in APP_MENU {
             if *label == "-" {
                 ui.separator();
-            } else if ui.button(*label).clicked() {
+            } else if app_menu_item(ui, icon, label).clicked() {
                 run = Some(*cmd);
                 ui.close();
             }
         }
     });
-    if let Some(cmd) = run {
-        let _ = app.run(cmd, json!({}));
+    match run {
+        // Quitting closes the window, which asks about unsaved presentations first.
+        Some("quit") => ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close),
+        Some(cmd) => {
+            let _ = app.run(cmd, json!({}));
+        }
+        None => {}
     }
 }
 
-/// The app menu's entries, in order ("-" is a separator).
-pub const APP_MENU: &[(&str, &str)] =
-    &[("Preferences", "app.preferences"), ("Keyboard Shortcuts", "app.shortcuts"), ("-", ""), ("About Lámina", "app.about")];
+const APP_MENU_WIDTH: f32 = 228.0;
+
+/// One row of the app menu: a bold NDL icon, 8 pt of space, then the label.
+fn app_menu_item(ui: &mut Ui, icon: &str, label: &str) -> egui::Response {
+    let t = Tokens::get(ui.ctx());
+    let width = ui.available_width().max(APP_MENU_WIDTH - 16.0);
+    let (rect, resp) = ui.allocate_exact_size(vec2(width, 32.0), Sense::click());
+    resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::MenuItem, true, label));
+    if resp.hovered() {
+        ui.painter().rect_filled(rect, 6.0, t.hover);
+    }
+    let glyph = Rect::from_center_size(pos2(rect.min.x + 18.0, rect.center().y), vec2(16.0, 16.0));
+    if let Some(icon) = nodalia_theme::icons::get(icon) {
+        nodalia_theme::icons::paint(ui.painter(), glyph, icon, nodalia_theme::icons::Style::bold(t.text));
+    }
+    ui.painter().text(pos2(glyph.max.x + 8.0, rect.center().y), Align2::LEFT_CENTER, label, theme::font(13.5), t.text);
+    resp.on_hover_cursor(egui::CursorIcon::PointingHand)
+}
+
+/// The app menu's entries in order: label, icon, command ("-" is a separator, "quit" closes the
+/// window).
+pub const APP_MENU: &[(&str, &str, &str)] = &[
+    ("Preferences", "settings", "app.preferences"),
+    ("Keyboard shortcuts", "keyboard", "app.shortcuts"),
+    ("Check for updates…", "refresh", "app.checkUpdates"),
+    ("About Lámina", "info", "app.about"),
+    ("-", "", ""),
+    ("Quit", "log-out", "quit"),
+];
 
 /// The command search, drawn as a rounded field: a click opens the command palette.
 fn search_field(ui: &mut Ui, height: f32) -> egui::Response {

@@ -8,8 +8,8 @@
 //! [`SlideApp::print_pdf`], [`SlideApp::save_as_dialog`]); the state here is UI-only and never
 //! saved. Recent presentations are listed by path: nothing on disk is read until one is picked.
 //!
-//! Laid out after PowerPoint for Windows (observed black-box): a 160-point side menu darker than
-//! the page, 40-point entries with an outline icon, the current page in the accent colour.
+//! Drawn with the File view the Nodalia office apps share (`nodalia_theme::office`), so Lámina's
+//! reads like Celdas's and Letra's.
 
 use egui::{Align2, Color32, CornerRadius, Key, Rect, RichText, Sense, Stroke, StrokeKind, Ui, pos2, vec2};
 use serde_json::{Value, json};
@@ -30,10 +30,7 @@ use print::{export, print};
 pub use print::{print_page_size, print_params, print_slides};
 
 /// Width of the side menu.
-pub const NAV_W: f32 = 160.0;
-/// Height of a side-menu entry (the back arrow's row is a little taller).
-const ITEM_H: f32 = 40.0;
-const BACK_H: f32 = 46.0;
+pub const NAV_W: f32 = nodalia_theme::office::NAV_WIDTH + 16.0 + nodalia_theme::office::GAP;
 /// The widest a page's content grows.
 const CONTENT_W: f32 = 1180.0;
 
@@ -237,12 +234,6 @@ struct Outcome {
     page: Option<Page>,
 }
 
-/// Colours of the side menu and the page, from the theme: the menu sits a step darker than the
-/// page, as in PowerPoint.
-fn colours(t: &Tokens) -> (Color32, Color32) {
-    (t.chrome, t.card)
-}
-
 /// Runs a side-menu action. Returns the page to show, or None to close the view (Some(current)
 /// leaves it as it is).
 fn act(app: &mut SlideApp, nav: Nav, current: Page) -> Option<Page> {
@@ -318,7 +309,32 @@ pub fn key(app: &mut SlideApp, key: Key, mods: lamina_engine::Mods) -> bool {
     }
 }
 
-/// Draws the File tab in place of the ribbon, slides and status bar.
+impl Nav {
+    /// The id the shared office File view returns for this entry.
+    fn id(self) -> &'static str {
+        match self {
+            Nav::Page(p) => p.id(),
+            Nav::Save => "save",
+            Nav::Close => "close",
+            Nav::Options => "options",
+        }
+    }
+}
+
+/// The shared office entries for `list`, with the separator after Open as in Celdas and Letra.
+fn office_entries(list: &[Nav]) -> Vec<nodalia_theme::office::Entry<'static>> {
+    let mut out = Vec::new();
+    for (k, nav) in list.iter().enumerate() {
+        if k == 3 {
+            out.push(nodalia_theme::office::Entry::Separator);
+        }
+        out.push(nodalia_theme::office::Entry::item(nav.id(), nav.label(), nav.icon().ndl_name()));
+    }
+    out
+}
+
+/// Draws the File tab in place of the ribbon, slides and status bar: the office apps' shared
+/// File view (`nodalia_theme::office`), a navigation island beside the page island.
 pub fn show(app: &mut SlideApp, ui: &mut Ui) {
     let Some(mut bs) = app.backstage.take() else { return };
     let t = Tokens::get(ui.ctx());
@@ -326,65 +342,17 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
     if !has_doc && bs.page.needs_doc() {
         bs.page = Page::Home;
     }
-    let (nav_bg, page_bg) = colours(&t);
     let mut out = Outcome::default();
     let (top, bottom) = entries(has_doc);
-    egui::Panel::left("backstage_nav").exact_size(NAV_W).resizable(false).frame(egui::Frame::NONE.fill(nav_bg)).show(ui, |ui| {
-        ui.spacing_mut().item_spacing.y = 0.0;
-        if has_doc {
-            let (r, resp) = ui.allocate_exact_size(vec2(NAV_W, BACK_H), Sense::click());
-            resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, "Back"));
-            let hovered = resp.hovered();
-            if hovered {
-                ui.painter().rect_filled(Rect::from_center_size(pos2(r.left() + 26.0, r.center().y), vec2(34.0, 34.0)), 17.0, t.hover);
-            }
-            icons::paint(
-                ui.painter(),
-                Rect::from_center_size(pos2(r.left() + 26.0, r.center().y), vec2(22.0, 22.0)),
-                Icon::BackCircle,
-                t.text,
-                false,
-            );
-            if resp.on_hover_text("Back (Esc)").clicked() {
-                out.close = true;
-            }
-        } else {
-            ui.add_space(BACK_H);
-        }
-        let mut index = 0;
-        for (k, nav) in top.iter().enumerate() {
-            if k == 3 {
-                separator(ui, &t);
-            }
-            if nav_item(ui, *nav, &bs, index, &t).clicked() {
-                bs.focus = None;
-                commit_props(app, &bs);
-                match act(app, *nav, bs.page) {
-                    None => out.close = true,
-                    Some(p) => out.page = Some(p),
-                }
-            }
-            index += 1;
-        }
-        let first_bottom = index;
-        ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
-            ui.add_space(8.0);
-            // Bottom-up: draw the last entry first.
-            for (k, nav) in bottom.iter().enumerate().rev() {
-                if nav_item(ui, *nav, &bs, first_bottom + k, &t).clicked() {
-                    bs.focus = None;
-                    commit_props(app, &bs);
-                    match act(app, *nav, bs.page) {
-                        None => out.close = true,
-                        Some(p) => out.page = Some(p),
-                    }
-                }
-            }
-            separator(ui, &t);
-        });
-    });
-    egui::CentralPanel::default().frame(egui::Frame::NONE.fill(page_bg)).show(ui, |ui| {
-        // Fields, boxes and buttons sit on the page's own colour: outline them, as PowerPoint does.
+    let look = nodalia_theme::office::Look::new(theme::palette(t.dark)).with_bold(egui::FontFamily::Name("bold".into()));
+    let nav = nodalia_theme::office::Nav {
+        back: if has_doc { "Back" } else { "" },
+        top: office_entries(&top),
+        bottom: bottom.iter().map(|n| nodalia_theme::office::Entry::item(n.id(), n.label(), n.icon().ndl_name())).collect(),
+        selected: Some(bs.page.id()),
+    };
+    let picked = nodalia_theme::office::file_view(ui, &look, &nav, |ui| {
+        // Fields, boxes and buttons sit on the page island: outline them so they show.
         ui.visuals_mut().text_edit_bg_color = Some(t.field_bg);
         let w = &mut ui.visuals_mut().widgets;
         w.inactive.bg_fill = t.field_bg;
@@ -392,36 +360,39 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
         w.inactive.bg_stroke = Stroke::new(1.0, t.border);
         w.hovered.bg_stroke = Stroke::new(1.0, t.accent);
         w.active.bg_stroke = Stroke::new(1.0, t.accent);
-        egui::ScrollArea::vertical().auto_shrink([false, false]).show(ui, |ui| {
-            egui::Frame::NONE.inner_margin(egui::Margin { left: 48, right: 36, top: 22, bottom: 32 }).show(ui, |ui| {
-                // set_max_width can also widen: in a window narrower than CONTENT_W it would push the
-                // page past the right margin and clip the tiles (#1421).
-                ui.set_max_width(ui.available_width().min(CONTENT_W));
-                if bs.page != Page::Home {
-                    ui.label(RichText::new(bs.page.label()).font(theme::bold(22.0)).color(t.text));
-                    ui.add_space(16.0);
-                }
-                // Errors raised on a backstage page (a missing recent file, a failed open) would
-                // otherwise vanish: the status bar only draws once the backstage is closed (#172).
-                // A real label, not painted text, so screen readers see it too.
-                if let Some(msg) = app.fresh_status() {
-                    ui.label(RichText::new(&msg).font(theme::font(12.0)).color(t.accent));
-                    ui.add_space(8.0);
-                    ui.ctx().request_repaint_after(std::time::Duration::from_millis(500));
-                }
-                match bs.page {
-                    Page::Home => home(app, ui, &mut bs, &mut out),
-                    Page::New => new_page(app, ui, &mut bs),
-                    Page::Open => open_page(app, ui, &mut bs),
-                    Page::Info => info(app, ui, &mut bs),
-                    Page::SaveAs => save_as(app, ui, &mut bs, &mut out),
-                    Page::Print => print(app, ui, &mut bs),
-                    Page::Export => export(app, ui, &mut bs),
-                    Page::About => about(app, ui),
-                }
-            });
+        nodalia_theme::office::page(ui, &look, bs.page.label(), |ui| {
+            // Errors raised on a backstage page (a missing recent file, a failed open) would
+            // otherwise vanish: the status bar only draws once the backstage is closed (#172).
+            // A real label, not painted text, so screen readers see it too.
+            if let Some(msg) = app.fresh_status() {
+                ui.label(RichText::new(&msg).font(theme::font(12.0)).color(t.accent));
+                ui.add_space(8.0);
+                ui.ctx().request_repaint_after(std::time::Duration::from_millis(500));
+            }
+            match bs.page {
+                Page::Home => home(app, ui, &mut bs, &mut out),
+                Page::New => new_page(app, ui, &mut bs),
+                Page::Open => open_page(app, ui, &mut bs),
+                Page::Info => info(app, ui, &mut bs),
+                Page::SaveAs => save_as(app, ui, &mut bs, &mut out),
+                Page::Print => print(app, ui, &mut bs),
+                Page::Export => export(app, ui, &mut bs),
+                Page::About => about(app, ui),
+            }
         });
     });
+    if let Some(id) = picked {
+        bs.focus = None;
+        if id == nodalia_theme::office::BACK {
+            out.close = true;
+        } else if let Some(nav) = top.iter().chain(bottom.iter()).find(|n| n.id() == id).copied() {
+            commit_props(app, &bs);
+            match act(app, nav, bs.page) {
+                None => out.close = true,
+                Some(p) => out.page = Some(p),
+            }
+        }
+    }
     if let Some(page) = out.page {
         bs.go(page);
     }
@@ -431,36 +402,6 @@ pub fn show(app: &mut SlideApp, ui: &mut Ui) {
     } else if app.backstage.is_none() {
         app.backstage = Some(bs);
     }
-}
-
-// ---------------------------------------------------------------- side menu
-
-/// Draw one clickable Backstage navigation row and return its interaction response.
-fn nav_item(ui: &mut Ui, nav: Nav, bs: &Backstage, index: usize, t: &Tokens) -> egui::Response {
-    let (rect, resp) = ui.allocate_exact_size(vec2(NAV_W, ITEM_H), Sense::click());
-    let selected = nav == Nav::Page(bs.page);
-    let label = nav.label();
-    resp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, true, selected, label));
-    let p = ui.painter();
-    let row = rect.shrink2(vec2(6.0, 1.0));
-    if resp.hovered() {
-        p.rect_filled(row, CornerRadius::same(2), t.hover);
-    }
-    if bs.focus == Some(index) || selected {
-        // The current page (and the keyboard focus) is outlined, as in PowerPoint.
-        let ink = if bs.focus == Some(index) { t.text } else { t.border };
-        p.rect_stroke(row, CornerRadius::same(2), Stroke::new(1.0, ink), StrokeKind::Inside);
-    }
-    let ink = if selected { t.accent } else { t.text };
-    icons::paint(p, Rect::from_center_size(pos2(rect.left() + 26.0, rect.center().y), vec2(16.0, 16.0)), nav.icon(), ink, false);
-    p.text(pos2(rect.left() + 44.0, rect.center().y), Align2::LEFT_CENTER, label, theme::font(13.0), ink);
-    resp
-}
-
-fn separator(ui: &mut Ui, t: &Tokens) {
-    let (rect, _) = ui.allocate_exact_size(vec2(NAV_W, 13.0), Sense::hover());
-    let y = rect.center().y;
-    ui.painter().line_segment([pos2(rect.left() + 20.0, y), pos2(rect.right() - 14.0, y)], Stroke::new(1.0, t.separator));
 }
 
 // ---------------------------------------------------------------- shared pieces

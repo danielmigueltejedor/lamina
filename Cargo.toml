@@ -63,7 +63,7 @@ craft-media = { git = "https://github.com/getnodalia/foundation", rev = "1b34eba
 craft-pdf = { git = "https://github.com/getnodalia/foundation", rev = "1b34eba41e62138fc2438d2734523b302840b45d", version = "=0.1.0", default-features = false, features = ["write", "write-simple-text"] }
 # In-app updates from this app's GitHub releases, with the update windows for egui.
 nodalia-update = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "d066d5d351f18f704bdfd8aad6f04b9e96a155e4", features = ["egui"] }
-nodalia-theme = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "4685d63a848b70ebc00c2a96614dfe32ebc59283", features = ["egui"] }
+nodalia-theme = { git = "https://github.com/danielmigueltejedor/nodalia-design", rev = "40f13d3a7df61f1fd58081acdcc6e904a8b5af1a", features = ["egui"] }
 craft-ui = { git = "https://github.com/getnodalia/foundation", rev = "1b34eba41e62138fc2438d2734523b302840b45d", version = "=0.1.0" }
 i_overlay = "9"
 quick-xml = "0.41"

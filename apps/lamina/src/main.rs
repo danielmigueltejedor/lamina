@@ -335,6 +335,13 @@ fn main() -> eframe::Result {
             if show {
                 app.start_show(0, false);
             }
+            // Nothing to open: File › Home is the start screen unless Preferences turned it off.
+            if !app.ui.start_screen
+                && app.session.active().is_none()
+                && let Err(e) = app.run("file.new", serde_json::json!({}))
+            {
+                log::error!("blank presentation: {e}");
+            }
             Ok(Box::new(App(
                 app,
                 #[cfg(target_os = "macos")]

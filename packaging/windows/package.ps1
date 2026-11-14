@@ -88,7 +88,7 @@ foreach ($check in @(@('lamina.exe', 2), @('lamina-cli.exe', 3))) {
 # lamina.exe (#1114). -SkipBuild takes whatever binary is already there, which may come from a
 # build without LAMINA_REQUIRE_WINRES=1 whose resource compilation failed: refuse an exe with no
 # icon instead of shipping shortcuts with a generic one. ExtractIconEx with index -1 counts them.
-Add-Type -Namespace Lámina -Name Shell -MemberDefinition '[DllImport("shell32.dll", CharSet = CharSet.Unicode)] public static extern uint ExtractIconEx(string file, int index, IntPtr[] large, IntPtr[] small, uint icons);'
+Add-Type -Namespace Lamina -Name Shell -MemberDefinition '[DllImport("shell32.dll", CharSet = CharSet.Unicode)] public static extern uint ExtractIconEx(string file, int index, IntPtr[] large, IntPtr[] small, uint icons);'
 $Icons = [Lamina.Shell]::ExtractIconEx((Join-Path $Bin 'lamina.exe'), -1, $null, $null, 0)
 if ($Icons -eq 0) { throw 'lamina.exe has no embedded icon: rebuild it with LAMINA_REQUIRE_WINRES=1 (omit -SkipBuild)' }
 Write-Output "ok lamina.exe: $Icons embedded icon group(s)"

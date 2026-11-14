@@ -84,7 +84,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libxkbcommon-dev libwayland-dev libx11-dev libxrandr-dev \
-            libxi-dev libgl1-mesa-dev libgtk-3-dev desktop-file-utils appstream zsync
+            libxi-dev libgl1-mesa-dev libgtk-3-dev libasound2-dev desktop-file-utils appstream zsync
           # nfpm builds the .deb and .rpm; pinned by checksum.
           curl -fsSL --proto '=https' -o nfpm.deb \
             https://github.com/goreleaser/nfpm/releases/download/v2.43.0/nfpm_2.43.0_amd64.deb

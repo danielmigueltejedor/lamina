@@ -219,6 +219,11 @@ to = "Lamina.Presentation"
 from = "DeckCraft.Shell"
 to = "Lamina.Shell"
 
+# A PowerShell type namespace is an identifier: ASCII only, and the one `[Lamina.Shell]` names.
+[[replace]]
+from = "-Namespace DeckCraft"
+to = "-Namespace Lamina"
+
 [[replace]]
 from = "DeckCraft-notarize"
 to = "Lamina-notarize"

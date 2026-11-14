@@ -66,8 +66,8 @@ section_bullets() { # heading-regex
 
 # The downloads table names the real files of this version.
 downloads="$(awk '/^## Descargas/{on=1;next} on{print}' "$file")"
-grep -q "letra-$version-" <<<"$downloads" \
-  || problem "The downloads section must name the files of this version (letra-$version-…)."
+grep -q "lamina-$version-" <<<"$downloads" \
+  || problem "The downloads section must name the files of this version (lamina-$version-…)."
 grep -q 'SHA256SUMS' <<<"$downloads" \
   || problem "The downloads section must mention the SHA256SUMS files."
 

@@ -2450,7 +2450,7 @@ dependencies = [
 
 [[package]]
 name = "lamina"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "arboard",
  "chrono",
@@ -2473,7 +2473,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-anim"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "lamina-geom",
  "lamina-model",
@@ -2482,7 +2482,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-av1"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "lamina-bitstream",
  "rayon",
@@ -2491,14 +2491,14 @@ dependencies = [
 
 [[package]]
 name = "lamina-bitstream"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "craft-media",
 ]
 
 [[package]]
 name = "lamina-cli"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "lamina-engine",
  "lamina-mcp",
@@ -2508,14 +2508,14 @@ dependencies = [
 
 [[package]]
 name = "lamina-color"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "lamina-engine"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "chrono",
  "i_overlay",
@@ -2541,7 +2541,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-fonts"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "epaint_default_fonts",
  "harfrust 0.13.3",
@@ -2553,7 +2553,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-format"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "lamina-model",
  "serde",
@@ -2564,7 +2564,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-geom"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "kurbo",
  "serde",
@@ -2572,7 +2572,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-h264"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "lamina-bitstream",
  "rayon",
@@ -2581,7 +2581,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-hevc"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "lamina-bitstream",
  "rayon",
@@ -2590,21 +2590,21 @@ dependencies = [
 
 [[package]]
 name = "lamina-isobmff"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "craft-media",
 ]
 
 [[package]]
 name = "lamina-matroska"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "craft-media",
 ]
 
 [[package]]
 name = "lamina-mcp"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "lamina-engine",
  "lamina-render",
@@ -2614,7 +2614,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-media"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "image",
  "lamina-av1",
@@ -2632,7 +2632,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-metafile"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "image",
  "kurbo",
@@ -2641,7 +2641,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-model"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "lamina-color",
  "lamina-geom",
@@ -2653,15 +2653,15 @@ dependencies = [
 
 [[package]]
 name = "lamina-ogg"
-version = "0.1.0-dev"
+version = "0.1.0"
 
 [[package]]
 name = "lamina-opus"
-version = "0.1.0-dev"
+version = "0.1.0"
 
 [[package]]
 name = "lamina-pdf"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "craft-pdf",
  "hayro-syntax",
@@ -2679,7 +2679,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-pptx"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "image",
  "lamina-color",
@@ -2695,7 +2695,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-render"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "image",
  "kurbo",
@@ -2714,7 +2714,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-text"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "chrono",
  "lamina-color",
@@ -2728,7 +2728,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-ui-egui"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "craft-ui",
  "egui",
@@ -2755,7 +2755,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-vp9"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "lamina-bitstream",
  "rayon",
@@ -2764,7 +2764,7 @@ dependencies = [
 
 [[package]]
 name = "lamina-web"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "craft-web-api",
  "craft-web-host",
@@ -6184,7 +6184,7 @@ checksum = "9440ea3e5aeabb0ac63af70daf835274065238cdd0cec83418f417eae38bacee"
 
 [[package]]
 name = "xtask"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "serde_json",
 ]

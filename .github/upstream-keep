@@ -17,9 +17,6 @@ scripts/rebrand.py
 scripts/check-release-notes.sh
 docs/release-notes/**
 packaging/macos/dmg/**
-<<<<<<< HEAD
 .github/ISSUE_TEMPLATE/**
-=======
 .github/CODEOWNERS
 CONTRIBUTING.md
->>>>>>> origin/main

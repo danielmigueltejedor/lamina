@@ -1013,7 +1013,14 @@ fn missing_recent_is_marked_and_its_error_shows() {
 /// #172: a Recent entry can be removed from the list.
 #[test]
 fn recent_entry_can_be_removed() {
-    let mut harness = harness();
+    // Tall enough that both rows sit below the shared File view's templates without scrolling.
+    let mut harness = egui_kittest::Harness::builder().with_size(egui::vec2(1200.0, 1100.0)).build_ui_state(
+        |ui, app: &mut SlideApp| {
+            app.logic(ui.ctx());
+            app.ui(ui);
+        },
+        SlideApp::new(Session::new(), Services::default()),
+    );
     harness.state_mut().ui.recent = vec!["/lamina-tests/172/a.lamina".into(), "/lamina-tests/172/b.lamina".into()];
     harness.run_steps(2);
     let removes = harness.get_all_by_label("Remove from Recent").collect::<Vec<_>>();

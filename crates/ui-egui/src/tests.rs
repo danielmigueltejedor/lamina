@@ -2488,3 +2488,27 @@ fn comments_pane_keeps_its_width_and_resizes() {
     let wide = drag(&mut h, -150.0);
     assert!(wide > narrow + 140.0, "dragging left widens the pane: {narrow} -> {wide}");
 }
+
+/// The window colour fills the whole window before the File view's islands are drawn, so the
+/// gaps around them never show eframe's translucent clear colour (black on macOS, light theme).
+#[test]
+fn the_window_colour_is_painted_behind_the_islands() {
+    let mut harness = egui_kittest::Harness::builder().with_size(egui::vec2(1200.0, 800.0)).build_ui_state(
+        |ui, app: &mut SlideApp| {
+            app.logic(ui.ctx());
+            app.ui(ui);
+        },
+        SlideApp::new(Session::with_new(), Services::default()),
+    );
+    harness.run_steps(2);
+    harness.state_mut().run("app.home", json!({"on": true})).unwrap();
+    harness.run_steps(2);
+    assert!(harness.state().backstage_open());
+    let ctx = harness.ctx.clone();
+    let window = theme::Tokens::get(&ctx).chrome;
+    let screen = ctx.content_rect();
+    // The harness paints its own panel first; the window fill comes before the File view.
+    let shapes = &harness.output().shapes;
+    let fill = shapes.iter().position(|c| matches!(&c.shape, egui::Shape::Rect(r) if r.fill == window && r.rect.contains_rect(screen)));
+    assert!(fill.is_some_and(|i| i < 3), "the window colour fills the whole window first ({fill:?})");
+}
